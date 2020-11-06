@@ -1,1 +1,5 @@
-print("hello world")
+def testfun(testvar):
+    print(testvar)
+
+
+testfun("fun")
