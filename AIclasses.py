@@ -9,7 +9,10 @@ class Card:  # Object to represent individual cards
 
     def __str__(self):  # Overwrites the String fucntion
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
-        return '{} of {}'.format(vals[self.val-1], self.suit)
+        return '{} of {}'.format(vals[self.val-2], self.suit)
+
+    def __repr__(self):  # The String representation of the object
+        return '(val={}, suit={})'.format(self.val, self.suit)
 
     def __lt__(self, other):  # Overwrites the less than function
         return self.val < other.val
@@ -26,26 +29,36 @@ class Deck:  # Object to represent deck throughout game
     def __str__(self):  # Overwrites the String fucntion
         return str([str(card) for card in self.cards])
 
-    def build(self):
+    def build(self):  # To build a deck, can be used to rebuild also
+        self.cards = []
         for suit in ["Hearts", "Diamonds", "Spades", "Clubs"]:
-            for i in range(1, 14):
+            for i in range(2, 15):
                 self.cards.append(Card(suit, i))
+        self.shuffle()
 
     def shuffle(self):
         rnd.shuffle(self.cards)
 
     def draw(self, burn=False):
-        if burn:
+        if burn:  # Removes the top card from the deck
             del self.cards[-1]
-        return self.cards.pop(-1)
+        return self.cards.pop(-1)  # Removes and returns the top card
 
 
 class Hand:  # Object to represent player hands
     def __init__(self):
         self.cards = []
 
+    def __str__(self):  # Overwrites the String fucntion
+        return str([str(card) for card in self.cards])
 
-newdeck = Deck()
-print(newdeck)
-newdeck.draw(burn=True)
-print(newdeck)
+    def addCard(self, card):
+        self.cards.append(card)
+
+
+
+
+#newdeck = Deck()
+#print(newdeck)
+#newdeck.draw(burn=True)
+#print(newdeck)
