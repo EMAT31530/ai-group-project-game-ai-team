@@ -11,7 +11,7 @@ class Card:  # Object to represent individual cards
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
         return '{} of {}'.format(vals[self.val-2], self.suit)
 
-    def __repr__(self):  # The String representation of the object
+    def __repr__(self):  # The Formal String representation of the object
         return '(val={}, suit={})'.format(self.val, self.suit)
 
     def __lt__(self, other):  # Overwrites the less than function
@@ -56,6 +56,36 @@ class Hand:  # Object to represent player hands
         self.cards.append(card)
 
 
+# ___Just some btec stuff to get an idea of what we would need to do___
+class Player:  # Object to represent player
+    def __init__(self, name, pos):
+        self.name = name
+        self.pos = pos
+        self.hand = Hand()
+        self.money = 0
+
+
+class Round:
+    def __init__(self, players, bigBlind):
+        self.pot = 0
+        self.board = Hand()
+        self.bigBlind = bigBlind
+        self.players = players
+
+    def roundstart(self):
+        for i in range(2):
+            for player in self.players:
+                player.hand.addCard(self.deck.draw(burn=True))
+
+    def boarddraw(self, i):  # For drawing for flop/turn/river
+        for j in range(i):
+            self.board.addCard(self.deck.draw(burn=True))
+
+
+class Game:  # Object to represent game
+    def __init__(self, players):
+        self.players = players  # Pre created list of players
+        self.deck = Deck()
 
 
 #newdeck = Deck()
