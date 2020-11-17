@@ -55,8 +55,8 @@ class Hand:  # Object to represent player hands
 
     def addCard(self, card):
         self.cards.append(card)
-        
-        
+
+
 
 
 # ___Just some btec stuff to get an idea of what we would need to do___
@@ -111,16 +111,24 @@ def straight_flush(hand): #all the following functions check to see if you have 
                 suit_hand.addCard(i)
         return consecutive(suit_hand), suit
 
-    
+
 def four_of_a_kind(hand):
     card_nums = num_same(hand)
     if list(card_nums.values())[0] != 4:
         return False
     else:
+        #just returning the card number that was 4 of a kind
+        return list(card_nums.keys())[0]
+    # temporarily removed the need for high card function, not sure what the high card function should return
+    """
+    else:
         main_card = list(card_nums.keys())[0]
         other_card = high_card(card_nums.pop(main_card))[0] #calling a function that doesn't yet exist, it will be needed in lots of places
         return main_card, other_card
-        
+"""
+
+
+"""
 #test for straight flush
 test_2 = Hand()
 for i in range(3):
@@ -131,9 +139,9 @@ for i in range(3, 6):
     test_2.addCard(card)
 
 test_2.addCard(card)
-    
+
 print(straight_flush(test_2))
-    
+
 #test for four of a kind
 test_3 = Hand()
 cards = []
@@ -148,4 +156,4 @@ for i in range(7):
     test_3.addCard(cards[i])
 print(num_same(test_3))
 #print(four_of_a_kind(test_3))
-
+"""
