@@ -96,6 +96,16 @@ class Game:  # Object to represent game
 #newdeck.draw(burn=True)
 #print(newdeck)
 
+def high_card(card_nums, num = 5): #card_nums is a dictionary here but this could be changed
+    #assuming here that the hand inputted will not have any pairs or anything
+    if len(card_nums) == 0:
+        return 0 #convention
+    card_nums = sort_by_key(card_nums, True)
+    cards = list(card_nums.keys())
+    if len(cards) < num:
+        return cards #output here is a list; in previous functions the output is a tuple - not sure of an easy way to adapt this
+    else:
+        return cards[:num]
 
 def straight_flush(hand): #all the following functions check to see if you have the following hand
     card_suits = num_suit(hand)
@@ -117,43 +127,104 @@ def four_of_a_kind(hand):
     if list(card_nums.values())[0] != 4:
         return False
     else:
-        #just returning the card number that was 4 of a kind
-        return list(card_nums.keys())[0]
-    # temporarily removed the need for high card function, not sure what the high card function should return
-    """
-    else:
         main_card = list(card_nums.keys())[0]
-        other_card = high_card(card_nums.pop(main_card))[0] #calling a function that doesn't yet exist, it will be needed in lots of places
-        return main_card, other_card
+        if len(list(card_nums.keys())) == 1:
+            return list(card_nums.keys())[0], 0 #if the hand is only four cards (not technically possible in a poker game but anyway) then by default return the four of a kind and zero
+        else:
+            card_nums.pop(main_card)
+            other_card = high_card(card_nums, 1) 
+            return main_card, other_card
+
+def full_house(hand):
+    card_nums = num_same(hand)
+    keys = list(card_nums.keys()) #making a quick list of the keys and values to make things easier
+    vals = list(card_nums.values())
+    if vals[0] != 3 or len(vals) == 1: #require a three of a kind and a pair as well
+        return False
+    elif vals[1] == 1: 
+        return False
+    else:
+        if vals[1] == 3: #if we have two three of a kinds (rare but possible) then we choose the higher ranking as our three of a kind and the lower as our pair
+            return max(keys[0], keys[1]), min(keys[0], keys[1])
+        elif len(vals) > 2 and vals[2] == 2: #if we have a three of a kind and two pairs then we must choose the higher ranking of the two pairs
+            #also the and statement will evaluate to see if the length is long enough for vals[2] to exist before referencing it
+            return keys[0], max(keys[1], keys[2])
+        else:
+            return keys[0], keys[1]
+        
+def flush(hand):
+    card_suits = num_suit(hand)
+    if list(card_suits.values())[0] < 5:
+        return False
+    else:
+        suit_hand = Hand() #code mostly copied from straight flush function
+        suit = list(card_suits.keys())[0]
+        for i in hand.cards:
+            if i.suit == suit:
+                suit_hand.addCard(i)
+        return high_card(num_same(suit_hand)), suit
+    
+def straight(hand):
+    return consecutive(hand) #recall that this is either false or the bottom card of the straight
+    
+def trips(hand): #three of a kind
+    card_nums = num_same(hand)
+    keys = list(card_nums.keys())
+    vals = list(card_nums.values())
+    if not vals[0] == 3:
+        return False
+    elif len(vals) > 1 and vals[1] != 1:
+        return False
+    else:
+        card_nums.pop(keys[0])
+        order = high_card(card_nums, 2)
+        if len(vals) == 2:
+            return keys[0], order[:1]
+        else:
+            return keys[0], order[:2]
+        
+def two_pair(hand):
+    card_nums = num_same(hand)
+    keys = list(card_nums.keys())
+    vals = list(card_nums.values())
+    if len(vals) == 1 or not(vals[0] == 2 and vals[1] == 2):
+        return False
+    else:
+        if len(vals) >= 3 and vals[2] == 2: #possibility of the legendary three pair
+            pairs = keys[:3].sort()
+            card_nums.pop(pairs[0])
+            card_nums.pop(pairs[1])
+            if card_nums == {}:
+                return pairs[0], pairs[1]
+            else:
+                return pairs[0], pairs[1], high_card(card_nums, 1)
+        else:
+            if len(vals) == 2:
+                pairs = keys.sort()
+                return pairs[0], pairs[1]
+            else:
+                pairs = keys[:2].sort()
+                card_nums.pop(pairs[0])
+                card_nums.pop(pairs[1])
+                return pairs[0], pairs[1], high_card(card_nums, 1)
+                
+def pair(hand):
+    card_nums = num_same(hand)
+    keys = list(card_nums.keys())
+    vals = list(card_nums.values())
+    if not vals[0] == 2:
+        return False
+    else:
+        if len(vals) != 1 and vals[1] != 1:
+            return False
+        else:
+            card_nums.pop(keys[0])
+            return keys[0], high_card(card_nums)
+        
+"""
+The stuff left to do on this algorithm:
+    Tidy it up, maybe in a different file?
+    Combine these into a ranking method for a hand (in the hand class)
+    And then also have something to compare two different hands and say which one wins
 """
 
-
-"""
-#test for straight flush
-test_2 = Hand()
-for i in range(3):
-    card = Card("Spades", i + 2)
-    test_2.addCard(card)
-for i in range(3, 6):
-    card = Card("Spades", i + 2)
-    test_2.addCard(card)
-
-test_2.addCard(card)
-
-print(straight_flush(test_2))
-
-#test for four of a kind
-test_3 = Hand()
-cards = []
-cards.append(Card("Spades", 4))
-cards.append(Card("Spades", 7))
-cards.append(Card("Clubs", 4))
-cards.append(Card("Hearts", 4))
-cards.append(Card("Diamonds", 4))
-cards.append(Card("Clubs", 5))
-cards.append(Card("Clubs", 10))
-for i in range(7):
-    test_3.addCard(cards[i])
-print(num_same(test_3))
-#print(four_of_a_kind(test_3))
-"""
