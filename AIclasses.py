@@ -82,10 +82,18 @@ class Round:
             self.board.addCard(self.deck.draw(burn=True))
 
 
-class Game:  # Object to represent game
+class Game:  # Object to represent entire game state
     def __init__(self, players):
         self.players = players  # Pre created list of players
         self.deck = Deck()
+        self.Rounds = []  # To store all ellapsed rounds
+        self.curRound = Round(self.players, 100)
+
+    # Updates round and appends old round to round list
+    def newRound(self):
+        self.Rounds.append(self.curRound)
+        self.curRound = Round(self.players, 100)
+
 
 
 #newdeck = Deck()
