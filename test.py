@@ -2,7 +2,7 @@ import random as rnd
 from ranking import *
 from AIclasses import *
 
-
+"""
 #test for straight flush
 test_2 = Hand()
 test_2.addCard(Card("Spades",4))
@@ -14,7 +14,7 @@ print(numsame.keys())
 print(numsame.values())
 print(numsame)
 print(numsuit)
-
+"""
 
 """
 #test for straight flush
@@ -86,4 +86,41 @@ print(high_card(num_same(test_5), 7))
 """
 #test for flush
 print(flush(test_5))
+"""
+
+import time
+#test for overall ranking function
+n = 10000
+count = 0.0
+for i in range(n):
+    test_6 = Hand()
+    deck = Deck()
+    deck.build()
+    for i in range(2):
+        test_6.addCard(deck.draw())
+    t1 = time.perf_counter()
+    test_6.ranking()
+    t2 = time.perf_counter()
+    count += (t2 - t1)
+    #print(str(test_6))
+    #print(test_6.ranking())
+
+print(count/n)
+#takes an average of 2.2e-05 to 2.6e-05 for each ranking
+
+"""
+#debug section
+test_7 = Hand()
+import numpy as np
+cards = []
+cards.append(Card("Hearts", 3))
+cards.append(Card("Clubs", 3))
+cards.append(Card("Diamonds", 13))
+cards.append(Card("Spades", 9))
+cards.append(Card("Diamonds", 9))
+cards.append(Card("Hearts", 10))
+cards.append(Card("Diamonds", 8))
+for card in cards:
+    test_7.addCard(card)
+print(two_pair(test_7))
 """
