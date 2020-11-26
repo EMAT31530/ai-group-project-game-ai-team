@@ -56,6 +56,29 @@ class Hand:  # Object to represent player hands
 
     def ranking(self):
         import ranking as rnk
+        # attempted to do something better than ton of if statements
+        """
+        x = False
+        while x != True:
+            x = rnk.straight_flush(self)
+            x = rnk.four_of_a_kind(self)
+            x = rnk.full_house(self)
+            x = rnk.flush(self)
+            x = rnk.straight(self)
+            x = rnk.trips(self)
+            x = rnk.two_pair(self)
+            x = rnk.pair(self)
+        card_nums = rnk.num_same(self)
+        return rnk.high_card(card_nums, sub = False)
+        """
+
+        # hopefully identical function, speed 5.954329999999987e-06
+        # faster? think i know why
+        # the checker function is very long, downside if there is a bug, will be hard to find
+        rnk.checker(self)
+
+
+"""
         x = rnk.straight_flush(self)
         if x != False:
             return x
@@ -82,6 +105,7 @@ class Hand:  # Object to represent player hands
             return x
         card_nums = rnk.num_same(self)
         return rnk.high_card(card_nums, sub = False)
+        """
 
 
 # ___Just some btec stuff to get an idea of what we would need to do___
@@ -123,4 +147,3 @@ class Game:  # Object to represent game
 #print(newdeck)
 #newdeck.draw(burn=True)
 #print(newdeck)
-

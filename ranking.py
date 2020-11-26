@@ -111,7 +111,7 @@ def four_of_a_kind(hand):
             return 2, list(card_nums.keys())[0], 0 #if the hand is only four cards (not technically possible in a poker game but anyway) then by default return the four of a kind and zero
         else:
             card_nums.pop(main_card)
-            other_card = high_card(card_nums, 1) 
+            other_card = high_card(card_nums, 1)
             return 2, main_card, other_card
 
 def full_house(hand):
@@ -120,7 +120,7 @@ def full_house(hand):
     vals = list(card_nums.values())
     if vals[0] != 3 or len(vals) == 1: #require a three of a kind and a pair as well
         return False
-    elif vals[1] == 1: 
+    elif vals[1] == 1:
         return False
     else:
         if vals[1] == 3: #if we have two three of a kinds (rare but possible) then we choose the higher ranking as our three of a kind and the lower as our pair
@@ -130,7 +130,7 @@ def full_house(hand):
             return 3, keys[0], max(keys[1], keys[2])
         else:
             return 3, keys[0], keys[1]
-        
+
 def flush(hand):
     card_suits = num_suit(hand)
     if list(card_suits.values())[0] < 5:
@@ -142,21 +142,21 @@ def flush(hand):
             if i.suit == suit:
                 suit_hand.addCard(i)
         return 4, high_card(num_same(suit_hand)), suit
-    
+
 def straight(hand):
     x = consecutive(hand) #recall that this is either false or the bottom card of the straight
     if not x:
-        return x #returns false 
+        return x #returns false
     else:
         return 5, x
-    
+
 def trips(hand): #three of a kind
     card_nums = num_same(hand)
     keys = list(card_nums.keys())
     vals = list(card_nums.values())
     if not vals[0] == 3:
         return False
-    elif len(vals) > 1 and vals[1] != 1: #otherwise we have a full house 
+    elif len(vals) > 1 and vals[1] != 1: #otherwise we have a full house
         return False
     else:
         card_nums.pop(keys[0])
@@ -167,7 +167,7 @@ def trips(hand): #three of a kind
             return 6, keys[0], order[:1]
         else:
             return 6, keys[0], order[:2]
-        
+
 def two_pair(hand):
     card_nums = num_same(hand)
     keys = list(card_nums.keys())
@@ -177,7 +177,7 @@ def two_pair(hand):
     else:
         if len(vals) >= 3 and vals[2] == 2: #possibility of the legendary three pair
             pairs = keys[:3] #we choose the top two of the three pairs
-            pairs.sort(reverse = True) 
+            pairs.sort(reverse = True)
             card_nums.pop(pairs[0])
             card_nums.pop(pairs[1])
             if card_nums == {}:
@@ -194,7 +194,7 @@ def two_pair(hand):
                 card_nums.pop(pairs[0])
                 card_nums.pop(pairs[1])
                 return 7, pairs[0], pairs[1], high_card(card_nums, 1)
-                
+
 def pair(hand):
     card_nums = num_same(hand)
     keys = list(card_nums.keys())
@@ -207,7 +207,122 @@ def pair(hand):
         else:
             card_nums.pop(keys[0])
             return 8, keys[0], high_card(card_nums, 3)
-        
+
+
+#function that will check for every possible hand
+def checker(hand):
+    card_suits = num_suit(hand)
+    consec_cards = consecutive(hand)
+    card_nums = num_same(hand)
+    keys = list(card_nums.keys())
+    vals = list(card_nums.values())
+    #straight flush check
+    if consec_cards == False or list(card_suits.values())[0] < 5:
+        return False
+    else:
+        suit_hand = ai.Hand() #create a pseudo hand of all the cards of the main suit and then call the straight fu
+        suit = list(card_suits.keys())[0]
+        for i in hand.cards:
+            if i.suit == suit:
+                suit_hand.addCard(i)
+        return 1, consecutive(suit_hand), suit
+    #four of a kind check
+    if list(card_nums.values())[0] != 4:
+        return False
+    else:
+        main_card = list(card_nums.keys())[0]
+        if len(list(card_nums.keys())) == 1:
+            return 2, list(card_nums.keys())[0], 0 #if the hand is only four cards (not technically possible in a poker game but anyway) then by default return the four of a kind and zero
+        else:
+            card_nums.pop(main_card)
+            other_card = high_card(card_nums, 1)
+            return 2, main_card, other_card
+    #full house check
+    if vals[0] != 3 or len(vals) == 1: #require a three of a kind and a pair as well
+        return False
+    elif vals[1] == 1:
+        return False
+    else:
+        if vals[1] == 3: #if we have two three of a kinds (rare but possible) then we choose the higher ranking as our three of a kind and the lower as our pair
+            return 3, max(keys[0], keys[1]), min(keys[0], keys[1])
+        elif len(vals) > 2 and vals[2] == 2: #if we have a three of a kind and two pairs then we must choose the higher ranking of the two pairs
+            #also the and statement will evaluate to see if the length is long enough for vals[2] to exist before referencing it
+            return 3, keys[0], max(keys[1], keys[2])
+        else:
+            return 3, keys[0], keys[1]
+    #flush check
+    if list(card_suits.values())[0] < 5:
+        return False
+    else:
+        suit_hand = ai.Hand() #code mostly copied from straight flush function
+        suit = list(card_suits.keys())[0]
+        for i in hand.cards:
+            if i.suit == suit:
+                suit_hand.addCard(i)
+        return 4, high_card(num_same(suit_hand)), suit
+    #straight check
+    if not consec_cards:
+        return consec_cards #returns false
+    else:
+        return 5, consec_cards
+    #trips check
+    if not vals[0] == 3:
+        return False
+    elif len(vals) > 1 and vals[1] != 1: #otherwise we have a full house
+        return False
+    else:
+        card_nums.pop(keys[0])
+        order = high_card(card_nums, 2)
+        if len(vals) == 1:
+            return 6, keys[0]
+        if len(vals) == 2:
+            return 6, keys[0], order[:1]
+        else:
+            return 6, keys[0], order[:2]
+    #two pair check
+    if len(vals) == 1 or not(vals[0] == 2 and vals[1] == 2):
+        return False
+    else:
+        if len(vals) >= 3 and vals[2] == 2: #possibility of the legendary three pair
+            pairs = keys[:3] #we choose the top two of the three pairs
+            pairs.sort(reverse = True)
+            card_nums.pop(pairs[0])
+            card_nums.pop(pairs[1])
+            if card_nums == {}:
+                return 7, pairs[0], pairs[1]
+            else:
+                return 7, pairs[0], pairs[1], high_card(card_nums, 1)
+        else:
+            if len(vals) == 2: #return top two pairs
+                keys.sort()
+                return 7, keys[0], keys[1]
+            else:
+                pairs = keys[:2]
+                pairs.sort(reverse = True)
+                card_nums.pop(pairs[0])
+                card_nums.pop(pairs[1])
+                return 7, pairs[0], pairs[1], high_card(card_nums, 1)
+    #pair check
+    if not vals[0] == 2:
+        return False
+    else:
+        if len(vals) != 1 and vals[1] != 1: #otherwise our hand is better than a pair
+            return False
+        else:
+            card_nums.pop(keys[0])
+            return 8, keys[0], high_card(card_nums, 3)
+    return high_card(card_nums, sub = False)
+
+
+
+
+
+
+
+
+
+
+
 #tests
 #test = Hand()
 #deck = Deck()
