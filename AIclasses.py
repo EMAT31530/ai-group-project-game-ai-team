@@ -109,30 +109,40 @@ class Hand:  # Object to represent player hands
     def __gt__(self, other): #other is also a hand object, compares two hand rankings
         rnk_1 = self.ranking()
         rnk_2 = other.ranking()
+        #wrote a bunch of code here that I believe is actually unnecessary but will leave it in in case I'm wrong
+        """
         for i in range(len(rnk_1)): #iterates through ranking; will return True if first differing element of rankings is greater for rnk_1, and False otherwise
             if rnk_1[i] > rnk_2[i]:
                 return True
             if rnk_1[i] < rnk_2[i]:
                 return False
         return False
+        """
+        return rnk_1 > rnk_2 #I think this should work
     
     def __lt__(self, other): #ditto
         rnk_1 = self.ranking()
         rnk_2 = other.ranking()
+        """
         for i in range(len(rnk_1)):
             if rnk_1[i] < rnk_2[i]:
                 return True
             if rnk_1[i] > rnk_2[i]:
                 return False
         return False
+        """
+        return rnk_1 < rnk_2
     
     def __eq__(self, other): #ditto
         rnk_1 = self.ranking()
         rnk_2 = other.ranking()
+        """
         for i in range(len(rnk_1)):
             if rnk_1[i] != rnk_2[i]:
                 return False
         return True
+        """
+        return rnk_1 == rnk_2
         
 # ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
