@@ -70,15 +70,15 @@ class Hand:  # Object to represent player hands
             x = rnk.pair(self)
         card_nums = rnk.num_same(self)
         return rnk.high_card(card_nums, sub = False)
-        """
+        
 
         # hopefully identical function, speed 5.954329999999987e-06
         # faster? think i know why
         # the checker function is very long, downside if there is a bug, will be hard to find
         rnk.checker(self)
-
-
 """
+
+
         x = rnk.straight_flush(self)
         if x != False:
             return x
@@ -105,9 +105,35 @@ class Hand:  # Object to represent player hands
             return x
         card_nums = rnk.num_same(self)
         return rnk.high_card(card_nums, sub = False)
-        """
-
-
+        
+    def __gt__(self, other): #other is also a hand object, compares two hand rankings
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        for i in range(len(rnk_1)): #iterates through ranking; will return True if first differing element of rankings is greater for rnk_1, and False otherwise
+            if rnk_1[i] > rnk_2[i]:
+                return True
+            if rnk_1[i] < rnk_2[i]:
+                return False
+        return False
+    
+    def __lt__(self, other): #ditto
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        for i in range(len(rnk_1)):
+            if rnk_1[i] < rnk_2[i]:
+                return True
+            if rnk_1[i] > rnk_2[i]:
+                return False
+        return False
+    
+    def __eq__(self, other): #ditto
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        for i in range(len(rnk_1)):
+            if rnk_1[i] != rnk_2[i]:
+                return False
+        return True
+        
 # ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
     def __init__(self, name, pos):

@@ -90,6 +90,7 @@ print(flush(test_5))
 
 import time
 #test for overall ranking function
+"""
 n = 10000
 count = 0.0
 for i in range(n):
@@ -107,7 +108,7 @@ for i in range(n):
 
 print(count/n)
 #takes an average of 2.2e-05 to 2.6e-05 for each ranking
-
+"""
 """
 #debug section
 test_7 = Hand()
@@ -124,3 +125,18 @@ for card in cards:
     test_7.addCard(card)
 print(two_pair(test_7))
 """
+
+#test for comparison method
+import numpy as np
+n = 100
+a = []
+for i in range(n):
+    test_8 = Hand()
+    deck = Deck()
+    deck.build()
+    for j in range(7):
+        test_8.addCard(deck.draw())
+    a.append(test_8)
+    if i >= 1:
+        print(a[i].ranking())
+        print(a[i] > a[i - 1])
