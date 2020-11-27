@@ -51,8 +51,7 @@ class Deck:  # Object to represent deck throughout game
 class Hand:  # Object to represent player hands
     def __init__(self):
         self.cards = []
-        self.rank = 0
-        self.highcard = 0
+        self.rank = (0, [])  # (rank, highcards)
 
     def __str__(self):  # Overwrites the String fucntion
         return str([str(card) for card in self.cards])
@@ -72,7 +71,7 @@ class Hand:  # Object to represent player hands
 
     def rankupd(self, board):
         import ranking as rnk
-        self.rank, self.highcard = rnk.checker(self, board)
+        self.rank = rnk.checker(self, board)
 
 
 # ___Just some btec stuff to get an idea of what we would need to do___
