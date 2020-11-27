@@ -102,7 +102,7 @@ def straight_flush(card_suits, consec_cards, hand): #all the following functions
         for i in hand.cards:
             if i.suit == suit:
                 suit_hand.addCard(i)
-        return 9, consecutive(suit_hand) + 4 #return top card for easier comparison
+        return 9, consecutive(suit_hand) #return top card for easier comparison
         #also removed suit in return since it is unhelpful in the comparison but can be added back in if wanted
 
 
@@ -112,11 +112,11 @@ def four_of_a_kind(card_nums):
     else:
         main_card = list(card_nums.keys())[0]
         if len(list(card_nums.keys())) == 1:
-            return 8, list(card_nums.keys())[0], 0 #if the hand is only four cards (not technically possible in a poker game but anyway) then by default return the four of a kind and zero
+            return 8, [list(card_nums.keys())[0]] #if the hand is only four cards (not technically possible in a poker game but anyway) then by default return the four of a kind and zero
         else:
             card_nums.pop(main_card)
             other_card = high_card(card_nums, 1)
-            return 8, main_card, other_card
+            return 8, [main_card, other_card]
 
 
 def full_house(card_nums, keys, vals):
@@ -126,12 +126,12 @@ def full_house(card_nums, keys, vals):
         return False
     else:
         if vals[1] == 3: #if we have two three of a kinds (rare but possible) then we choose the higher ranking as our three of a kind and the lower as our pair
-            return 7, max(keys[0], keys[1]), min(keys[0], keys[1])
+            return 7, [max(keys[0], keys[1]), min(keys[0], keys[1])]
         elif len(vals) > 2 and vals[2] == 2: #if we have a three of a kind and two pairs then we must choose the higher ranking of the two pairs
             #also the and statement will evaluate to see if the length is long enough for vals[2] to exist before referencing it
-            return 7, keys[0], max(keys[1], keys[2])
+            return 7, [keys[0], max(keys[1], keys[2])]
         else:
-            return 7, keys[0], keys[1]
+            return 7, [keys[0], keys[1]]
 
 
 def flush(card_suits, hand):
@@ -151,7 +151,8 @@ def straight(consec):
     if not consec:
         return consec #returns false
     else:
-        return 5, consec + 4
+        return 5, consec
+
 
 
 def trips(card_nums, keys, vals): #three of a kind
@@ -163,11 +164,11 @@ def trips(card_nums, keys, vals): #three of a kind
         card_nums.pop(keys[0])
         order = high_card(card_nums, 2)
         if len(vals) == 1:
-            return 4, keys[0]
+            return 4, [keys[0]]
         if len(vals) == 2:
-            return 4, keys[0], order[:1]
+            return 4, [keys[0]] + order[:1]
         else:
-            return 4, keys[0], order[:2]
+            return 4, [keys[0]] + order[:2]
 
 
 def two_pair(card_nums, keys, vals):
@@ -180,9 +181,9 @@ def two_pair(card_nums, keys, vals):
             card_nums.pop(pairs[0])
             card_nums.pop(pairs[1])
             if card_nums == {}:
-                return 3, pairs[0], pairs[1]
+                return 3, [pairs[0], pairs[1]]
             else:
-                return 3, pairs[0], pairs[1], high_card(card_nums, 1)
+                return 3, [pairs[0], pairs[1]] + high_card(card_nums, 1)
         else:
             if len(vals) == 2: #return top two pairs
                 keys.sort()
@@ -192,7 +193,7 @@ def two_pair(card_nums, keys, vals):
                 pairs.sort(reverse=True)
                 card_nums.pop(pairs[0])
                 card_nums.pop(pairs[1])
-                return 3, pairs[0], pairs[1], high_card(card_nums, 1)
+                return 3, [pairs[0], pairs[1]] + high_card(card_nums, 1)
 
 
 def pair(card_nums, keys, vals):
@@ -203,7 +204,7 @@ def pair(card_nums, keys, vals):
             return False
         else:
             card_nums.pop(keys[0])
-            return 2, keys[0], high_card(card_nums, 3)
+            return 2, [keys[0]] + high_card(card_nums, 3)
 
 
 def checker(self, board):
