@@ -1,6 +1,5 @@
 import random as rnd
 
-
 class Card:  # Object to represent individual cards
     def __init__(self, suit, val):
         self.suit = suit
@@ -55,7 +54,96 @@ class Hand:  # Object to represent player hands
     def addCard(self, card):
         self.cards.append(card)
 
+    def ranking(self):
+        import ranking as rnk
+        # attempted to do something better than ton of if statements
+        """
+        x = False
+        while x != True:
+            x = rnk.straight_flush(self)
+            x = rnk.four_of_a_kind(self)
+            x = rnk.full_house(self)
+            x = rnk.flush(self)
+            x = rnk.straight(self)
+            x = rnk.trips(self)
+            x = rnk.two_pair(self)
+            x = rnk.pair(self)
+        card_nums = rnk.num_same(self)
+        return rnk.high_card(card_nums, sub = False)
+        
 
+        # hopefully identical function, speed 5.954329999999987e-06
+        # faster? think i know why
+        # the checker function is very long, downside if there is a bug, will be hard to find
+        rnk.checker(self)
+"""
+
+
+        x = rnk.straight_flush(self)
+        if x != False:
+            return x
+        x = rnk.four_of_a_kind(self)
+        if x != False:
+            return x
+        x = rnk.full_house(self)
+        if x != False:
+            return x
+        x = rnk.flush(self)
+        if x != False:
+            return x
+        x = rnk.straight(self)
+        if x != False:
+            return x
+        x = rnk.trips(self)
+        if x != False:
+            return x
+        x = rnk.two_pair(self)
+        if x != False:
+            return x
+        x = rnk.pair(self)
+        if x != False:
+            return x
+        card_nums = rnk.num_same(self)
+        return rnk.high_card(card_nums, sub = False)
+        
+    def __gt__(self, other): #other is also a hand object, compares two hand rankings
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        #wrote a bunch of code here that I believe is actually unnecessary but will leave it in in case I'm wrong
+        """
+        for i in range(len(rnk_1)): #iterates through ranking; will return True if first differing element of rankings is greater for rnk_1, and False otherwise
+            if rnk_1[i] > rnk_2[i]:
+                return True
+            if rnk_1[i] < rnk_2[i]:
+                return False
+        return False
+        """
+        return rnk_1 > rnk_2 #I think this should work
+    
+    def __lt__(self, other): #ditto
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        """
+        for i in range(len(rnk_1)):
+            if rnk_1[i] < rnk_2[i]:
+                return True
+            if rnk_1[i] > rnk_2[i]:
+                return False
+        return False
+        """
+        return rnk_1 < rnk_2
+    
+    def __eq__(self, other): #ditto
+        rnk_1 = self.ranking()
+        rnk_2 = other.ranking()
+        """
+        for i in range(len(rnk_1)):
+            if rnk_1[i] != rnk_2[i]:
+                return False
+        return True
+        """
+        return rnk_1 == rnk_2
+        
 # ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
     def __init__(self, name, pos):
@@ -93,6 +181,9 @@ class Game:  # Object to represent entire game state
     def newRound(self):
         self.Rounds.append(self.curRound)
         self.curRound = Round(self.players, 100)
+
+
+
 
 
 
