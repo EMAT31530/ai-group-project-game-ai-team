@@ -1,4 +1,6 @@
 import random as rnd
+import validation as vald
+import ranking as rnk
 
 
 class Card:  # Object to represent individual cards
@@ -54,7 +56,7 @@ class Hand:  # Object to represent player hands
         self.rank = (0, [])  # (rank, highcards)
 
     def __str__(self):  # Overwrites the String fucntion
-        return str([str(card) for card in self.cards])
+        return str([str(card) for card in self.cards]) + " rank = {}".format(self.rank[0])
 
     # i need to include high card in comparisons
     def __gt__(self, other):  # compares two hand rankings
@@ -70,7 +72,6 @@ class Hand:  # Object to represent player hands
         self.cards.append(card)
 
     def rankupd(self, board):
-        import ranking as rnk
         self.rank = rnk.checker(self, board)
 
 
@@ -81,38 +82,126 @@ class Player:  # Object to represent player
         self.pos = pos
         self.hand = Hand()
         self.money = 0
+        self.curBid = 0
+        self.state = 0  # 0: in round, 1: called, 2: folded
 
 
 class Round:
-    def __init__(self, players, bigBlind):
+    def __init__(self, bigBlind):
+        self.deck = Deck()
         self.pot = 0
+        self.curBid = 0
         self.board = Hand()
         self.bigBlind = bigBlind
-        self.players = players
 
-    def start(self):
+    def __str__(self):  # Overwrites the String fucntion
+        return "nice"
+
+    def start(self, players):
         for i in range(2):
-            for player in self.players:
+            for player in players:
                 player.hand.addCard(self.deck.draw())
+        for player in players:
+            player.hand.rankupd(self.board)
 
-    def increment(self, burn):
+    def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
-        for player in self.players:
-            player.rankupd(self.board)
-        self.bidding()
 
-    def bidding(self):
-        return 0
+    def updRankings(self, players):
+        for player in players:
+            player.hand.rankupd(self.board)
+
+    def bid(self, player, amount):
+        player.money -= amount
+        self.pot += amount
+        player.curBid += amount
+
+    def bidding(self, players):
+        def fold(player):
+            player.state = 2
+
+        def call(player):
+            player.state = 1
+            self.bid(player, self.curBid - player.curBid)
+
+        def raize(player, amount):
+            self.bid(player, amount)
+            self.curBid += amount
+            for playee in [i for i in players if i.state != 2]:
+                playee.state = 0
+            player.state = 1
+
+        self.curBid = 0
+        for player in players:
+            player.curBid = 0
+            player.state = 0
+        while any([i.state == 0 for i in players]):
+            for player in [i for i in players if i.state == 0]:
+                action = vald.getChoice(["Raise", "Call", "Fold"])
+                if action == "Raise":
+                    raize(player, vald.checkInt("amount?\n"))
+                elif action == "Call":
+                    call(player)
+                else:
+                    fold(player)
 
 
 class Game:  # Object to represent entire game state
-    def __init__(self, players):
-        self.players = players  # Pre created list of players
-        self.deck = Deck()
+    def __init__(self):
+        self.players = self.buildPlayers()  # Creates list of players
         self.Rounds = []  # To store all ellapsed rounds
-        self.curRound = Round(self.players, 100)
+        self.curRound = Round(100)
+
+    def buildPlayers(self):
+        players = vald.checkInt("How many players?\n")
+        playerlist = []
+        for i in range(players):
+            name = vald.checkString("Player {}s name?\n".format(i+1))
+            playerlist.append(Player(name, i))
+        return playerlist
+
+    def showHands(self):
+        for player in self.players:
+            print("{}: {}".format(player.name, player.hand))
+        print("board is: {}".format(self.curRound.board))
 
     # Updates round and appends old round to round list
     def newRound(self):
         self.Rounds.append(self.curRound)
-        self.curRound = Round(self.players, 100)
+        self.players = self.curRound.players  # updates player list
+        self.curRound = Round(100)
+
+    def play(self):
+        # initial hands
+        self.curRound.start(self.players)
+        plyrs = [i for i in self.players if i.state != 2]
+        self.curRound.updRankings(plyrs)
+        self.showHands()
+        self.curRound.bidding(plyrs)
+        """
+        # flop
+        self.curRound.increment(True)
+        self.curRound.increment()
+        self.curRound.increment()
+        plyrs = [i for i in plyrs if i.state != 2]
+        self.curRound.updRankings(plyrs)
+        self.showHands()
+        self.curRound.bidding(plyrs)
+
+        # turn
+        self.curRound.increment(True)
+        plyrs = [i for i in plyrs if i.state != 2]
+        self.curRound.updRankings(plyrs)
+        self.showHands()
+        self.curRound.bidding(plyrs)
+        """
+        # river
+        self.curRound.increment(True)
+        self.curRound.increment()
+        self.curRound.increment()
+        self.curRound.increment(True)
+        self.curRound.increment(True)
+        plyrs = [i for i in plyrs if i.state != 2]
+        self.curRound.updRankings(plyrs)
+        self.showHands()
+        self.curRound.bidding(plyrs)

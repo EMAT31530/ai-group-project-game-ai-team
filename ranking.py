@@ -27,7 +27,7 @@ def sort_by_value(dictionary, backwards=False):  # ditto for values
 
 def num_same(hand):  # returns a dictionary with keys as the card numbers and values as the number of cards of that type
     card_nums = {}
-    for card in hand.cards:
+    for card in hand:
         if card.val in card_nums:
             card_nums[card.val] += 1
         else:
@@ -37,7 +37,7 @@ def num_same(hand):  # returns a dictionary with keys as the card numbers and va
 
 def num_suit(hand):  # same as above but with keys as card suits and values as number of cards of that suit
     card_suits = {}
-    for card in hand.cards:
+    for card in hand:
         if card.suit in card_suits:
             card_suits[card.suit] += 1
         else:
@@ -99,7 +99,7 @@ def straight_flush(card_suits, consec_cards, hand): #all the following functions
     else:
         suit_hand = ai.Hand() #create a pseudo hand of all the cards of the main suit and then call the straight fu
         suit = list(card_suits.keys())[0]
-        for i in hand.cards:
+        for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
         return 9, consecutive(suit_hand) #return top card for easier comparison
@@ -140,7 +140,7 @@ def flush(card_suits, hand):
     else:
         suit_hand = ai.Hand() #code mostly copied from straight flush function
         suit = list(card_suits.keys())[0]
-        for i in hand.cards:
+        for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
         return 6, high_card(num_same(suit_hand))
@@ -204,17 +204,17 @@ def pair(card_nums, keys, vals):
             return False
         else:
             card_nums.pop(keys[0])
-            return 2, [keys[0]] + high_card(card_nums, 3)
+            return 2, [keys[0] + high_card(card_nums, 3)]
 
 
 def checker(self, board):
-    card_suits = num_suit(self.hand)
-    consec_cards = consecutive(self.hand)
-    card_nums = num_same(self.hand)
+    card_suits = num_suit(self.cards)
+    consec_cards = consecutive(self.cards)
+    card_nums = num_same(self.cards)
     keys = list(card_nums.keys())
     vals = list(card_nums.values())
 
-    x = straight_flush(card_suits, consec_cards, self.hand)
+    x = straight_flush(card_suits, consec_cards, self.cards)
     if x != False:
         return x
     x = four_of_a_kind(card_nums)
@@ -223,7 +223,7 @@ def checker(self, board):
     x = full_house(card_nums, keys, vals)
     if x != False:
         return x
-    x = flush(card_suits, self.hand)
+    x = flush(card_suits, self.cards)
     if x != False:
         return x
     x = straight(consec_cards)
@@ -238,4 +238,5 @@ def checker(self, board):
     x = pair(card_nums, keys, vals)
     if x != False:
         return x
+
     return high_card(card_nums, sub=False)
