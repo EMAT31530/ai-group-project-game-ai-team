@@ -183,13 +183,6 @@ class Game:  # Object to represent entire game state
             playerlist.append(Player(name, i, initmoney))
         return playerlist
 
-        """
-    def showHands(self):
-        for player in self.players:
-            print("{}: {}".format(player.name, player.hand))
-        print("board is: {}".format(self.curRound.board))
-        """
-
     # Updates round and appends old round to round list
     def newRound(self):
         self.Rounds.append(self.curRound)
@@ -202,7 +195,6 @@ class Game:  # Object to represent entire game state
         plyrs = [i for i in self.players if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)
-        """
         # flop
         self.curRound.increment(True)
         self.curRound.increment()
@@ -216,12 +208,7 @@ class Game:  # Object to represent entire game state
         plyrs = [i for i in plyrs if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)
-        """
         # river
-        self.curRound.increment(True)
-        self.curRound.increment()
-        self.curRound.increment()
-        self.curRound.increment(True)
         self.curRound.increment(True)
         plyrs = [i for i in plyrs if i.state != 2]
         self.curRound.updRankings(plyrs)
