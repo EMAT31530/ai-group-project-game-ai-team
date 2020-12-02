@@ -77,7 +77,7 @@ def consecutive(hand):
 def high_card(card_nums, num = 5, sub = True): #card_nums is a dictionary here but this could be changed
     #assuming here that the hand inputted will not have any pairs or anything
     if len(card_nums) == 0:
-        return 0 #convention
+        return [] #convention
     card_nums = sort_by_key(card_nums, True)
     cards = list(card_nums.keys())
     if len(cards) < num:
@@ -208,7 +208,7 @@ def pair(card_nums, keys, vals):
 
 
 def checker(self, board):
-    hand = self.cards if board == [] else self.cards + board
+    hand = self.cards if len(board) < 1 else self.cards + board
     card_suits = num_suit(hand)
     consec_cards = consecutive(hand)
     card_nums = num_same(hand)

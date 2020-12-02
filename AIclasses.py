@@ -116,8 +116,6 @@ class Round:
         for i in range(2):
             for player in players:
                 player.hand.addCard(self.deck.draw())
-        for player in players:
-            player.hand.rankupd(self.board.cards)
 
     def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
@@ -185,12 +183,12 @@ class Game:  # Object to represent entire game state
             playerlist.append(Player(name, i, initmoney))
         return playerlist
 
-    """
+        """
     def showHands(self):
         for player in self.players:
             print("{}: {}".format(player.name, player.hand))
         print("board is: {}".format(self.curRound.board))
-    """
+        """
 
     # Updates round and appends old round to round list
     def newRound(self):
