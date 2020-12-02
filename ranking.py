@@ -204,17 +204,18 @@ def pair(card_nums, keys, vals):
             return False
         else:
             card_nums.pop(keys[0])
-            return 2, [keys[0] + high_card(card_nums, 3)]
+            return 2, [keys[0]] + high_card(card_nums, 3)
 
 
 def checker(self, board):
-    card_suits = num_suit(self.cards)
-    consec_cards = consecutive(self.cards)
-    card_nums = num_same(self.cards)
+    hand = self.cards if board == [] else self.cards + board
+    card_suits = num_suit(hand)
+    consec_cards = consecutive(hand)
+    card_nums = num_same(hand)
     keys = list(card_nums.keys())
     vals = list(card_nums.values())
 
-    x = straight_flush(card_suits, consec_cards, self.cards)
+    x = straight_flush(card_suits, consec_cards, hand)
     if x != False:
         return x
     x = four_of_a_kind(card_nums)
@@ -223,7 +224,7 @@ def checker(self, board):
     x = full_house(card_nums, keys, vals)
     if x != False:
         return x
-    x = flush(card_suits, self.cards)
+    x = flush(card_suits, hand)
     if x != False:
         return x
     x = straight(consec_cards)

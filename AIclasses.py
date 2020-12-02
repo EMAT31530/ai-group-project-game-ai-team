@@ -117,14 +117,14 @@ class Round:
             for player in players:
                 player.hand.addCard(self.deck.draw())
         for player in players:
-            player.hand.rankupd(self.board)
+            player.hand.rankupd(self.board.cards)
 
     def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
 
     def updRankings(self, players):
         for player in players:
-            player.hand.rankupd(self.board)
+            player.hand.rankupd(self.board.cards)
 
     def bid(self, player, amount):
         player.money -= amount
