@@ -18,6 +18,6 @@ def checkString(message):
 
 def getChoice(choices):
     choice = ""
-    while choice not in choices:
-        choice = input("Choose one of [%s]: " % ", ".join(choices))
+    while choice not in [i.lower() for i in choices]:
+        choice = input("Choose one of [%s]: " % ", ".join(choices)).lower()
     return choice
