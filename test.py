@@ -90,6 +90,7 @@ print(flush(test_5))
 
 import time
 #test for overall ranking function
+
 """
 n = 10000
 count = 0.0
@@ -100,15 +101,45 @@ for i in range(n):
     for i in range(2):
         test_6.addCard(deck.draw())
     t1 = time.perf_counter()
-    test_6.ranking()
+    test_6.rankupd([])
     t2 = time.perf_counter()
     count += (t2 - t1)
     #print(str(test_6))
     #print(test_6.ranking())
 
 print(count/n)
-#takes an average of 2.2e-05 to 2.6e-05 for each ranking
 """
+#takes an average of 2.2e-05 to 2.6e-05 for each ranking
+
+#with updates from Joe the function seems to take about 1.0e-05 to 1.2e-05 - about twice as fast
+
+
+n = 10000
+count = 0.0
+for i in range(n):
+    pocket_cards = Hand()
+    board = Hand()
+    deck = Deck()
+    deck.build()
+    for i in range(2):
+        pocket_cards.addCard(deck.draw())
+    t1 = time.perf_counter()
+    pocket_cards.rankupd(Hand())
+    for j in range(5):
+        card = deck.draw()
+        board.same_update([card])
+        board.suit_update([card])
+        board.addCard(card)
+        pocket_cards.rankupd(board)
+    t2 = time.perf_counter()
+    #print(pocket_cards.num_suit)
+    #print(str(pocket_cards))
+    #print(str(board))
+    #print(pocket_cards.rank)
+    count += t2 - t1
+print(count/n)
+    
+
 """
 #debug section
 test_7 = Hand()
@@ -125,7 +156,7 @@ for card in cards:
     test_7.addCard(card)
 print(two_pair(test_7))
 """
-
+"""
 #test for comparison method
 import numpy as np
 n = 100
@@ -140,3 +171,4 @@ for i in range(n):
     if i >= 1:
         print(a[i].ranking())
         print(a[i] > a[i - 1])
+"""

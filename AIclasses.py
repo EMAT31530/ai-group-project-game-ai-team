@@ -59,7 +59,9 @@ class Deck:  # Object to represent deck throughout game
 class Hand:  # Object to represent player hands
     def __init__(self):
         self.cards = []
-        self.rank = (0, [])  # (rank, highcards)
+        self.rank = (0, []) # (rank, highcards)
+        self.num_same = {}
+        self.num_suit = {}
 
     def __str__(self):  # Overwrites the String fucntion
         return str([str(card) for card in self.cards])
@@ -81,7 +83,49 @@ class Hand:  # Object to represent player hands
 
     def addCard(self, card):
         self.cards.append(card)
+        
+    
+    #Pretty nasty but I have moved these functions into the hand class for greater speed
+    
+        
+    def same_update(self, cards = [], ret = False):  # returns a dictionary with keys as the card numbers and values as the number of cards of that type
+    #optional cards argument if we want to just update our current dictionary with a new list of cards
+        card_nums = self.num_same.copy()
+        if cards == []:
+            card_nums = {}
+            new_cards = self.cards
+        else:
+            new_cards = cards
+        for card in new_cards:
+            if card.val in card_nums:
+                card_nums[card.val] += 1
+            else:
+                card_nums[card.val] = 1
+        if ret:
+            return rnk.sort_by_value(card_nums, True)
+        else:
+            self.num_same = rnk.sort_by_value(card_nums, True)
 
+    
+
+    def suit_update(self, cards = [], ret = False):  # same as num_same but with keys as card suits and values as number of cards of that suit
+        card_suits = self.num_suit.copy()
+        if cards == []:
+            card_suits = {}
+            new_cards = self.cards
+        else:
+            new_cards = cards
+        for card in new_cards:
+            if card.suit in card_suits:
+                card_suits[card.suit] += 1
+            else:
+                card_suits[card.suit] = 1
+        if ret:
+            return rnk.sort_by_value(card_suits, True)
+        else:
+            self.num_suit = rnk.sort_by_value(card_suits, True)
+
+    
     def rankupd(self, board):
         self.rank = rnk.checker(self, board)
 
@@ -142,10 +186,14 @@ class Round:
 
     def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
+        
+    def board_rank_update(self):
+        self.board.same_update()
+        self.board.suit_update()
 
     def updRankings(self, players):
         for player in players:
-            player.hand.rankupd(self.board.cards)
+            player.hand.rankupd(self.board)
 
     def bid(self, player, amount):
         player.money -= amount
@@ -259,17 +307,20 @@ class Game:  # Object to represent entire game state
         self.curRound.increment(True)
         self.curRound.increment()
         self.curRound.increment()
+        self.board_rank_update()
         plyrs = [i for i in plyrs if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)
 
         # turn
         self.curRound.increment(True)
+        self.board_rank_update()
         plyrs = [i for i in plyrs if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)
         # river
         self.curRound.increment(True)
+        self.board_rank_update()
         plyrs = [i for i in plyrs if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)

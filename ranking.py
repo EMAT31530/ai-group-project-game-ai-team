@@ -24,7 +24,7 @@ def sort_by_value(dictionary, backwards=False):  # ditto for values
         dict_2[array[i][0]] = array[i][1]
     return dict_2
 
-
+"""
 def num_same(hand):  # returns a dictionary with keys as the card numbers and values as the number of cards of that type
     card_nums = {}
     for card in hand:
@@ -34,6 +34,14 @@ def num_same(hand):  # returns a dictionary with keys as the card numbers and va
             card_nums[card.val] = 1
     return sort_by_value(card_nums, True)
 
+def n_sa_update(card_nums, card): #function to update the dictionary to avoid recalculation
+    if card.val in card_nums:
+        card_nums[card.val] += 1
+    else:
+        card_nums[card.val] = 1
+    return sort_by_value(card_nums, True)
+    
+
 
 def num_suit(hand):  # same as above but with keys as card suits and values as number of cards of that suit
     card_suits = {}
@@ -42,6 +50,13 @@ def num_suit(hand):  # same as above but with keys as card suits and values as n
             card_suits[card.suit] += 1
         else:
             card_suits[card.suit] = 1
+    return sort_by_value(card_suits, True)
+
+def n_su_update(card_suits, card): #updates dictionary to avoid recalculation
+    if card.suit in card_suits:
+        card_suits[card.suit] += 1
+    else:
+        card_suits[card.suit] = 1
     return sort_by_value(card_suits, True)
 
 
@@ -72,7 +87,35 @@ def consecutive(hand):
                             return consec_cards[-7]
                         else:
                             return False
+"""
 
+def consecutive(num_same):
+    num_dict = num_same
+
+    def straight_check(cards):
+        a = cards[0]
+        return cards == [a, a + 1, a + 2, a + 3, a + 4]
+    n = len(num_dict) #straights are only possible for 5+ distinct cards so we check the length first
+    if n < 5:
+        return False #not yet 100% certain what outputs should be but will use False here for now
+    else: #quite an ugly hierarchy but I think this involves the least computation
+        consec_cards = sorted(num_dict)
+        if straight_check(consec_cards[-5:]): #player could have several straights, we want the highest one
+            return consec_cards[-5] #straight can be defined by its bottom card
+        else:
+            if n == 5:
+                return False #if there were only five distinct cards then they now cannot have been a straight
+            else:
+                if straight_check(consec_cards[-6:-1]):
+                    return consec_cards[-6]
+                else:
+                    if n == 6:
+                        return False
+                    else:
+                        if straight_check(consec_cards[-7:-2]):
+                            return consec_cards[-7]
+                        else:
+                            return False
 
 def high_card(card_nums, num = 5, sub = True): #card_nums is a dictionary here but this could be changed
     #assuming here that the hand inputted will not have any pairs or anything
@@ -93,7 +136,6 @@ def high_card(card_nums, num = 5, sub = True): #card_nums is a dictionary here b
 
 
 def straight_flush(card_suits, consec_cards, hand): #all the following functions check to see if you have the following hand
-    #am wondering if the first 3 functions should be class methods so we don't have to constantly call them
     if consec_cards == False or list(card_suits.values())[0] < 5:
         return False
     else:
@@ -102,7 +144,8 @@ def straight_flush(card_suits, consec_cards, hand): #all the following functions
         for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
-        return 9, consecutive(suit_hand) #return top card for easier comparison
+        suit_hand.same_update()
+        return 9, consecutive(suit_hand.num_same) #return top card for easier comparison
         #also removed suit in return since it is unhelpful in the comparison but can be added back in if wanted
 
 
@@ -143,7 +186,8 @@ def flush(card_suits, hand):
         for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
-        return 6, high_card(num_same(suit_hand.cards))
+        suit_hand.same_update()
+        return 6, high_card(suit_hand.num_same)
     #removed suit as in straight flush
 
 
@@ -207,14 +251,13 @@ def pair(card_nums, keys, vals):
             return 2, [keys[0]] + high_card(card_nums, 3)
 
 
-def checker(self, board):
-    hand = self.cards if len(board) < 1 else self.cards + board
-    card_suits = num_suit(hand)
-    consec_cards = consecutive(hand)
-    card_nums = num_same(hand)
+def checker(self, board): 
+    hand = self.cards if len(board.cards) < 1 else self.cards + board.cards
+    card_suits = board.suit_update(self.cards, ret = True)
+    card_nums = board.same_update(self.cards, ret = True)
+    consec_cards = consecutive(card_suits)
     keys = list(card_nums.keys())
     vals = list(card_nums.values())
-
     x = straight_flush(card_suits, consec_cards, hand)
     if x != False:
         return x
