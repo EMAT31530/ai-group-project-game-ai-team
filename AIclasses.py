@@ -1,6 +1,7 @@
 import random as rnd
 import validation as vald
 import ranking as rnk
+from functools import cmp_to_key
 
 
 # Will be used to represent chips and such
@@ -70,15 +71,6 @@ class Hand:  # Object to represent player hands
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
         return "{} {}".format(strlist[self.rank[0]-1], vals[self.rank[1][0]-2])
 
-    def __gt__(self, other):  # compares two hand rankings
-        return self.rank > other.rank
-
-    def __lt__(self, other):  # ditto
-        return self.rank < other.rank
-
-    def __eq__(self, other):  # ditto
-        return self.rank == other.rank
-
     def addCard(self, card):
         self.cards.append(card)
 
@@ -94,25 +86,33 @@ class Player:  # Object to represent player
         self.hand = Hand()
         self.money = money
         self.curBid = 0
-        self.state = 0  # 0: in round, 1: called, 2: folded
+        self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last
 
     def __str__(self):  # Overwrites the String fucntion
-        return "{}".format(self.name)
+        return self.name
 
-    def __ge__(self, other):  # compares two hand rankings
-        return self.hand.rank > other.hand.rank or self.hand.rank == other.hand.rank
+    def chaircomp(self, other):
+        if self.chair > other.chair:
+            return 1
+        elif self.chair < other.chair:
+            return -1
+        else:
+            return 0
 
-    def __le__(self, other):  # ditto
-        return self.hand.rank < other.hand.rank or self.hand.rank == other.hand.rank
+    def rankcomp(self, other):
+        if self.hand.rank > other.hand.rank:
+            return 1
+        elif self.hand.rank < other.hand.rank:
+            return -1
+        else:
+            return 0
 
-    def __gt__(self, other):  # compares two hand rankings
-        return self.hand.rank > other.hand.rank
-
-    def __lt__(self, other):  # ditto
-        return self.hand.rank < other.hand.rank
-
-    def __eq__(self, other):  # ditto
-        return self.hand.rank == other.hand.rank
+    # resets players in preperation for new round
+    def reset(self, n):
+        self.hand = Hand()
+        self.curBid = 0
+        self.state = 0
+        self.chair = (self.chair + 1) % n
 
 
 class Round:
@@ -122,7 +122,8 @@ class Round:
         self.curBid = 0
         self.board = Hand()
         self.bigBlind = bigBlind
-        self.histPlayers = 0
+        self.histPlayers = []
+        self.histActions = []
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -146,6 +147,12 @@ class Round:
     def updRankings(self, players):
         for player in players:
             player.hand.rankupd(self.board.cards)
+
+    def blinds(self, players):
+        for i in range(2):
+            self.bid(players[i], self.bigBlind / (2-i))
+            players[i].state = 3
+        self.curBid = self.bigBlind
 
     def bid(self, player, amount):
         player.money -= amount
@@ -175,11 +182,12 @@ class Round:
                 playee.state = 0
             player.state = 1
 
-        while any([i.state == 0 for i in players]):
-            for player in [i for i in players if i.state == 0]:
+        while any([i.state in [0, 3] for i in players]):
+            for player in [i for i in players if i.state in [0, 3]]:
                 self.strRoundState(player)
                 choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Raise", "Check", "Fold"])
                 action = vald.getChoice(choices)
+                self.histActions.append((action, str(player)))  # for action history
                 if action == "raise":
                     raize(player)
                 elif action == "fold":
@@ -192,11 +200,11 @@ class Round:
 
 
 class Game:  # Object to represent entire game state
-    def __init__(self, initmoney, bb):
-        self.players = self.buildPlayers(initmoney)  # Creates list of players
+    def __init__(self, blind):
+        self.players = self.buildPlayers(blind * 20)  # Creates list of players
         self.Rounds = []  # To store all ellapsed rounds
-        self.bb = bb
-        self.curRound = Round(self.bb, self.players)
+        self.blind = blind
+        self.curRound = Round(blind, self.players)
 
     def buildPlayers(self, initmoney):
         players = vald.checkInt("How many players?\n")
@@ -208,6 +216,7 @@ class Game:  # Object to represent entire game state
 
     def start(self):
         while True:
+            self.curRound.blinds(self.players)
             self.play()
             self.endRound()
             print("Would you like to play a new roud")
@@ -223,15 +232,15 @@ class Game:  # Object to represent entire game state
         # snapshot of players  at end of the round
         self.curRound.histPlayers = self.players
         # resets the players ready for the next round
+        n = len(self.players)
         for player in self.players:
-            player.hand.cards = []
-            player.curBid = 0
-            player.state = 0
-            player.chair = (player.chair + 1) % len(self.players)  # moves the 'dealer' one space
+            player.reset(n)
+        # reorders the players for the next round
+        self.players = sorted(self.players, key=cmp_to_key(Player.chaircomp))
         # adds the round to the history of rounds
         self.Rounds.append(self.curRound)
         # creates the new round
-        self.curRound = Round(self.bb, self.players)
+        self.curRound = Round(self.blind, self.players)
     # divvies out the winnings
 
     def endRound(self):
@@ -240,10 +249,8 @@ class Game:  # Object to represent entire game state
             print("Player {} won £{}.".format(str(remainingPlyrs[0]), self.curRound.pot))
             remainingPlyrs[0].money += self.curRound.pot
         else:
-            sortedplayers = vald.bubbleSort(remainingPlyrs)
-            print(sortedplayers)
+            sortedplayers = sorted(remainingPlyrs, key=cmp_to_key(Player.rankcomp))
             winplyrs = vald.howManyEqu(sortedplayers)
-            print(winplyrs)
             n = len(winplyrs)
             for plyr in winplyrs:
                 plyr.money += int(self.curRound.pot/n)
@@ -251,25 +258,14 @@ class Game:  # Object to represent entire game state
         # add something for how much monies init
 
     def play(self):
-        # initial hands
-        plyrs = [i for i in self.players if i.state != 2]
-        self.curRound.updRankings(plyrs)
+        self.curRound.updRankings(self.players)
+        plyrs = [i for i in self.players if i.state == 0] + [i for i in self.players if i.state == 3]
         self.curRound.bidding(plyrs)
-        # flop
-        self.curRound.increment(True)
-        self.curRound.increment()
-        self.curRound.increment()
-        plyrs = [i for i in plyrs if i.state != 2]
-        self.curRound.updRankings(plyrs)
-        self.curRound.bidding(plyrs)
-
-        # turn
-        self.curRound.increment(True)
-        plyrs = [i for i in plyrs if i.state != 2]
-        self.curRound.updRankings(plyrs)
-        self.curRound.bidding(plyrs)
-        # river
-        self.curRound.increment(True)
-        plyrs = [i for i in plyrs if i.state != 2]
-        self.curRound.updRankings(plyrs)
-        self.curRound.bidding(plyrs)
+        for j in range(3):  # Implements flop/turn/river
+            self.curRound.increment(burn=True)
+            if j == 0:
+                self.curRound.increment()
+                self.curRound.increment()
+            plyrs = [i for i in self.players if i.state != 2]   # Players who have not folded
+            self.curRound.updRankings(plyrs)
+            self.curRound.bidding(plyrs)
