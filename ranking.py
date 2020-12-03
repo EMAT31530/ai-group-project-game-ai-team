@@ -102,7 +102,7 @@ def straight_flush(card_suits, consec_cards, hand): #all the following functions
         for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
-        return 9, consecutive(suit_hand) #return top card for easier comparison
+        return 9, consecutive(suit_hand.cards) #return top card for easier comparison
         #also removed suit in return since it is unhelpful in the comparison but can be added back in if wanted
 
 
