@@ -65,7 +65,10 @@ class Hand:  # Object to represent player hands
         return str([str(card) for card in self.cards])
 
     def strRank(self):
-        return " rank = {}".format(self.rank[0])
+        # make into big fuckoff 'if' thing for each possible ranking
+        strlist = ["High card", "Pair", "Two pair", "Three of a kind", "Straight", "Flush", "Full House", "Four of a kind", "Straight Flush"]
+        vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
+        return "{} {}".format(strlist[self.rank[0]-1], vals[self.rank[1][0]-2])
 
     def __gt__(self, other):  # compares two hand rankings
         return self.rank > other.rank
@@ -85,28 +88,48 @@ class Hand:  # Object to represent player hands
 
 # ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
-    def __init__(self, name, pos, money):
+    def __init__(self, name, chair, money):
         self.name = name
-        self.pos = pos
+        self.chair = chair
         self.hand = Hand()
         self.money = money
         self.curBid = 0
         self.state = 0  # 0: in round, 1: called, 2: folded
 
+    def __str__(self):  # Overwrites the String fucntion
+        return "{}".format(self.name)
+
+    def __ge__(self, other):  # compares two hand rankings
+        return self.hand.rank > other.hand.rank or self.hand.rank == other.hand.rank
+
+    def __le__(self, other):  # ditto
+        return self.hand.rank < other.hand.rank or self.hand.rank == other.hand.rank
+
+    def __gt__(self, other):  # compares two hand rankings
+        return self.hand.rank > other.hand.rank
+
+    def __lt__(self, other):  # ditto
+        return self.hand.rank < other.hand.rank
+
+    def __eq__(self, other):  # ditto
+        return self.hand.rank == other.hand.rank
+
 
 class Round:
-    def __init__(self, bigBlind):
+    def __init__(self, bigBlind, players):
         self.deck = Deck()
         self.pot = 0
         self.curBid = 0
         self.board = Hand()
         self.bigBlind = bigBlind
+        self.histPlayers = 0
+        self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
         return "nice"
 
     def strRoundState(self, player):
-        print("Player {}'s turn.".format(player.name))
+        print("Player {}'s turn.".format(str(player)))
         print("Currently the pot is £{}, and the highest bid is £{}.".format(self.pot, self.curBid))
         print("Your current bid is £{}, and you have £{}.".format(player.curBid, player.money))
         print("In you hand you have: {}. And on the board there is: {}.".format(player.hand, self.board))
@@ -138,13 +161,14 @@ class Round:
             self.bid(player, self.curBid - player.curBid)
 
         def raize(player):
-            def raisecheck(amount):  # will make more complicated
-                return amount > (self.curBid - player.curBid)
+            # get a valid raise from user
+            def raisecheck(amount):
+                return amount >= (2*self.curBid - player.curBid) and (amount <= player.money)
             while True:
-                amount = vald.checkInt("how much!? ")
+                amount = vald.checkInt("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, 2*self.curBid))
                 if raisecheck(amount):
                     break
-
+            # updates relevant info
             self.curBid += amount - (self.curBid - player.curBid)
             self.bid(player, amount)
             for playee in [i for i in players if i.state != 2]:
@@ -162,10 +186,8 @@ class Round:
                     fold(player)
                 else:
                     call(player)
-        # resets the bids and such for next draw init
-        self.curBid = 0
+        # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
-            player.curBid = 0
             player.state = 0
 
 
@@ -173,7 +195,8 @@ class Game:  # Object to represent entire game state
     def __init__(self, initmoney, bb):
         self.players = self.buildPlayers(initmoney)  # Creates list of players
         self.Rounds = []  # To store all ellapsed rounds
-        self.curRound = Round(bb)
+        self.bb = bb
+        self.curRound = Round(self.bb, self.players)
 
     def buildPlayers(self, initmoney):
         players = vald.checkInt("How many players?\n")
@@ -183,15 +206,52 @@ class Game:  # Object to represent entire game state
             playerlist.append(Player(name, i, initmoney))
         return playerlist
 
+    def start(self):
+        while True:
+            self.play()
+            self.endRound()
+            print("Would you like to play a new roud")
+            answer = vald.getChoice(["Yes", "No", "Y", "N"])
+            if answer == "y" or answer == "yes":
+                self.newRound()
+            else:
+                print("Good night")
+                break
+
     # Updates round and appends old round to round list
     def newRound(self):
+        # snapshot of players  at end of the round
+        self.curRound.histPlayers = self.players
+        # resets the players ready for the next round
+        for player in self.players:
+            player.hand.cards = []
+            player.curBid = 0
+            player.state = 0
+            player.chair = (player.chair + 1) % len(self.players)  # moves the 'dealer' one space
+        # adds the round to the history of rounds
         self.Rounds.append(self.curRound)
-        self.players = self.curRound.players  # updates player list
-        self.curRound = Round(100)
+        # creates the new round
+        self.curRound = Round(self.bb, self.players)
+    # divvies out the winnings
+
+    def endRound(self):
+        remainingPlyrs = [i for i in self.players if i.state != 2]
+        if len(remainingPlyrs) == 1:
+            print("Player {} won £{}.".format(str(remainingPlyrs[0]), self.curRound.pot))
+            remainingPlyrs[0].money += self.curRound.pot
+        else:
+            sortedplayers = vald.bubbleSort(remainingPlyrs)
+            print(sortedplayers)
+            winplyrs = vald.howManyEqu(sortedplayers)
+            print(winplyrs)
+            n = len(winplyrs)
+            for plyr in winplyrs:
+                plyr.money += int(self.curRound.pot/n)
+            print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
+        # add something for how much monies init
 
     def play(self):
         # initial hands
-        self.curRound.start(self.players)
         plyrs = [i for i in self.players if i.state != 2]
         self.curRound.updRankings(plyrs)
         self.curRound.bidding(plyrs)

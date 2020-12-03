@@ -143,7 +143,7 @@ def flush(card_suits, hand):
         for i in hand:
             if i.suit == suit:
                 suit_hand.addCard(i)
-        return 6, high_card(num_same(suit_hand))
+        return 6, high_card(num_same(suit_hand.cards))
     #removed suit as in straight flush
 
 
