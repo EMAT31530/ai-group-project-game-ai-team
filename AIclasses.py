@@ -89,7 +89,7 @@ class Player:  # Object to represent player
         self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last
 
     def __str__(self):  # Overwrites the String fucntion
-        return "{}".format(self.name)
+        return self.name
 
     def chaircomp(self, other):
         if self.chair > other.chair:
@@ -122,7 +122,8 @@ class Round:
         self.curBid = 0
         self.board = Hand()
         self.bigBlind = bigBlind
-        self.histPlayers = 0
+        self.histPlayers = []
+        self.histActions = []
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -181,19 +182,18 @@ class Round:
                 playee.state = 0
             player.state = 1
 
-        remainPlayers = [i for i in players if i.state == 0] + [i for i in players if i.state == 3]
         while any([i.state in [0, 3] for i in players]):
-            for player in remainPlayers:
+            for player in [i for i in players if i.state in [0, 3]]:
                 self.strRoundState(player)
                 choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Raise", "Check", "Fold"])
                 action = vald.getChoice(choices)
+                self.histActions.append((action, str(player)))  # for action history
                 if action == "raise":
                     raize(player)
                 elif action == "fold":
                     fold(player)
                 else:
                     call(player)
-            remainPlayers = [i for i in players if i.state == 0]  # updates remaining players
         # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
             player.state = 0
@@ -259,13 +259,13 @@ class Game:  # Object to represent entire game state
 
     def play(self):
         self.curRound.updRankings(self.players)
-        self.curRound.bidding(self.players)
-        plyrs = [i for i in self.players if i.state != 2]  # Players who have not folded
+        plyrs = [i for i in self.players if i.state == 0] + [i for i in self.players if i.state == 3]
+        self.curRound.bidding(plyrs)
         for j in range(3):  # Implements flop/turn/river
             self.curRound.increment(burn=True)
             if j == 0:
                 self.curRound.increment()
                 self.curRound.increment()
-            plyrs = [i for i in plyrs if i.state != 2]
+            plyrs = [i for i in self.players if i.state != 2]   # Players who have not folded
             self.curRound.updRankings(plyrs)
             self.curRound.bidding(plyrs)
