@@ -66,10 +66,21 @@ class Hand:  # Object to represent player hands
         return str([str(card) for card in self.cards])
 
     def strRank(self):
-        # make into big fuckoff 'if' thing for each possible ranking
-        strlist = ["High card", "Pair", "Two pair", "Three of a kind", "Straight", "Flush", "Full House", "Four of a kind", "Straight Flush"]
+        def onetext(text, index):
+            return "{}: {}".format(text, vals[self.rank[1][index]-2])
+
+        def twotext(text, index):
+            return "{}: {} & {}".format(text, vals[self.rank[1][index]-2], vals[self.rank[1][index+1]-2])
+
+        n = self.rank[0]
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
-        return "{} {}".format(strlist[self.rank[0]-1], vals[self.rank[1][0]-2])
+        strlist = ["", "Highcard", "Pair", "Two Pair", "Three of a kind", "Straight, starting on a", "Flush starting on a", "Full House (Triple & Pair)", "Four of a kind", "Straight Flush, starting on a"]
+        if n in [1, 2, 4, 5, 8]:
+            return onetext(strlist[n], 0),
+        if n in [3, 7]:
+            return twotext(strlist[n], 0)
+        elif n in [6, 9]:
+            return onetext(strlist[n], 0)  # change to show suit
 
     def addCard(self, card):
         self.cards.append(card)
@@ -219,7 +230,7 @@ class Game:  # Object to represent entire game state
             self.curRound.blinds(self.players)
             self.play()
             self.endRound()
-            print("Would you like to play a new roud")
+            print("Would you like to play a new round")
             answer = vald.getChoice(["Yes", "No", "Y", "N"])
             if answer == "y" or answer == "yes":
                 self.newRound()
