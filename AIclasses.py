@@ -230,11 +230,7 @@ class Game:  # Object to represent entire game state
             self.curRound.blinds(self.players)
             self.play()
             self.endRound()
-<<<<<<< HEAD
             print("Would you like to play a new round?")
-=======
-            print("Would you like to play a new round")
->>>>>>> aca025537f40d8fcbe40971fc698ab5738566c9e
             answer = vald.getChoice(["Yes", "No", "Y", "N"])
             if answer == "y" or answer == "yes":
                 self.newRound()
