@@ -1,0 +1,39 @@
+Smarter AI behaviour:
+Preflop: Raise if pair, if both cards>=10. Raise 3 big blinds. Check/fold if both cards <7. Call if a card 7<=card<10
+
+Flop: If fullhouse or greater, go all in. (later)Check if straight draw, Raise/bet if flush, straight, three of a kind. Raise/bet lower for 2 pair, pair. Check/fold if high card.
+Fold if bet is higher than the raise/check threshold
+
+Turn: If fullhouse or greater, go all in. (later)Check if straight draw, Raise/bet if flush, straight, three of a kind. Raise/bet lower for 2 pair, pair. Check/fold if high card.
+Fold if bet is higher than the raise/check threshold
+
+River: If fullhouse or greater, go all in. (later)Check if straight draw, Raise/bet if flush, straight, three of a kind. Raise/bet lower for 2 pair, pair. Check/fold if high card.
+Fold if bet is higher than the raise/check threshold
+
+Perfect AI behaviour:
+?
+
+
+
+
+
+
+
+AI ideas:
+Fish AI: Ai that calls everything
+Bot AI: Ai that folds everything
+Crazy AI: Ai that plays randomly
+
+
+
+
+Potential ideas:
+Reinforcement learning + game theory?
+Can start off with an the Crazy AI and have it learn from the perfect AI player? Or genetic algorithm, have a lot of Crazy AI's play, learn what works and kill off the ones
+with suboptimal behaviour.
+
+
+
+
+Existing poker AI: can have dumb AI's as well
+Compare AI's, GANS networks idea?
