@@ -1,6 +1,6 @@
 from graphics import *
 from AIclasses import *
-
+import tkinter as tk
 
 def playerinit(playernames, funds, graphwin):
     # player names
@@ -83,7 +83,7 @@ def main():
 
     boardupdate(500, 5000, win)
     playerinit(['Arnold', 'Joe'], [500, 600], win)
-
+    Button(win, Point(300,300), 40, 40, 'Quit')
 
 
 
@@ -97,4 +97,16 @@ def main():
     win.close()
 
 
-main()
+#main()
+
+window = tk.Tk()
+window.geometry("1000x1000")
+board= tk.Canvas(window, bg="green", height=1000, width=1000).pack()
+tk.Canvas(window, bg="blue", height=50, width=50).place(x=500,y=500)
+card=board.create_rectangle(500-50,500-75, 500+50,500+75, fill="white")
+card.pack()
+
+window.configure(bg='green')
+
+
+window.mainloop()
