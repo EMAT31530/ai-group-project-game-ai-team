@@ -5,6 +5,15 @@ def checkInt(message):
             return userInt
         except ValueError:
             print('You must enter an integer')
+            
+
+def checkFloat(message):
+    while True:
+        try:
+            userFloat = float(input(message))
+            return userFloat
+        except ValueError:
+            print('You must enter a number')
 
 
 def checkString(message):

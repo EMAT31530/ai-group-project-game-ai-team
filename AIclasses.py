@@ -1,6 +1,7 @@
 import random as rnd
 import validation as vald
 import ranking as rnk
+import strategies as strat
 from functools import cmp_to_key
 
 
@@ -96,6 +97,7 @@ class Player:  # Object to represent player
         self.chair = chair
         self.hand = Hand()
         self.money = money
+        self.cpu = False #used to check if text should be output during the round
         self.curBid = 0
         self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last
 
@@ -124,6 +126,18 @@ class Player:  # Object to represent player
         self.curBid = 0
         self.state = 0
         self.chair = (self.chair + 1) % n
+        
+        
+class CPU(Player):
+    def __init__(self, name, chair, money, strategy):
+        super().__init__(name, chair, money)
+        if not strategy in strat.functions: #could also just try indexing strategies with numbers 
+            strategy = vald.getChoice(strat.functions)
+        self.strategy = strategy
+        self.cpu = True
+        
+    def decide(self, game_round):
+        return strat.functions[]
 
 
 class Round:
@@ -143,9 +157,12 @@ class Round:
     def strRoundState(self, player):
         print("Player {}'s turn.".format(str(player)))
         print("Currently the pot is £{}, and the highest bid is £{}.".format(self.pot, self.curBid))
-        print("Your current bid is £{}, and you have £{}.".format(player.curBid, player.money))
-        print("In you hand you have: {}. And on the board there is: {}.".format(player.hand, self.board))
-        print("Your best hand is {}.".format(player.hand.strRank()))
+        if not player.cpu: #only want to display their hand for human players
+            print("Your current bet is £{}, and you have £{}.".format(player.curBid, player.money))
+            print("In you hand you have: {}. And on the board there is: {}.".format(player.hand, self.board))
+            print("Your best hand is {}.".format(player.hand.strRank()))
+        else:
+            print("{}'s current bet is £{}, and they have £{}.".format(player.name, player.curBid, player.money))
 
     def start(self, players):
         for i in range(2):
@@ -173,17 +190,25 @@ class Round:
     def bidding(self, players):
         def fold(player):
             player.state = 2
+            if player.cpu:
+                print("{} has decided to fold.\n".format(player.name))
 
         def call(player):
             player.state = 1
-            self.bid(player, self.curBid - player.curBid)
+            amount = self.curBid - player.curBid
+            self.bid(player, amount)
+            if player.cpu:
+                if amount > 0:
+                    print("{} has decided to call £{}.\n".format(player.name, amount))
+                else:
+                    print("{} has decided to check.\n".format(player.name))
 
         def raize(player):
             # get a valid raise from user
             def raisecheck(amount):
                 return amount >= (2*self.curBid - player.curBid) and (amount <= player.money)
             while True:
-                amount = vald.checkInt("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, 2*self.curBid))
+                amount = vald.checkFloat("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, 2*self.curBid))
                 if raisecheck(amount):
                     break
             # updates relevant info
@@ -196,10 +221,13 @@ class Round:
         while any([i.state in [0, 3] for i in players]):
             for player in [i for i in players if i.state in [0, 3]]:
                 self.strRoundState(player)
-                choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Raise", "Check", "Fold"])
-                action = vald.getChoice(choices)
+                choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Bet", "Check", "Fold"])
+                if not player.cpu:
+                    action = vald.getChoice(choices)
+                else:
+                    action = player.decide(self)
                 self.histActions.append((action, str(player)))  # for action history
-                if action == "raise":
+                if action == "raise" or action == "bet":
                     raize(player)
                 elif action == "fold":
                     fold(player)
@@ -212,7 +240,7 @@ class Round:
 
 class Game:  # Object to represent entire game state
     def __init__(self, blind):
-        self.players = self.buildPlayers(blind * 20)  # Creates list of players
+        self.players = self.buildPlayers(blind * 100)  # Creates list of players
         self.Rounds = []  # To store all ellapsed rounds
         self.blind = blind
         self.curRound = Round(blind, self.players)
@@ -222,7 +250,14 @@ class Game:  # Object to represent entire game state
         playerlist = []
         for i in range(players):
             name = vald.checkString("Player {}s name?\n".format(i+1))
-            playerlist.append(Player(name, i, initmoney))
+            print("Is {} a human?\n".format(name))
+            answer = vald.getChoice(["Yes", "No", "Y", "N"])
+            if answer == "n" or answer == "no":
+                print("What kind of player is {}?\n".format(name))
+                strategy = vald.getChoice(["test"])
+                playerlist.append(CPU(name, i, initmoney, strategy))
+            else:
+                playerlist.append(Player(name, i, initmoney))
         return playerlist
 
     def start(self):
