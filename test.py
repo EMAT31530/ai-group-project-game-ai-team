@@ -55,4 +55,5 @@ print(count/n)
 
 #running through the game a few times for testing
 game = Game(1)
+game.start()
 

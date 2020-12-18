@@ -1,7 +1,7 @@
 import random as rnd
 import validation as vald
 import ranking as rnk
-import strategies as strat
+import Strategies as strat
 from functools import cmp_to_key
 
 
@@ -92,12 +92,15 @@ class Hand:  # Object to represent player hands
 
 # ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
-    def __init__(self, name, chair, money):
+    def __init__(self, name, chair, money, cpu = False):
         self.name = name
         self.chair = chair
         self.hand = Hand()
         self.money = money
-        self.cpu = False #used to check if text should be output during the round
+        self.cpu = cpu
+        if cpu:
+            strategy = vald.getStrategy(strat.functions) #ask user for the ai strategy
+            self.strategy = int(strategy) - 1
         self.curBid = 0
         self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last
 
@@ -127,7 +130,11 @@ class Player:  # Object to represent player
         self.state = 0
         self.chair = (self.chair + 1) % n
         
+    def decide(self, game_round): #decision function for an ai player
+        return strat.functions[self.strategy](self, game_round)
         
+"""
+#decided to just keep this as part of the player class but will leave the code here in case it's useful for later
 class CPU(Player):
     def __init__(self, name, chair, money, strategy):
         super().__init__(name, chair, money)
@@ -138,7 +145,7 @@ class CPU(Player):
         
     def decide(self, game_round):
         return strat.functions[]
-
+"""
 
 class Round:
     def __init__(self, bigBlind, players):
@@ -217,6 +224,18 @@ class Round:
             for playee in [i for i in players if i.state != 2]:
                 playee.state = 0
             player.state = 1
+            
+        def ai_raize(player, amount): #to be used in ai strategy functions
+            #assuming here that the amount to raise is a valid amount
+            self.curBid += amount - (self.curBid - player.curBid)
+            self.bid(player, amount)
+            for playee in [i for i in players if i.state != 2]:
+                playee.state = 0
+            player.state = 1
+            if self.curBid == 0: #unsure about this since self.curBid currently doesn't seem to reset on each street but I feel like it should?
+                print("{} has decided to bet £{}.\n".format(player.name, amount))
+            else:
+                print("{} has decided to raise by £{}.\n".format(player.name, amount))
 
         while any([i.state in [0, 3] for i in players]):
             for player in [i for i in players if i.state in [0, 3]]:
@@ -227,12 +246,21 @@ class Round:
                 else:
                     action = player.decide(self)
                 self.histActions.append((action, str(player)))  # for action history
-                if action == "raise" or action == "bet":
-                    raize(player)
-                elif action == "fold":
-                    fold(player)
+                if not(player.cpu):
+                    if action == "raise" or action == "bet":
+                        raize(player)
+                    elif action == "fold":
+                        fold(player)
+                    else:
+                        call(player)
                 else:
-                    call(player)
+                    if action == "fold":
+                        fold(player)
+                    elif action == "call" or action == "check":
+                        call(player)
+                    else:
+                        choice, amount = action
+                        ai_raize(player, amount)
         # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
             player.state = 0
@@ -252,12 +280,14 @@ class Game:  # Object to represent entire game state
             name = vald.checkString("Player {}s name?\n".format(i+1))
             print("Is {} a human?\n".format(name))
             answer = vald.getChoice(["Yes", "No", "Y", "N"])
+            cpu = False
             if answer == "n" or answer == "no":
-                print("What kind of player is {}?\n".format(name))
-                strategy = vald.getChoice(["test"])
-                playerlist.append(CPU(name, i, initmoney, strategy))
-            else:
-                playerlist.append(Player(name, i, initmoney))
+                cpu = True
+                #print("What kind of player is {}?\n".format(name))
+                #strategy = vald.getChoice(["test"])
+                #playerlist.append((name, i, initmoney, strategy))
+            #else:
+            playerlist.append(Player(name, i, initmoney, cpu))
         return playerlist
 
     def start(self):
