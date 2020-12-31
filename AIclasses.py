@@ -159,6 +159,7 @@ class Round:
         self.histPlayers = []
         self.histActions = []
         self.street = 0 #street is one of preflop, flop, turn, river 
+        self.numPlayers = len(players) #number of players remaining in the round
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -207,6 +208,7 @@ class Round:
             player.state = 2
             if player.cpu:
                 print("{} has decided to fold.\n".format(player.name))
+            self.numPlayers -= 1
 
         def call(player):
             player.state = 1
@@ -221,7 +223,7 @@ class Round:
         def raize(player):
             # get a valid raise from user
             def raisecheck(amount):
-                return amount >= lower(self) and (amount <= player.money)
+                return amount >= self.lower() and (amount <= player.money)
             while True:
                 amount = vald.checkFloat("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
                 if raisecheck(amount):
@@ -248,31 +250,34 @@ class Round:
                 print("{} has decided to bet £{}.\n".format(player.name, amount))
             else:
                 print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
+                
 
-        while any([i.state in [0, 3] for i in players]):
+        while any([i.state in [0, 3] for i in players]) and self.numPlayers >= 2:
             for player in [i for i in players if i.state in [0, 3]]:
-                self.strRoundState(player)
-                choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Bet", "Check", "Fold"])
-                if not player.cpu:
-                    action = vald.getChoice(choices)
-                else:
-                    action = player.decide(self)
-                self.histActions.append((action, str(player)))  # for action history
-                if not(player.cpu):
-                    if action == "raise" or action == "bet":
-                        raize(player)
-                    elif action == "fold":
-                        fold(player)
+                if self.numPlayers >= 2:
+                    self.strRoundState(player)
+                    choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Bet", "Check", "Fold"])
+                    if not player.cpu:
+                        action = vald.getChoice(choices)
                     else:
-                        call(player)
-                else:
-                    if action == "fold":
-                        fold(player)
-                    elif action == "call" or action == "check":
-                        call(player)
+                        action = player.decide(self)
+                    self.histActions.append((action, str(player)))  # for action history
+                    if not(player.cpu):
+                        if action == "raise" or action == "bet":
+                            raize(player)
+                        elif action == "fold":
+                            fold(player)
+                        else:
+                            call(player)
                     else:
-                        choice, amount = action
-                        ai_raize(player, amount)
+                        if action == "fold":
+                            fold(player)
+                        elif action == "call" or action == "check":
+                            call(player)
+                        else:
+                            choice, amount = action
+                            ai_raize(player, amount)
+        
         # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
             player.state = 0
@@ -310,7 +315,6 @@ class Game:  # Object to represent entire game state
         while True:
             self.curRound.blinds(self.players)
             self.play()
-            self.endRound()
             print("Would you like to play a new round?")
             answer = vald.getChoice(["Yes", "No", "Y", "N"])
             if answer == "y" or answer == "yes":
@@ -348,16 +352,32 @@ class Game:  # Object to represent entire game state
                 plyr.money += int(self.curRound.pot/n)
             print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
         # add something for how much monies init
+        
+    def plyrs_check(self):
+        if self.curRound.numPlayers <= 1:
+            return True
+        
 
     def play(self):
         self.curRound.updRankings(self.players)
         plyrs = [i for i in self.players if i.state == 0] + [i for i in self.players if i.state == 3]
         self.curRound.bidding(plyrs)
-        for j in range(3):  # Implements flop/turn/river
-            self.curRound.increment(burn=True)
-            if j == 0:
-                self.curRound.increment()
-                self.curRound.increment()
-            plyrs = [i for i in self.players if i.state != 2]   # Players who have not folded
-            self.curRound.updRankings(plyrs)
-            self.curRound.bidding(plyrs)
+        cont = True #false if the round has ended
+        if self.plyrs_check():
+            self.endRound()
+            cont = False
+        if cont:
+            for j in range(3):  # Implements flop/turn/river
+                self.curRound.increment(burn=True)
+                if j == 0:
+                    self.curRound.increment()
+                    self.curRound.increment()
+                plyrs = [i for i in self.players if i.state != 2]   # Players who have not folded
+                self.curRound.updRankings(plyrs)
+                self.curRound.bidding(plyrs)
+                if self.plyrs_check():
+                    self.endRound()
+                    cont = False
+                    break
+        if cont:
+            self.endRound() #if round has not yet been ended then we end it now
