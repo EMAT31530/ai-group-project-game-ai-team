@@ -151,11 +151,14 @@ class Round:
     def __init__(self, bigBlind, players):
         self.deck = Deck()
         self.pot = 0
+        self.prevBid = 0 #used to determine raising rules; lags one bet behind curBid
+        #eventually will want to develop full hand history so that the above will be redundant anyway
         self.curBid = 0
         self.board = Hand()
         self.bigBlind = bigBlind
         self.histPlayers = []
         self.histActions = []
+        self.street = 0 #street is one of preflop, flop, turn, river 
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -175,9 +178,11 @@ class Round:
         for i in range(2):
             for player in players:
                 player.hand.addCard(self.deck.draw())
+        self.street += 1
 
     def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
+        self.street += 1
 
     def updRankings(self, players):
         for player in players:
@@ -193,6 +198,9 @@ class Round:
         player.money -= amount
         self.pot += amount
         player.curBid += amount
+        
+    def lower(self): #minimum amount you can raise by at any given point
+        return max(self.bigBlind, 2*self.curBid - self.prevBid)
 
     def bidding(self, players):
         def fold(player):
@@ -213,29 +221,33 @@ class Round:
         def raize(player):
             # get a valid raise from user
             def raisecheck(amount):
-                return amount >= (2*self.curBid - player.curBid) and (amount <= player.money)
+                return amount >= lower(self) and (amount <= player.money)
             while True:
-                amount = vald.checkFloat("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, 2*self.curBid))
+                amount = vald.checkFloat("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
                 if raisecheck(amount):
                     break
             # updates relevant info
-            self.curBid += amount - (self.curBid - player.curBid)
-            self.bid(player, amount)
+            self.prevBid = self.curBid
+            #self.curBid += amount - (self.curBid - player.curBid)
+            self.curBid = amount #I think this is right? Raising to a certain value rather than raising by 
+            self.bid(player, amount - player.curBid)
             for playee in [i for i in players if i.state != 2]:
                 playee.state = 0
             player.state = 1
             
         def ai_raize(player, amount): #to be used in ai strategy functions
             #assuming here that the amount to raise is a valid amount
-            self.curBid += amount - (self.curBid - player.curBid)
-            self.bid(player, amount)
+            self.prevBid = self.curBid
+            #self.curBid += amount - (self.curBid - player.curBid)
+            self.curBid = amount
+            self.bid(player, amount - player.curBid)
             for playee in [i for i in players if i.state != 2]:
                 playee.state = 0
             player.state = 1
-            if self.curBid == 0: #unsure about this since self.curBid currently doesn't seem to reset on each street but I feel like it should?
+            if self.prevBid == 0: #unsure about this since self.curBid currently doesn't seem to reset on each street but I feel like it should?
                 print("{} has decided to bet £{}.\n".format(player.name, amount))
             else:
-                print("{} has decided to raise by £{}.\n".format(player.name, amount))
+                print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
 
         while any([i.state in [0, 3] for i in players]):
             for player in [i for i in players if i.state in [0, 3]]:
@@ -264,6 +276,10 @@ class Round:
         # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
             player.state = 0
+            player.curBid = 0
+        self.prevBid = 0
+        self.curBid = 0
+        
 
 
 class Game:  # Object to represent entire game state

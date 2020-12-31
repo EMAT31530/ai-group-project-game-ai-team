@@ -57,19 +57,19 @@ def consecutive(hand):
     else: #quite an ugly hierarchy but I think this involves the least computation
         consec_cards = sorted(num_dict)
         if straight_check(consec_cards[-5:]): #player could have several straights, we want the highest one
-            return consec_cards[-5] #straight can be defined by its bottom card
+            return [consec_cards[-5]] #straight can be defined by its bottom card
         else:
             if n == 5:
                 return False #if there were only five distinct cards then they now cannot have been a straight
             else:
                 if straight_check(consec_cards[-6:-1]):
-                    return consec_cards[-6]
+                    return [consec_cards[-6]]
                 else:
                     if n == 6:
                         return False
                     else:
                         if straight_check(consec_cards[-7:-2]):
-                            return consec_cards[-7]
+                            return [consec_cards[-7]]
                         else:
                             return False
 
