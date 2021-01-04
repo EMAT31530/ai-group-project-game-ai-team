@@ -211,8 +211,13 @@ class Round:
             self.numPlayers -= 1
 
         def call(player):
-            player.state = 1
             amount = self.curBid - player.curBid
+            if amount >= player.money:
+                player.state = 4 #player is all-in
+                self.bid(player, player.money)
+                print("{} has decided to call the bet with {}, and is now all-in.".format(player.name, player.money))
+                
+            player.state = 1
             self.bid(player, amount)
             if player.cpu:
                 if amount > 0:
@@ -225,7 +230,7 @@ class Round:
             def raisecheck(amount):
                 return amount >= self.lower() and (amount <= player.money)
             while True:
-                amount = vald.checkFloat("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
+                amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
                 if raisecheck(amount):
                     break
             # updates relevant info
@@ -279,7 +284,7 @@ class Round:
                             ai_raize(player, amount)
         
         # resets state of remaining players for next bidding
-        for player in [i for i in players if i.state != 2]:
+        for player in [i for i in players if (i.state != 2 and i.state != 4)]:
             player.state = 0
             player.curBid = 0
         self.prevBid = 0
@@ -315,13 +320,20 @@ class Game:  # Object to represent entire game state
         while True:
             self.curRound.blinds(self.players)
             self.play()
-            print("Would you like to play a new round?")
-            answer = vald.getChoice(["Yes", "No", "Y", "N"])
-            if answer == "y" or answer == "yes":
-                self.newRound()
+            for player in self.players:
+                if player.money == 0:
+                    self.players.remove(player)
+            if len(self.players) >= 2:
+                print("Would you like to play a new round?")
+                answer = vald.getChoice(["Yes", "No", "Y", "N"])
+                if answer == "y" or answer == "yes":
+                    self.newRound()
+                else:
+                    print("Good night")
+                    break
             else:
+                print("All players except for {} have been eliminated, who finishes the game with £{}.".format(self.players[0], self.players[0].money))
                 print("Good night")
-                break
 
     # Updates round and appends old round to round list
     def newRound(self):
