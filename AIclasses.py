@@ -215,10 +215,11 @@ class Round:
             if amount >= player.money:
                 player.state = 4 #player is all-in
                 self.bid(player, player.money)
-                print("{} has decided to call the bet with {}, and is now all-in.".format(player.name, player.money))
-                
-            player.state = 1
-            self.bid(player, amount)
+                if player.cpu:
+                    print("{} has decided to call the bet with {}, and is now all-in.".format(player.name, player.money))
+            else:
+                player.state = 1
+                self.bid(player, amount)
             if player.cpu:
                 if amount > 0:
                     print("{} has decided to call £{}.\n".format(player.name, amount))
@@ -228,7 +229,10 @@ class Round:
         def raize(player):
             # get a valid raise from user
             def raisecheck(amount):
-                return amount >= self.lower() and (amount <= player.money)
+                return amount >= self.lower() and (amount <= player.money + player.curBid)
+            if player.money <= self.lower():
+                print("You have now raised all-in for £{}".format(player.money))
+                player.state = 4
             while True:
                 amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
                 if raisecheck(amount):
@@ -238,9 +242,12 @@ class Round:
             #self.curBid += amount - (self.curBid - player.curBid)
             self.curBid = amount #I think this is right? Raising to a certain value rather than raising by 
             self.bid(player, amount - player.curBid)
-            for playee in [i for i in players if i.state != 2]:
+            for playee in [i for i in players if (i.state != 2 and i.state != 4)]:
                 playee.state = 0
-            player.state = 1
+            if player.money == 0:
+                player.state = 4
+            else:
+                player.state = 1
             
         def ai_raize(player, amount): #to be used in ai strategy functions
             #assuming here that the amount to raise is a valid amount
@@ -250,8 +257,13 @@ class Round:
             self.bid(player, amount - player.curBid)
             for playee in [i for i in players if i.state != 2]:
                 playee.state = 0
-            player.state = 1
-            if self.prevBid == 0: #unsure about this since self.curBid currently doesn't seem to reset on each street but I feel like it should?
+            if player.money == 0:
+                player.state = 4
+            else:
+                player.state = 1
+            if player.state == 4:
+                print("{} has decided to go all-in.")
+            elif self.prevBid == 0: #unsure about this since self.curBid currently doesn't seem to reset on each street but I feel like it should?
                 print("{} has decided to bet £{}.\n".format(player.name, amount))
             else:
                 print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
@@ -334,6 +346,7 @@ class Game:  # Object to represent entire game state
             else:
                 print("All players except for {} have been eliminated, who finishes the game with £{}.".format(self.players[0], self.players[0].money))
                 print("Good night")
+                break
 
     # Updates round and appends old round to round list
     def newRound(self):
