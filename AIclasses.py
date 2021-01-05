@@ -151,6 +151,12 @@ class Round:
     def __init__(self, bigBlind, players):
         self.deck = Deck()
         self.pot = 0
+        """
+        self.sidepots = {} #dictionary for sidepots
+        #e.g. {20:80, 50:100} would indicate that any player who bet >= 20 in the round is competing for a pot of 80, and any who bet >= is also competing for a pot of 100
+        #keys are strictly increasing
+        """
+        self.playerMonies = {player: player.money for player in players} #used for calculating side pots
         self.prevBid = 0 #used to determine raising rules; lags one bet behind curBid
         #eventually will want to develop full hand history so that the above will be redundant anyway
         self.curBid = 0
@@ -159,7 +165,8 @@ class Round:
         self.histPlayers = []
         self.histActions = []
         self.street = 0 #street is one of preflop, flop, turn, river 
-        self.numPlayers = len(players) #number of players remaining in the round
+        self.numPlayers = len(players) #number of players not folded
+        self.playon = True #turns false if there is only one player left to bet
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -183,7 +190,6 @@ class Round:
 
     def increment(self, burn=False):
         self.board.addCard(self.deck.draw(burn=burn))
-        self.street += 1
 
     def updRankings(self, players):
         for player in players:
@@ -233,10 +239,13 @@ class Round:
             if player.money <= self.lower():
                 print("You have now raised all-in for £{}".format(player.money))
                 player.state = 4
-            while True:
-                amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
-                if raisecheck(amount):
-                    break
+                self.competingPlayers -= 1
+                amount = self.curBid + player.money
+            else:
+                while True:
+                    amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
+                    if raisecheck(amount):
+                        break
             # updates relevant info
             self.prevBid = self.curBid
             #self.curBid += amount - (self.curBid - player.curBid)
@@ -259,6 +268,7 @@ class Round:
                 playee.state = 0
             if player.money == 0:
                 player.state = 4
+                self.competingPlayers -= 1
             else:
                 player.state = 1
             if player.state == 4:
@@ -269,7 +279,7 @@ class Round:
                 print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
                 
 
-        while any([i.state in [0, 3] for i in players]) and self.numPlayers >= 2:
+        while any([i.state in [0, 3] for i in players]) and self.numPlayers >= 2 and self.playon:
             for player in [i for i in players if i.state in [0, 3]]:
                 if self.numPlayers >= 2:
                     self.strRoundState(player)
@@ -296,12 +306,14 @@ class Round:
                             ai_raize(player, amount)
         
         # resets state of remaining players for next bidding
-        for player in [i for i in players if (i.state != 2 and i.state != 4)]:
+        remaining_players = [i for i in players if (i.state != 2 and i.state != 4)]
+        for player in remaining_players:
             player.state = 0
             player.curBid = 0
         self.prevBid = 0
         self.curBid = 0
-        
+        if len(remaining_players) <= 1:
+            self.playon = False
 
 
 class Game:  # Object to represent entire game state
@@ -344,7 +356,7 @@ class Game:  # Object to represent entire game state
                     print("Good night")
                     break
             else:
-                print("All players except for {} have been eliminated, who finishes the game with £{}.".format(self.players[0], self.players[0].money))
+                print("Only one player remains. {} wins the game with £{}.".format(self.players[0], self.players[0].money))
                 print("Good night")
                 break
 
@@ -370,6 +382,11 @@ class Game:  # Object to represent entire game state
             print("Player {} won £{}.".format(str(remainingPlyrs[0]), self.curRound.pot))
             remainingPlyrs[0].money += self.curRound.pot
         else:
+            coins = self.curRound.playerMonies
+            totalbets = {player: (coins[player] - player.money) for player in coins.keys()} #amount that each player put in during the round
+            bets_sorted = rnk.sort_by_value(totalbets)
+            for bet in bets_sorted.values():
+                
             sortedplayers = sorted(remainingPlyrs, key=cmp_to_key(Player.rankcomp))
             winplyrs = vald.howManyEqu(sortedplayers)
             n = len(winplyrs)
@@ -394,6 +411,7 @@ class Game:  # Object to represent entire game state
         if cont:
             for j in range(3):  # Implements flop/turn/river
                 self.curRound.increment(burn=True)
+                self.curRound.street += 1
                 if j == 0:
                     self.curRound.increment()
                     self.curRound.increment()
