@@ -102,7 +102,7 @@ class Player:  # Object to represent player
             strategy = vald.getStrategy(strat.functions) #ask user for the ai strategy
             self.strategy = int(strategy) - 1
         self.curBid = 0
-        self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last
+        self.state = 0  # 0: in round, 1: called, 2: folded, 3: for blinds so they act last, 4: all in, 5: player has checked, 6: player is not permitted to raise
 
     def __str__(self):  # Overwrites the String fucntion
         return self.name
@@ -150,12 +150,7 @@ class CPU(Player):
 class Round:
     def __init__(self, bigBlind, players):
         self.deck = Deck()
-        self.pot = 0
-        """
-        self.sidepots = {} #dictionary for sidepots
-        #e.g. {20:80, 50:100} would indicate that any player who bet >= 20 in the round is competing for a pot of 80, and any who bet >= is also competing for a pot of 100
-        #keys are strictly increasing
-        """
+        self.pot = 0 
         self.playerMonies = {player: player.money for player in players} #used for calculating side pots
         self.prevBid = 0 #used to determine raising rules; lags one bet behind curBid
         #eventually will want to develop full hand history so that the above will be redundant anyway
@@ -224,13 +219,14 @@ class Round:
                 if player.cpu:
                     print("{} has decided to call the bet with {}, and is now all-in.".format(player.name, player.money))
             else:
-                player.state = 1
                 self.bid(player, amount)
             if player.cpu:
                 if amount > 0:
                     print("{} has decided to call £{}.\n".format(player.name, amount))
+                    player.state = 1
                 else:
                     print("{} has decided to check.\n".format(player.name))
+                    player.state = 5
 
         def raize(player):
             # get a valid raise from user
@@ -383,16 +379,28 @@ class Game:  # Object to represent entire game state
             remainingPlyrs[0].money += self.curRound.pot
         else:
             coins = self.curRound.playerMonies
+            winnings = {} #key/values are players/winnings
             totalbets = {player: (coins[player] - player.money) for player in coins.keys()} #amount that each player put in during the round
             bets_sorted = rnk.sort_by_value(totalbets)
+            prevbet = 0 #initialising a variable here
             for bet in bets_sorted.values():
-                
-            sortedplayers = sorted(remainingPlyrs, key=cmp_to_key(Player.rankcomp))
-            winplyrs = vald.howManyEqu(sortedplayers)
-            n = len(winplyrs)
-            for plyr in winplyrs:
-                plyr.money += int(self.curRound.pot/n)
-            print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
+                compPlayers = list(filter(lambda player: totalbets[player] >= bet, remainingPlyrs))#a list of players who bet at least the amount of 'bet' in that round
+                m = len(list(filter(lambda player: totalbets[player] >= bet, self.players)))
+                sortedplayers = sorted(compPlayers, key=cmp_to_key(Player.rankcomp))
+                winplyrs = vald.howManyEqu(sortedplayers)
+                n = len(winplyrs)
+                win = (bet - prevbet)*m/n
+                for plyr in winplyrs:
+                    if plyr in winnings:
+                        winnings[plyr] += win
+                    else:
+                        winnings[plyr] = win
+                prevbet = bet
+            for plyr in winnings:
+                if winnings[plyr] > 0:
+                    print("Player {} won £{}".format(str(plyr), winnings[plyr]))
+                    plyr.money += winnings[plyr]
+                    #print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
         # add something for how much monies init
         
     def plyrs_check(self):
