@@ -162,6 +162,7 @@ class Round:
         self.street = 0 #street is one of preflop, flop, turn, river 
         self.numPlayers = len(players) #number of players not folded
         self.playon = True #turns false if there is only one player left to bet
+        self.partial = 0 #to keep track of partial raise amounts
         self.start(players)
 
     def __str__(self):  # Overwrites the String fucntion
@@ -201,8 +202,11 @@ class Round:
         self.pot += amount
         player.curBid += amount
         
-    def lower(self): #minimum amount you can raise by at any given point
-        return max(self.bigBlind, 2*self.curBid - self.prevBid)
+    def lower(self): #minimum amount you can raise to at any given point
+        if self.partial <= max(self.bigBlind, 2*self.curBid - self.prevBid):
+            return max(self.bigBlind, self.partial + 2*self.curBid - self.prevBid)
+        else:
+            return max(self.bigBlind, 2*self.partial + self.curBid)
 
     def bidding(self, players):
         def fold(player):
@@ -212,48 +216,67 @@ class Round:
             self.numPlayers -= 1
 
         def call(player):
-            amount = self.curBid - player.curBid
+            amount = self.curBid + self.partial - player.curBid
             if amount >= player.money:
                 player.state = 4 #player is all-in
-                self.bid(player, player.money)
                 if player.cpu:
                     print("{} has decided to call the bet with {}, and is now all-in.".format(player.name, player.money))
+                else:
+                    print("You have called the bet with £{} and are now all-in.".format(player.money))
+                self.bid(player, player.money)
             else:
                 self.bid(player, amount)
-            if player.cpu:
                 if amount > 0:
-                    print("{} has decided to call £{}.\n".format(player.name, amount))
                     player.state = 1
+                    if player.cpu:
+                        print("{} has decided to call £{}.\n".format(player.name, amount))
                 else:
-                    print("{} has decided to check.\n".format(player.name))
-                    player.state = 5
+                    player.state = 5 #checking state
+                    if player.cpu:
+                        print("{} has decided to check.\n".format(player.name))
+                    
 
         def raize(player):
             # get a valid raise from user
             def raisecheck(amount):
                 return amount >= self.lower() and (amount <= player.money + player.curBid)
-            if player.money <= self.lower():
+            if player.money + player.curBid <= self.lower():
                 print("You have now raised all-in for £{}".format(player.money))
                 player.state = 4
-                self.competingPlayers -= 1
-                amount = self.curBid + player.money
+                amount = player.money + player.curBid #add player.curBid because amount is the amount to raise to e.g. if bet 20 then raised by another player to 50, to reraise to 80 we need 80 - 10 chips
             else:
                 while True:
-                    amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, max(self.bigBlind, 2*self.curBid - self.prevBid)))
+                    amount = vald.checkFloat("Max amount: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money + player.curBid, player.curBid, self.lower()))
                     if raisecheck(amount):
                         break
             # updates relevant info
-            self.prevBid = self.curBid
-            #self.curBid += amount - (self.curBid - player.curBid)
-            self.curBid = amount #I think this is right? Raising to a certain value rather than raising by 
-            self.bid(player, amount - player.curBid)
-            for playee in [i for i in players if (i.state != 2 and i.state != 4)]:
-                playee.state = 0
-            if player.money == 0:
-                player.state = 4
-            else:
-                player.state = 1
+            bet = amount - player.curBid
+            self.bid(player, bet)
+            if player.state != 4:
+                self.prevBid = self.curBid + self.partial
+                self.curBid = amount
+                self.partial = 0 #partial raise counter reset after full raise
+                for playee in [i for i in players if (i.state != 2 and i.state != 4)]:
+                    playee.state = 0
+                if player.money == 0:
+                    player.state = 4
+                else:
+                    player.state = 1
+            else: #player has gone all in
+                self.partial += bet #once self.partial reaches min bet threshold, betting is opened again
+                if self.partial >= max(self.bigBlind, 2*self.curBid - self.prevBid): #cumulative partial raises have become a full raise
+                    for playee in [i for i in players if (i.state == 6)]:
+                        playee.state = 0 #frozen players now unfrozen
+                else:
+                    for playee in [i for i in players if (i.state == 1)]:
+                        playee.state == 6 #player has made a partial raise so other players who have bet or called are not allowed to raise yet
+                for playee in [i for i in players if (i.state != 6 and i.state != 4 and i.state != 2)]: #others are set to 0
+                    playee.state == 0
             
+        """
+        remember to fix this!!
+        also change strategies e.g. to deal with state 6
+        """
         def ai_raize(player, amount): #to be used in ai strategy functions
             #assuming here that the amount to raise is a valid amount
             self.prevBid = self.curBid
@@ -275,11 +298,16 @@ class Round:
                 print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
                 
 
-        while any([i.state in [0, 3] for i in players]) and self.numPlayers >= 2 and self.playon:
-            for player in [i for i in players if i.state in [0, 3]]:
+        while any([i.state in [0, 3, 6] for i in players]) and self.numPlayers >= 2 and self.playon:
+            for player in [i for i in players if i.state in [0, 3, 6]]:
                 if self.numPlayers >= 2:
                     self.strRoundState(player)
-                    choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Bet", "Check", "Fold"])
+                    if player.state == 6:
+                        choices = ["Call", "Fold"]
+                    elif player.curBid != self.curBid + self.partial:
+                        choices = ["Raise", "Call", "Fold"]
+                    else:
+                        choices = ["Bet", "Check", "Fold"]
                     if not player.cpu:
                         action = vald.getChoice(choices)
                     else:
@@ -379,13 +407,13 @@ class Game:  # Object to represent entire game state
             remainingPlyrs[0].money += self.curRound.pot
         else:
             coins = self.curRound.playerMonies
-            winnings = {} #key/values are players/winnings
-            totalbets = {player: (coins[player] - player.money) for player in coins.keys()} #amount that each player put in during the round
+            winnings = {} #keys/values are players/winnings
+            totalbets = {player: (coins[player] - player.money) for player in coins.keys()} #dictionary of amount that each player put in during the round
             bets_sorted = rnk.sort_by_value(totalbets)
             prevbet = 0 #initialising a variable here
             for bet in bets_sorted.values():
-                compPlayers = list(filter(lambda player: totalbets[player] >= bet, remainingPlyrs))#a list of players who bet at least the amount of 'bet' in that round
-                m = len(list(filter(lambda player: totalbets[player] >= bet, self.players)))
+                compPlayers = list(filter(lambda player: totalbets[player] >= bet, remainingPlyrs)) #list of non-folded players who bet at least the amount of 'bet' in that round
+                m = len(list(filter(lambda player: totalbets[player] >= bet, self.players))) #number of players (including those who folded) betting at least the amount
                 sortedplayers = sorted(compPlayers, key=cmp_to_key(Player.rankcomp))
                 winplyrs = vald.howManyEqu(sortedplayers)
                 n = len(winplyrs)

@@ -34,7 +34,7 @@ def getChoice(choices):
 
 def howManyEqu(players):
     thismany = [players[-1]]
-    for i in range(len(players)):
+    for i in range(len(players) - 1):
         if players[-i-1] == players[-i-2]:
             thismany.append(players[-i-2])
         else:

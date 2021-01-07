@@ -51,6 +51,8 @@ def consecutive(hand):
     def straight_check(cards):
         a = cards[0]
         return cards == [a, a + 1, a + 2, a + 3, a + 4]
+    def low_check(cards): #forgot about the possibility of an ace, 2, 3, 4, 5 straight
+        return cards[:4] == [2, 3, 4, 5]
     n = len(num_dict) #straights are only possible for 5+ distinct cards so we check the length first
     if n < 5:
         return False #not yet 100% certain what outputs should be but will use False here for now
@@ -60,18 +62,27 @@ def consecutive(hand):
             return [consec_cards[-5]] #straight can be defined by its bottom card
         else:
             if n == 5:
-                return False #if there were only five distinct cards then they now cannot have been a straight
+                if low_check(consec_cards) and 14 in consec_cards:
+                    return [1] #low straight
+                else:
+                    return False #if there were only five distinct cards then they now cannot have been a straight
             else:
                 if straight_check(consec_cards[-6:-1]):
                     return [consec_cards[-6]]
                 else:
                     if n == 6:
-                        return False
+                        if low_check(consec_cards) and 14 in consec_cards:
+                            return [1] 
+                        else:
+                            return False
                     else:
                         if straight_check(consec_cards[-7:-2]):
                             return [consec_cards[-7]]
                         else:
-                            return False
+                            if low_check(consec_cards) and 14 in consec_cards:
+                                return [1] 
+                            else:
+                                return False
 
 
 def high_card(card_nums, num = 5, sub = True): #card_nums is a dictionary here but this could be changed
