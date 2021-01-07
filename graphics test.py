@@ -83,22 +83,15 @@ def main():
 
     boardupdate(500, 5000, win)
     playerinit(['Arnold', 'Joe'], [500, 600], win)
-    Button(win, Point(300,300), 40, 40, 'Quit')
-
-
-
-
-
-
-
+    Button(win, Point(300, 300), 40, 40, 'Quit')
 
     win.setBackground('green')
     win.getMouse()
     win.close()
 
 
-#main()
-
+main()
+"""
 window = tk.Tk()
 window.geometry("1000x1000")
 board= tk.Canvas(window, bg="green", height=1000, width=1000).pack()
@@ -110,3 +103,4 @@ window.configure(bg='green')
 
 
 window.mainloop()
+"""

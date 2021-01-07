@@ -10,6 +10,7 @@ Fold if bet is higher than the raise/check threshold
 River: If fullhouse or greater, go all in. (later)Check if straight draw, Raise/bet if flush, straight, three of a kind. Raise/bet lower for 2 pair, pair. Check/fold if high card.
 Fold if bet is higher than the raise/check threshold
 
+
 Perfect AI behaviour:
 ?
 

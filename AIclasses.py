@@ -4,12 +4,6 @@ import ranking as rnk
 from functools import cmp_to_key
 
 
-# Will be used to represent chips and such
-class Money:
-    def __init__(self):
-        pass
-
-
 class Card:  # Object to represent individual cards
     def __init__(self, suit, val):
         self.suit = '♥♦♣♠'[suit-1]
@@ -23,15 +17,6 @@ class Card:  # Object to represent individual cards
     def __repr__(self):  # The Formal String representation of the object
         return '(val={}, suit={})'.format(self.val, self.suit)
 
-    def __lt__(self, other):  # Overwrites the less than function
-        return self.val < other.val
-
-    def __gt__(self, other):  # Overwrites the greater than function
-        return self.val > other.val
-
-    def __eq__(self, other):  # Overwrites the equal function
-        return self.val == other.val
-
 
 class Deck:  # Object to represent deck throughout game
     def __init__(self):
@@ -43,7 +28,7 @@ class Deck:  # Object to represent deck throughout game
 
     def build(self):  # To build a deck, can be used to rebuild also
         self.cards = []
-        for suit in range(4):  # ["Hearts", "Diamonds", "Spades", "Clubs"]:
+        for suit in range(4):
             for i in range(2, 15):
                 self.cards.append(Card(suit, i))
         self.shuffle()
@@ -66,10 +51,21 @@ class Hand:  # Object to represent player hands
         return str([str(card) for card in self.cards])
 
     def strRank(self):
-        # make into big fuckoff 'if' thing for each possible ranking
-        strlist = ["High card", "Pair", "Two pair", "Three of a kind", "Straight", "Flush", "Full House", "Four of a kind", "Straight Flush"]
+        def onetext(text, index):
+            return "{}: {}".format(text, vals[self.rank[1][index]-2])
+
+        def twotext(text, index):
+            return "{}: {} & {}".format(text, vals[self.rank[1][index]-2], vals[self.rank[1][index+1]-2])
+
+        n = self.rank[0]
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
-        return "{} {}".format(strlist[self.rank[0]-1], vals[self.rank[1][0]-2])
+        strlist = ["", "Highcard", "Pair", "Two Pair", "Three of a kind", "Straight, starting on a", "Flush with highcard", "Full House (Triple & Pair)", "Four of a kind", "Straight Flush, starting on a"]
+        if n in [1, 2, 4, 5, 8]:
+            return onetext(strlist[n], 0),
+        if n in [3, 7]:
+            return twotext(strlist[n], 0)
+        elif n in [6, 9]:
+            return onetext(strlist[n], 0)  # change to show suit
 
     def addCard(self, card):
         self.cards.append(card)
@@ -78,7 +74,6 @@ class Hand:  # Object to represent player hands
         self.rank = rnk.checker(self, board)
 
 
-# ___Just some btec stuff to get an idea of what we would need to do___
 class Player:  # Object to represent player
     def __init__(self, name, chair, money):
         self.name = name
@@ -160,19 +155,22 @@ class Round:
         player.curBid += amount
 
     def bidding(self, players):
-        def fold(player):
+        def fold(player):  # brokenish
             player.state = 2
 
         def call(player):
             player.state = 1
-            self.bid(player, self.curBid - player.curBid)
+            biddif = self.curBid - player.curBid
+            self.bid(player, min(player.money, biddif))
 
         def raize(player):
+            minbid = 2*self.curBid
+
             # get a valid raise from user
             def raisecheck(amount):
-                return amount >= (2*self.curBid - player.curBid) and (amount <= player.money)
+                return amount >= (minbid - player.curBid) and (amount <= player.money)
             while True:
-                amount = vald.checkInt("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, 2*self.curBid))
+                amount = vald.checkInt("Balance: £{}, Current bid: £{}, Minimum bid: £{}. ".format(player.money, player.curBid, minbid))
                 if raisecheck(amount):
                     break
             # updates relevant info
@@ -185,31 +183,44 @@ class Round:
         while any([i.state in [0, 3] for i in players]):
             for player in [i for i in players if i.state in [0, 3]]:
                 self.strRoundState(player)
-                choices = (["Raise", "Call", "Fold"] if player.curBid != self.curBid else ["Raise", "Check", "Fold"])
-                action = vald.getChoice(choices)
+                choices = ["Bet" if self.curBid == 0 else "Raise", "Check" if player.curBid == self.curBid else "Call", "Fold"]
+
+                while True:
+                    action = vald.getChoice(choices)
+                    if action in ("raise", "bet"):
+                        if 2*self.curBid - player.curBid < player.money:
+                            raize(player)
+                            break
+                        else:
+                            print("You do not have enough money to raise.")
+                    elif action == "fold":
+                        fold(player)
+                        break
+                    else:
+                        call(player)
+                        break
+                print("")
                 self.histActions.append((action, str(player)))  # for action history
-                if action == "raise":
-                    raize(player)
-                elif action == "fold":
-                    fold(player)
-                else:
-                    call(player)
         # resets state of remaining players for next bidding
         for player in [i for i in players if i.state != 2]:
             player.state = 0
+            player.curBid = 0
+        self.curBid = 0
 
 
 class Game:  # Object to represent entire game state
     def __init__(self, blind):
-        self.players = self.buildPlayers(blind * 20)  # Creates list of players
+        self.players = self.buildPlayers(blind * 200, 6)  # Creates list of players
         self.Rounds = []  # To store all ellapsed rounds
         self.blind = blind
         self.curRound = Round(blind, self.players)
 
-    def buildPlayers(self, initmoney):
-        players = vald.checkInt("How many players?\n")
+    def buildPlayers(self, initmoney, maxplayers):
+        playernum = vald.checkInt("How many players? (2-{})\n".format(maxplayers))  # 2 min, maxplayers max
+        while playernum > maxplayers or playernum < 2:
+            playernum = vald.checkInt("Please input a number between 2 and {}.\n".format(maxplayers))
         playerlist = []
-        for i in range(players):
+        for i in range(playernum):
             name = vald.checkString("Player {}s name?\n".format(i+1))
             playerlist.append(Player(name, i, initmoney))
         return playerlist
@@ -219,7 +230,7 @@ class Game:  # Object to represent entire game state
             self.curRound.blinds(self.players)
             self.play()
             self.endRound()
-            print("Would you like to play a new roud")
+            print("Would you like to play a new round")
             answer = vald.getChoice(["Yes", "No", "Y", "N"])
             if answer == "y" or answer == "yes":
                 self.newRound()
@@ -241,20 +252,20 @@ class Game:  # Object to represent entire game state
         self.Rounds.append(self.curRound)
         # creates the new round
         self.curRound = Round(self.blind, self.players)
-    # divvies out the winnings
 
+    # divvies out the winnings
     def endRound(self):
         remainingPlyrs = [i for i in self.players if i.state != 2]
-        if len(remainingPlyrs) == 1:
+        sortedplayers = sorted(remainingPlyrs, key=cmp_to_key(Player.rankcomp))
+        winplyrs = vald.howManyEqu(sortedplayers)
+        n = len(winplyrs)
+        if n == 1:
             print("Player {} won £{}.".format(str(remainingPlyrs[0]), self.curRound.pot))
-            remainingPlyrs[0].money += self.curRound.pot
+            winplyrs[0].money += self.curRound.pot
         else:
-            sortedplayers = sorted(remainingPlyrs, key=cmp_to_key(Player.rankcomp))
-            winplyrs = vald.howManyEqu(sortedplayers)
-            n = len(winplyrs)
             for plyr in winplyrs:
                 plyr.money += int(self.curRound.pot/n)
-            print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
+            print("Player(s) {} won £{} each.".format(", ".join([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
         # add something for how much monies init
 
     def play(self):
