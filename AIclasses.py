@@ -269,9 +269,9 @@ class Round:
                         playee.state = 0 #frozen players now unfrozen
                 else:
                     for playee in [i for i in players if (i.state == 1)]:
-                        playee.state == 6 #player has made a partial raise so other players who have bet or called are not allowed to raise yet
+                        playee.state = 6 #player has made a partial raise so other players who have bet or called are not allowed to raise yet
                 for playee in [i for i in players if (i.state != 6 and i.state != 4 and i.state != 2)]: #others are set to 0
-                    playee.state == 0
+                    playee.state = 0
             
         """
         remember to fix this!!
@@ -338,6 +338,7 @@ class Round:
             player.curBid = 0
         self.prevBid = 0
         self.curBid = 0
+        self.partial = 0
         if len(remaining_players) <= 1:
             self.playon = False
 
