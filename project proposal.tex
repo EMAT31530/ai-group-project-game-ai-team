@@ -1,0 +1,136 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\usepackage{multicol}
+
+\begin{document}
+
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+            
+        \Huge
+        \textbf{Creation of a Poker AI}
+            
+        \vspace{0.5cm}
+        \LARGE
+        Introduction to Artificial Intelligence Project Proposal
+            
+        \vspace{1.5cm}
+            
+        \textbf{Alexandros Apostolou, Tom Collins, Joseph Dowling, Arnold Gomes}
+            
+        \vfill
+            
+    
+        
+        \vspace{0.8cm}
+            
+        University of Bristol
+            
+        \Large
+        15/01/2021
+            
+    \end{center}
+\end{titlepage}
+
+\begin{multicols*}{2}
+\section{Introduction to the Problem}
+We decided to base our project on an application relating to gaming, and develop an AI that is capable of playing games vs humans and improving itself. Some initial ideas we proposed were creating a Settlers of Catan AI or a Chess AI. We settled on creating a Poker AI based on the Texas Hold'em variant of poker.
+\newline
+
+We chose to implement an AI in Poker as we thought a table top card game would be simple to code and we would be able to focus on the AI side of it more. We were also interested in the topic of reinforcement learning and think that it will feature heavily in the creation of our AI. The reason for this is that reinforcement learning is the methodology that is used when the rewards for specific actions are delayed. The AI will take actions based on the state of the constantly changing environment, and then received a reward or penalty at the end of the round. It will then learn what actions are best suited to take based on maximising the future reward. In Texas Hold'em, there are several possible changes to the environment to be considered, such as when a new community card is drawn, changes to player's bets (which would be indicative of their behaviour which can be based off the strength of their hand) and changes to the number of players depending on players that may fold. 
+\newline 
+
+Our objective with the AI is to start off with an incredibly basic AI that would randomly take actions with equal likelihood and then improve after playing many games versus other players. We are unsure at the moment whether we should let the AI learn from any player that it plays, experienced players only or a perfect AI. We may further explore these different possibilities as the AI may learn different behavioural patterns based on the subjects it plays.
+
+
+
+
+
+\section{Initial Experimentation} 
+While we have not started developing our AI in depth, we have first created several basic AI with predetermined strategies as a baseline. Examples of the strategies we have created are:
+
+\begin{itemize}
+    \item An AI that will always go all in on every hand, regardless of any other factors
+    \item An AI that will fold on every hand
+    \item An AI that will always check/call every hand
+    \item An AI that will randomly select between call/checking, folding and going all in with equal probability 
+    \item A more sophisticated strategy that will calculate the strength of its hand and play accordingly
+\end{itemize}
+
+The simplistic nature of all of these strategies will mean that they are only useful to test the strength of our AI at the beginning. Although there is a slightly more sophisticated strategy that it will be up against, they are all still deterministic. And due to their simplicity, the AI should quickly learn how they play and what is the optimal method of beating them. 
+\newline
+
+We will require a way to benchmark our AI once it starts to exhibit characteristics that far exceed the level of the simplistic strategies. There are a couple of ways that we can do this and they are also related to the way we have discussed to train the AI. We can either train it versus other humans or versus a perfect poker AI that already exists.
+\newline
+
+Training the AI vs other humans would give us a large number of possible strategies that can be studied and learnt from. The AI would determine certain elements from each players strategy that would be beneficial to have and incorporate them to create a better strategy. If the AI is playing very high skilled players, it would perform poorly but would most likely learn the best possible strategies a lot faster than if it plays lower skilled players. A possible downside of training against other humans is that if the level of the players is very low, the growth of the AI would be stunted. This is because if the AI can only learn from low level strategies, then it can at most only learn to beat low level strategies. When pitched against a higher skilled opponent, it would struggle to compete. This does not mean that the optimal solution is to only have our AI play against high skill opponents straight away. Although we have not explored this area yet, it may be better off to play against opponents of gradually increasing skill level, which would lead to gradual development.
+\newline
+
+Another issue with training against other humans is the time it would take. Training an AI requires a large data set and gathering this amount of data from human players may require multiple thousands of trials which would take an incredibly long time to gather. This is a reason that it may be better to train our AI versus an already created Perfect AI as it would be easy to run many trials to train our AI. And also as stated before, it may be best to learn directly from an already perfect strategy rather than gradually increasing the skill of strategies that it is facing.
+
+\subsection{Add in a little bit about testing method discussed}
+%testing method was, have the AI play multiple games vs an opponent, display what win % over time. More wins as time goes on means it is learning. The rate of learning can be quantified? graphed
+\section{Potential Project Ideas}
+Before we settled on poker, we briefly discussed the potential of creating an AI in other games. One of the possibilities we considered was creating a Settlers of Catan AI. While it is a popular game, we thought that it may be an area where AI hadn't been explored very deeply so there would be room for us developing something completely unique. 
+\newline
+
+We decided against a Settler's of Catan AI after some initial testing on how to implement the game itself in python. We found that it was a complex task to even program a working game due to the hexagonal structure of the board and the large variety of possible actions available. It would be more difficult to find the time to focus on the AI aspect as the majority of the time would be spent creating a playable prototype of the game. 
+\newline
+
+We also discussed creating a Chess AI as it was another board game that was very common and seemingly more simple to program than Settler's of Catan. There is also lots of potential for AI to be developed and even examples of these AI defeating Chess a Grandmaster from time to time. However, we thought that due to the popularity of Chess, many AI developments in the field have already been explored so there would be nothing new that we could innovate. 
+\newline
+
+We settled on Poker because we thought it was simple to implement and even though there are lots of Poker AI that have already been created, we believe that we can put our own unique spin on it. We are interested in exploring the area of bluffing in poker. This is a very human element of Poker that is unique to each player and the tendencies they have when they bluff are most likely drawn from their inbuilt characteristics. By being able to learn and categorise these behaviours, our AI would be able to tailor it's strategy based on the behavioural tendencies of the person it is playing, not just the optimal strategy to play Poker. We believe this is possible though it will require some additional research.
+
+% we thought we could do something unique with poker AI, bluffing? 
+\section{Literature Review}
+%need to figure out wtf goes here
+\section{TB1 Topics and their relevancy}
+%not sure whether to write a line or two about each topic and it's relevancy. main topics relevant are game theory and reinforcement learning
+\begin{itemize}
+    \item Linear Regression
+    \item Linear Classification
+    \item Unsupervised learning
+    \item Decision Trees
+    \item Search I
+    \item Markov Decision processes and Reinforcement Learning
+    \item Game Theory
+    \item Ethics
+\end{itemize}
+%not sure about this section
+\section{AI Methods}
+%Reinforcement learning? Think about pros and cons of reinforcement learning?
+%factors of reinforcement learning that will be used? rewards? 
+
+%Reinforcement learning from self play?
+%Game theory as well?
+\section{Future Work}
+%not finished, need to add to
+For the next teaching block, we have the following objectives:
+\begin{itemize}
+    \item To develop a learning algorithm that employs the concept of Reinforcement Learning to train our AI
+    
+    \item 
+    
+    \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm 
+    
+    \item Potentially implement a GUI for ease of use
+    
+    
+    
+    
+\end{itemize}
+
+
+
+\end{multicols*}
+
+
+
+
+
+
+\end{document}
