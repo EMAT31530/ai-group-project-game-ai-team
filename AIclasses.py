@@ -77,7 +77,7 @@ class Hand:  # Object to represent player hands
         vals = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'Jack', 'Queen', 'King', 'Ace']
         strlist = ["", "Highcard", "Pair", "Two Pair", "Three of a kind", "Straight, starting on a", "Flush starting on a", "Full House (Triple & Pair)", "Four of a kind", "Straight Flush, starting on a"]
         if n in [1, 2, 4, 5, 8]:
-            return onetext(strlist[n], 0),
+            return onetext(strlist[n], 0)
         if n in [3, 7]:
             return twotext(strlist[n], 0)
         elif n in [6, 9]:
@@ -170,7 +170,7 @@ class Round:
 
     def strRoundState(self, player):
         print("Player {}'s turn.".format(str(player)))
-        print("Currently the pot is £{}, and the highest bid is £{}.".format(self.pot, self.curBid))
+        print("Currently the pot is £{}, and the highest bid is £{}.".format(self.pot, self.curBid + self.partial))
         if not player.cpu: #only want to display their hand for human players
             print("Your current bet is £{}, and you have £{}.".format(player.curBid, player.money))
             print("In you hand you have: {}. And on the board there is: {}.".format(player.hand, self.board))
@@ -203,7 +203,7 @@ class Round:
         player.curBid += amount
         
     def lower(self): #minimum amount you can raise to at any given point
-        if self.partial <= max(self.bigBlind, 2*self.curBid - self.prevBid):
+        if self.partial + self.curBid <= max(self.bigBlind, 2*self.curBid - self.prevBid): #cumulative partial raises have not yet amounted to a full raise
             return max(self.bigBlind, self.partial + 2*self.curBid - self.prevBid)
         else:
             return max(self.bigBlind, 2*self.partial + self.curBid)
@@ -263,8 +263,8 @@ class Round:
                 else:
                     player.state = 1
             else: #player has gone all in
-                self.partial += bet #once self.partial reaches min bet threshold, betting is opened again
-                if self.partial >= max(self.bigBlind, 2*self.curBid - self.prevBid): #cumulative partial raises have become a full raise
+                self.partial = amount - self.curBid #once self.partial reaches min bet threshold, betting is opened again
+                if amount >= max(self.bigBlind, 2*self.curBid - self.prevBid): #cumulative partial raises have become a full raise
                     for playee in [i for i in players if (i.state == 6)]:
                         playee.state = 0 #frozen players now unfrozen
                 else:
@@ -302,10 +302,12 @@ class Round:
             for player in [i for i in players if i.state in [0, 3, 6]]:
                 if self.numPlayers >= 2:
                     self.strRoundState(player)
-                    if player.state == 6:
+                    if player.state == 6 or (player.curBid + player.money <= self.curBid + self.partial): #can't raise if frozen or don't have enough chips
                         choices = ["Call", "Fold"]
                     elif player.curBid != self.curBid + self.partial:
                         choices = ["Raise", "Call", "Fold"]
+                    elif player.chair == 1 and self.street == 1:
+                        choices = ["Raise", "Check", "Fold"] #should just be for BB
                     else:
                         choices = ["Bet", "Check", "Fold"]
                     if not player.cpu:
@@ -368,9 +370,7 @@ class Game:  # Object to represent entire game state
         while True:
             self.curRound.blinds(self.players)
             self.play()
-            for player in self.players:
-                if player.money == 0:
-                    self.players.remove(player)
+            self.players = [player for player in self.players if player.money > 0] #removes all players with no money left
             if len(self.players) >= 2:
                 print("Would you like to play a new round?")
                 answer = vald.getChoice(["Yes", "No", "Y", "N"])

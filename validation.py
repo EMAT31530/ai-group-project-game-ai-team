@@ -34,8 +34,10 @@ def getChoice(choices):
 
 def howManyEqu(players):
     thismany = [players[-1]]
+    if len(players) == 1:
+        return thismany
     for i in range(len(players) - 1):
-        if players[-i-1] == players[-i-2]:
+        if players[-i-1].rankcomp(players[-i-2]) == 0: #players have equal hand rankings
             thismany.append(players[-i-2])
         else:
             return thismany
