@@ -2,6 +2,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 
+\usepackage[left = 4cm, right = 4cm]{geometry}
 \usepackage{multicol}
 
 \begin{document}
@@ -9,29 +10,29 @@
 \begin{titlepage}
     \begin{center}
         \vspace*{1cm}
-            
+
         \Huge
         \textbf{Creation of a Poker AI}
-            
+
         \vspace{0.5cm}
         \LARGE
         Introduction to Artificial Intelligence Project Proposal
-            
+
         \vspace{1.5cm}
-            
+
         \textbf{Alexandros Apostolou, Tom Collins, Joseph Dowling, Arnold Gomes}
-            
+
         \vfill
-            
-    
-        
+
+
+
         \vspace{0.8cm}
-            
+
         University of Bristol
-            
+
         \Large
         15/01/2021
-            
+
     \end{center}
 \end{titlepage}
 
@@ -40,8 +41,8 @@
 We decided to base our project on an application relating to gaming, and develop an AI that is capable of playing games vs humans and improving itself. Some initial ideas we proposed were creating a Settlers of Catan AI or a Chess AI. We settled on creating a Poker AI based on the Texas Hold'em variant of poker.
 \newline
 
-We chose to implement an AI in Poker as we thought a table top card game would be simple to code and we would be able to focus on the AI side of it more. We were also interested in the topic of reinforcement learning and think that it will feature heavily in the creation of our AI. The reason for this is that reinforcement learning is the methodology that is used when the rewards for specific actions are delayed. The AI will take actions based on the state of the constantly changing environment, and then received a reward or penalty at the end of the round. It will then learn what actions are best suited to take based on maximising the future reward. In Texas Hold'em, there are several possible changes to the environment to be considered, such as when a new community card is drawn, changes to player's bets (which would be indicative of their behaviour which can be based off the strength of their hand) and changes to the number of players depending on players that may fold. 
-\newline 
+We chose to implement an AI in Poker as we thought a table top card game would be simple to code and we would be able to focus on the AI side of it more. We were also interested in the topic of reinforcement learning and think that it will feature heavily in the creation of our AI. The reason for this is that reinforcement learning is the methodology that is used when the rewards for specific actions are delayed. The AI will take actions based on the state of the constantly changing environment, and then received a reward or penalty at the end of the round. It will then learn what actions are best suited to take based on maximising the future reward. In Texas Hold'em, there are several possible changes to the environment to be considered, such as when a new community card is drawn, changes to player's bets (which would be indicative of their behaviour which can be based off the strength of their hand) and changes to the number of players depending on players that may fold.
+\newline
 
 Our objective with the AI is to start off with an incredibly basic AI that would randomly take actions with equal likelihood and then improve after playing many games versus other players. We are unsure at the moment whether we should let the AI learn from any player that it plays, experienced players only or a perfect AI. We may further explore these different possibilities as the AI may learn different behavioural patterns based on the subjects it plays.
 
@@ -49,18 +50,18 @@ Our objective with the AI is to start off with an incredibly basic AI that would
 
 
 
-\section{Initial Experimentation} 
+\section{Initial Experimentation}
 While we have not started developing our AI in depth, we have first created several basic AI with predetermined strategies as a baseline. Examples of the strategies we have created are:
 
 \begin{itemize}
     \item An AI that will always go all in on every hand, regardless of any other factors
     \item An AI that will fold on every hand
     \item An AI that will always check/call every hand
-    \item An AI that will randomly select between call/checking, folding and raising by a random amount with equal probability 
+    \item An AI that will randomly select between call/checking, folding and raising by a random amount with equal probability
     \item A more sophisticated strategy that will calculate the strength of its hand and play accordingly
 \end{itemize}
 
-The simplistic nature of all of these strategies will mean that they are only useful to test the strength of our AI at the beginning. Although there is a slightly more sophisticated strategy that it will be up against, they are all still deterministic. And due to their simplicity, the AI should quickly learn how they play and what is the optimal method of beating them. 
+The simplistic nature of all of these strategies will mean that they are only useful to test the strength of our AI at the beginning. Although there is a slightly more sophisticated strategy that it will be up against, they are all still deterministic. And due to their simplicity, the AI should quickly learn how they play and what is the optimal method of beating them.
 \newline
 
 We will require a way to benchmark our AI once it starts to exhibit characteristics that far exceed the level of the simplistic strategies. There are a couple of ways that we can do this and they are also related to the way we have discussed to train the AI. We can either train it versus other humans or versus a perfect poker AI that already exists.
@@ -71,38 +72,38 @@ Training the AI vs other humans would give us a large number of possible strateg
 
 Another issue with training against other humans is the time it would take. Training an AI requires a large data set and gathering this amount of data from human players may require multiple thousands of trials which would take an incredibly long time to gather. This is a reason that it may be better to train our AI versus an already created Perfect AI as it would be easy to run many trials to train our AI. And also as stated before, it may be best to learn directly from an already perfect strategy rather than gradually increasing the skill of strategies that it is facing.
 
-\subsection{Add in a little bit about testing method discussed}
-%testing method was, have the AI play multiple games vs an opponent, display what win % over time. More wins as time goes on means it is learning. The rate of learning can be quantified? graphed
+The way we will test the effectiveness of our training algorithm is by simulating many games of our AI against the chosen opponent and storing the actions taken and outcomes that follow. This data is then used via the reinforcement learning to 'train' our AI. As time goes on, taking a graph of the AIs win rate over time there would ideally be a general increase, demonstrating the improvements of the AI thanks to our reinforcement learning. If we vary our training AI or method we can also quantify their efficacy by the rate in improvement of our AIs win rate over time.
+
 \section{Potential Project Ideas}
-Before we settled on poker, we briefly discussed the potential of creating an AI in other games. One of the possibilities we considered was creating a Settlers of Catan AI. While it is a popular game, we thought that it may be an area where AI hadn't been explored very deeply so there would be room for us developing something completely unique. 
+Before we settled on poker, we briefly discussed the potential of creating an AI in other games. One of the possibilities we considered was creating a Settlers of Catan AI. While it is a popular game, we thought that it may be an area where AI hadn't been explored very deeply so there would be room for us developing something completely unique.
 \newline
 
-We decided against a Settler's of Catan AI after some initial testing on how to implement the game itself in Python. We found that it was a complex task to even program a working game due to the hexagonal structure of the board and the large variety of possible actions available. It would be more difficult to find the time to focus on the AI aspect as the majority of the time would be spent creating a playable prototype of the game. 
+We decided against a Settler's of Catan AI after some initial testing on how to implement the game itself in Python. We found that it was a complex task to even program a working game due to the hexagonal structure of the board and the large variety of possible actions available. It would be more difficult to find the time to focus on the AI aspect as the majority of the time would be spent creating a playable prototype of the game.
 \newline
 
-We also discussed creating a Chess AI as it was another board game that was very common and seemingly more simple to program than Settler's of Catan. There is also lots of potential for AI to be developed and even examples of these AI defeating a Chess Grandmaster from time to time. However, we thought that due to the popularity of Chess, many AI developments in the field have already been explored so there would be nothing new that we could innovate. 
+We also discussed creating a Chess AI as it was another board game that was very common and seemingly more simple to program than Settler's of Catan. There is also lots of potential for AI to be developed and even examples of these AI defeating a Chess Grandmaster from time to time. However, we thought that due to the popularity of Chess, many AI developments in the field have already been explored so there would be nothing new that we could innovate.
 \newline
 
 We settled on Poker because we thought it was simple to implement and even though there are lots of Poker AI that have already been created, we believe that we can put our own unique spin on it. We are interested in exploring the area of bluffing in poker. This is a very human element of Poker that is unique to each player and the tendencies they have when they bluff are most likely drawn from their inbuilt characteristics. By being able to learn and categorise these behaviours, our AI would be able to tailor it's strategy based on the behavioural tendencies of the person it is playing, not just the optimal strategy to play Poker. We believe this is possible though it will require some additional research.
 
-% we thought we could do something unique with poker AI, bluffing? 
+% we thought we could do something unique with poker AI, bluffing?
 \section{Literature Review}
 
-Designing an AI to play a game and eventually beat its human experts has often been a great milestone in AI. These achievements have often been made in games such as chess and Go where both players have full information about the game and AI can practically be developed using brute force alone. Poker has received a lot of attention lately as the quintessential game of imperfect information, where just two cards kept secret per player present a host of challenges for developers. To draw inspiration for our project, we have examined some of the most prominent poker AI that have been developed in recent years. 
+Designing an AI to play a game and eventually beat its human experts has often been a great milestone in AI. These achievements have often been made in games such as chess and Go where both players have full information about the game and AI can practically be developed using brute force alone. Poker has received a lot of attention lately as the quintessential game of imperfect information, where just two cards kept secret per player present a host of challenges for developers. To draw inspiration for our project, we have examined some of the most prominent poker AI that have been developed in recent years.
 \newline
-One such AI is DeepStack, designed to play heads up (two player) no-limit hold’em. The specific choice of game is motivated by the fact that Texas Hold’em is the most popular form of poker, and that there already existed many AI to play limit hold’em (where the amount a player can bet in any round is capped) since this greatly restricts the number of actions the AI can take and therefore substantially reduces computation. In approaching this frontier, the team designed an AI that doesn’t calculate an entire strategy before the game but rather approaches each situation in the game with a strategy calculated there and then. The key element is what the team calls ‘continual resolving’. DeepStack performs a heuristic search to a given depth limit – usually four – and uses approximations of the game to determine the value of each leaf node. The breadth of the search is similarly restricted by limiting the potential actions of the AI to folding, calling, 2 or 3 bet actions and all-in raises.  
+One such AI is DeepStack \cite{Deepstack}, designed to play heads up (two player) no-limit hold’em. The specific choice of game is motivated by the fact that Texas Hold’em is the most popular form of poker, and that there already existed many AI to play limit hold’em (where the amount a player can bet in any round is capped) since this greatly restricts the number of actions the AI can take and therefore substantially reduces computation. In approaching this frontier, the team designed an AI that doesn’t calculate an entire strategy before the game but rather approaches each situation in the game with a strategy calculated there and then. The key element is what the team calls ‘continual resolving’. DeepStack performs a heuristic search to a given depth limit – usually four – and uses approximations of the game to determine the value of each leaf node. The breadth of the search is similarly restricted by limiting the potential actions of the AI to folding, calling, 2 or 3 bet actions and all-in raises.
 \newline
-The computer works backwards at each decision point to build the strategy it took to get to that point; it then uses the heuristic search to determine the next move, abandoning its previous strategy. The advantage of this resolving is that the AI would otherwise have to search to the end of the hand to determine its strategy and this is practically infeasible. To calculate the values at the leaf nodes, the AI uses deep learning. To do this, the AI has to determine its range (the probability distribution of hands they hold, given their actions) and the opponent’s counterfactuals (the value of potential hands they hold. This range is in turn developed in assuming that the opponent is playing an optimal Nash equilibrium strategy.  
+The computer works backwards at each decision point to build the strategy it took to get to that point; it then uses the heuristic search to determine the next move, abandoning its previous strategy. The advantage of this resolving is that the AI would otherwise have to search to the end of the hand to determine its strategy and this is practically infeasible. To calculate the values at the leaf nodes, the AI uses deep learning. To do this, the AI has to determine its range (the probability distribution of hands they hold, given their actions) and the opponent’s counterfactuals (the value of potential hands they hold. This range is in turn developed in assuming that the opponent is playing an optimal Nash equilibrium strategy.
 \newline
-The soundness of this online strategy means that the AI has very low exploitability – essentially, the strategy has no weaknesses. It is therefore unsurprising that DeepStack consistently beat some of the best professional poker players over many hands of play. 
+The soundness of this online strategy means that the AI has very low exploitability – essentially, the strategy has no weaknesses. It is therefore unsurprising that DeepStack consistently beat some of the best professional poker players over many hands of play.
 \newline
-Poker games with more than two players present a much greater challenge since no known polynomial time algorithm exists to compute the Nash equilibrium strategy, which is the theoretical unbeatable strategy in a two-player context. The team developing Pluribus, designed to play six-player no-limit hold’em, therefore decided to focus on empirical performance rather than theoretical soundness. Like DeepStack, Pluribus determines its strategy using self-play – rather than being fed data from human games, for example – but also uses a technique called abstraction. The AI attempts to solve a close approximation of the game that vastly reduces computation required: action abstraction lumps together similar actions – treating a bet of £400 and £401 as the exact same, for example – and information lumps together similar hands – treating a fourth highest card of a seven the same as a six, for example – in situations where the distinction is not important.  
+Poker games with more than two players present a much greater challenge since no known polynomial time algorithm exists to compute the Nash equilibrium strategy, which is the theoretical unbeatable strategy in a two-player context. The team developing Pluribus \cite{Pluribus}, designed to play six-player no-limit hold’em, therefore decided to focus on empirical performance rather than theoretical soundness. Like DeepStack, Pluribus determines its strategy using self-play – rather than being fed data from human games, for example – but also uses a technique called abstraction. The AI attempts to solve a close approximation of the game that vastly reduces computation required: action abstraction lumps together similar actions – treating a bet of £400 and £401 as the exact same, for example – and information lumps together similar hands – treating a fourth highest card of a seven the same as a six, for example – in situations where the distinction is not important.
 \newline
-The self-play works through a technique called Monte Carlo counterfactual regret minimisation (MCCFR) to play hands against copies itself; after each hand, one of the copies evaluates its strategy and makes an adjustment to their strategy based on their performance. This process begins with the AI playing a random strategy and that initial poor strategy can end up having a lasting effect on their strategy for many iterations, so later strategies are given a higher weighting in the early stages of this process. With this self-play, the AI creates a blueprint strategy that it improves in during the game.  
+The self-play works through a technique called Monte Carlo counterfactual regret minimisation (MCCFR) to play hands against copies itself; after each hand, one of the copies evaluates its strategy and makes an adjustment to their strategy based on their performance. This process begins with the AI playing a random strategy and that initial poor strategy can end up having a lasting effect on their strategy for many iterations, so later strategies are given a higher weighting in the early stages of this process. With this self-play, the AI creates a blueprint strategy that it improves in during the game.
 \newline
-Using depth limited search trees, the AI searches for better actions than those currently in its blueprint strategy. Like DeepStack, the AI needs to place a value on the leaf nodes and this is roughly based on an estimate of the value of that position if the opponent played a Nash equilibrium strategy. The twist here though is that the AI also simulates the opponent playing strategies slightly biased from the optimal one; these strategies have weaknesses but also punish opponents for having weaknesses, so Pluribus is funneled towards a balanced strategy. Indeed, Pluribus also aims to reduce its exploitability by simulating the actions it would take in a situation with every possible hand, not just the one it is holding, to make sure that its strategy is correctly balanced. And so, like DeepStack, Pluribus triumphed over its human opponents during testing.  
+Using depth limited search trees, the AI searches for better actions than those currently in its blueprint strategy. Like DeepStack, the AI needs to place a value on the leaf nodes and this is roughly based on an estimate of the value of that position if the opponent played a Nash equilibrium strategy. The twist here though is that the AI also simulates the opponent playing strategies slightly biased from the optimal one; these strategies have weaknesses but also punish opponents for having weaknesses, so Pluribus is funneled towards a balanced strategy. Indeed, Pluribus also aims to reduce its exploitability by simulating the actions it would take in a situation with every possible hand, not just the one it is holding, to make sure that its strategy is correctly balanced. And so, like DeepStack, Pluribus triumphed over its human opponents during testing.
 \newline
-One of the most recent poker AI to have been developed is Rebel, which is a general algorithm for playing two-player zero-sum games. Rebel uses a combination of reinforcement learning and search to find its strategy. The key innovation, however, is that Rebel maintains a public belief state (PBS) for each player, which is the AI’s assessment of what other players think their range is. This allows the game to be treated as if there is perfect information, but just probabilistically. (One assumption here is that other players’ strategies are known, which is less applicable to playing against human opponents.) Like other poker AI, Rebel uses CFR to search for its strategy, and is proven to converge to a Nash equilibrium strategy in two-player zero-sum games. Rebel is one step towards an all-purpose AI that performs well in a variety of tasks, not just one. 
+One of the most recent poker AI to have been developed is Rebel \cite{Rebel1} \cite{Rebel2}, which is a general algorithm for playing two-player zero-sum games. Rebel uses a combination of reinforcement learning and search to find its strategy. The key innovation, however, is that Rebel maintains a public belief state (PBS) for each player, which is the AI’s assessment of what other players think their range is. This allows the game to be treated as if there is perfect information, but just probabilistically. (One assumption here is that other players’ strategies are known, which is less applicable to playing against human opponents.) Like other poker AI, Rebel uses CFR to search for its strategy, and is proven to converge to a Nash equilibrium strategy in two-player zero-sum games. Rebel is one step towards an all-purpose AI that performs well in a variety of tasks, not just one.
 \section{TB1 Topics and their relevancy}
 %not sure whether to write a line or two about each topic and it's relevancy. main topics relevant are game theory and reinforcement learning
 \begin{itemize}
@@ -118,32 +119,67 @@ One of the most recent poker AI to have been developed is Rebel, which is a gene
 %not sure about this section
 \section{AI Methods}
 %Reinforcement learning? Think about pros and cons of reinforcement learning?
-%factors of reinforcement learning that will be used? rewards? 
+%factors of reinforcement learning that will be used? rewards?
 
 %Reinforcement learning from self play?
 %Game theory as well?
+
 \section{Future Work}
-%not finished, need to add to
 For the next teaching block, we have the following objectives:
 \begin{itemize}
-    \item To develop a learning algorithm that employs the concept of Reinforcement Learning to train our AI
-    
-    \item 
-    
-    \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm 
-    
-    \item Potentially implement a GUI for ease of use
-    
-    
-    
-    
+    \item To develop a learning algorithm that employs the concept of Reinforcement Learning, and perhaps some form of a heuristic searches based upon our literature reivew, to train our AI
+    \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm.
+    \item Implement a GUI for presentation and ease of use when a human user is playing against the AIs.
 \end{itemize}
+
+
 
 
 
 \end{multicols*}
 
 
+
+
+
+
+
+
+
+\begin{thebibliography}{9}
+\bibitem{Deepstack}
+Matej Moravcik, Martin Schmid, Neil Burch, Viliam Lisy, Dustin Morrill, Nolan Bard, Trevor Davis, Kevin Waugh, Michael Johanson, Michael Bowling
+\textit{DeepStack: Expert-Level Artificial Intelligence in
+Heads-Up No-Limit Poker}.
+\texttt{https://arxiv.org/pdf/1701.01724.pdf}
+Department of Computing Science, University of Alberta, Edmonton, Canada, 2017.
+
+\bibitem{Pluribus}
+Noam Brown, Tuomas Sandholm
+\textit{Superhuman AI for multiplayer poker}
+[\texttt{https://science.sciencemag.org/content/sci/365/6456/885.full.pdf}].
+Published online, 2019.
+
+\bibitem{Rebel1}
+Noam Brown, Anton Bakhtin
+\textit{ReBeL: A general game-playing AI bot that excels at poker and more}
+\\\texttt{https://ai.facebook.com/blog/rebel-a-general-game-playing-ai-bot
+-that-excels-at-poker-and-more/}
+Published online, 2020
+
+\bibitem{Rebel2}
+Noam Brown, Anton Bakhtin, Adam Lerer, Qucheng Gong
+\textit{Combining Deep Reinforcement Learning and Search
+for Imperfect-Information Games}
+\\\texttt{https://arxiv.org/pdf/2007.13544.pdf?fbclid=IwAR0kkrj60aCyXK
+x-DUKLvtihYK1KCcnFS8ic6wr-ZEA4wv0AuqE29RJRyAk}
+Published online, 2020
+
+
+
+
+
+\end{thebibliography}
 
 
 
