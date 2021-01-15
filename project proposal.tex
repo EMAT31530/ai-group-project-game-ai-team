@@ -72,8 +72,8 @@ Training the AI vs other humans would give us a large number of possible strateg
 
 Another issue with training against other humans is the time it would take. Training an AI requires a large data set and gathering this amount of data from human players may require multiple thousands of trials which would take an incredibly long time to gather. This is a reason that it may be better to train our AI versus an already created Perfect AI as it would be easy to run many trials to train our AI. And also as stated before, it may be best to learn directly from an already perfect strategy rather than gradually increasing the skill of strategies that it is facing.
 
-\subsection{Add in a little bit about testing method discussed}
-%testing method was, have the AI play multiple games vs an opponent, display what win % over time. More wins as time goes on means it is learning. The rate of learning can be quantified? graphed
+The way we will test the effectiveness of our training algorithm is by simulating many games of our AI against the chosen opponent and storing the actions taken and outcomes that follow. This data is then used via the reinforcement learning to 'train' our AI. As time goes on, taking a graph of the AIs win rate over time there would ideally be a general increase, demonstrating the improvements of the AI thanks to our reinforcement learning. If we vary our training AI or method we can also quantify their efficacy by the rate in improvement of our AIs win rate over time.
+
 \section{Potential Project Ideas}
 Before we settled on poker, we briefly discussed the potential of creating an AI in other games. One of the possibilities we considered was creating a Settlers of Catan AI. While it is a popular game, we thought that it may be an area where AI hadn't been explored very deeply so there would be room for us developing something completely unique.
 \newline
@@ -123,22 +123,16 @@ One of the most recent poker AI to have been developed is Rebel \cite{Rebel1} \c
 
 %Reinforcement learning from self play?
 %Game theory as well?
+
 \section{Future Work}
-%not finished, need to add to
 For the next teaching block, we have the following objectives:
 \begin{itemize}
-    \item To develop a learning algorithm that employs the concept of Reinforcement Learning to train our AI
-
-    \item
-
-    \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm
-
-    \item Potentially implement a GUI for ease of use
-
-
-
-
+    \item To develop a learning algorithm that employs the concept of Reinforcement Learning, and perhaps some form of a heuristic searches based upon our literature reivew, to train our AI
+    \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm.
+    \item Implement a GUI for presentation and ease of use when a human user is playing against the AIs.
 \end{itemize}
+
+
 
 
 
