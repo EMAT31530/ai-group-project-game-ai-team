@@ -25,12 +25,10 @@
         \vfill
 
 
-
         \vspace{0.8cm}
-
-        University of Bristol
-
         \Large
+        University of Bristol
+        \textbf{https://github.com/EMAT31530/ai-group-project-game-ai-team}
         15/01/2021
 
     \end{center}
@@ -108,7 +106,7 @@ One of the most recent poker AI to have been developed is Rebel \cite{Rebel1} \c
 %not sure whether to write a line or two about each topic and it's relevancy. main topics relevant are game theory and reinforcement learning
 \begin{itemize}
     \item Linear regression - we don't think supervised learning in general is likely to be very applicable to the project. Although we may be able to generate or gather labelled data (the outcome of the hand, based on the strategy used), there are too many features involved in making a decision due to the recursive nature of the problem that supervised learning techniques would become unwieldy. One potential application we considered might be to develop a strategy and then try and represent it as a linear combination of different features e.g. bluff percentage on turn, fold percentage on river etc. but this would likely come later in the project after a strategy is developed.
-    \item Linear classification - similar to above. We don't think this technique has the complexity to be applicable to the project. 
+    \item Linear classification - similar to above. We don't think this technique has the complexity to be applicable to the project.
     \item Unsupervised learning - we can't think of an application of the k-means or k nearest neighbour algorithms to our project.
     \item Decision trees - this is an area we are going to explore in more depth to evaluate whether it will be useful for our project or not. The AI is of course making a series of decisions but, like linear regression, we wonder if the features are too complex to be distilled into a decision tree, especially given the dynamic nature of the game. 
     \item Search I - many poker AI use heuristic search procedures to find an optimal (or near optimal) action in each setting. Like existing poker AI, we would want to limit the breadth of the search (limiting the AI's actions at each node) as well as the depth (only looking so far into the future). Determining the value of the goal nodes would likely require some other techniques or offline learning to approximate the AI's situation. 
@@ -127,7 +125,7 @@ One of the most recent poker AI to have been developed is Rebel \cite{Rebel1} \c
 \section{Future Work}
 For the next teaching block, we have the following objectives:
 \begin{itemize}
-    \item To develop a learning algorithm that employs the concept of Reinforcement Learning, and perhaps some form of a heuristic searches based upon our literature reivew, to train our AI
+    \item To develop a learning algorithm that employs the concept of Reinforcement Learning, and perhaps some form of a heuristic searches based upon our literature review, to train our AI
     \item To develop rigorous testing algorithms and devise a way to statistically analyse the results so we can quantify the performance of our AI, allowing us to test the quality of our learning algorithm.
     \item Implement a GUI for presentation and ease of use when a human user is playing against the AIs.
 \end{itemize}
