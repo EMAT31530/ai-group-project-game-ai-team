@@ -1,8 +1,18 @@
 import random as rnd
 from ranking import *
 from AIclasses import *
-
+from KuhnPokerAI import *
 import time
+
+#test for kuhn pokerin
+'''
+time1 = time.time()
+trainer = AiKuhnBotTrainer()
+trainer.train(n_iterations=25000)
+print(abs(time1 - time.time()))
+game = Game(trainer.export_results())
+'''
+
 #test for overall ranking function
 """
 n = 10000
@@ -56,4 +66,3 @@ print(count/n)
 #running through the game a few times for testing
 game = Game(1)
 game.start()
-
