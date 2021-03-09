@@ -1,13 +1,19 @@
 import json
 
-def exportJson(dict, filename = ''):
+
+def checkJson(filename):
     if filename == '':
         filename = vald.checkString("Input a  filename for the exported AI strategy").lower() + '.json'
+    if filename[-5:]!='.json':
+        filename += '.json'
+    return filename
+
+def exportJson(dict, filename = ''):
+    filename = checkJson(filename)
     json.dump(dict, open('strategies/'+filename, 'w'))
 
 def importJson(filename = ''):
-    if filename == '':
-        filename = vald.checkString("Input a  filename for the exported AI strategy").lower() + '.json'
+    filename = checkJson(filename)
     dict = json.load(open( 'strategies/'+filename))
     return dict
 
