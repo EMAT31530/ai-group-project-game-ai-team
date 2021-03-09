@@ -74,7 +74,7 @@ class AiKuhnBotTrainer:
         is_player_1 = n % 2 == 0
         player_card = self.deck[0] if is_player_1 else self.deck[1]
 
-        if self.is_terminal(history):
+        if is_terminal(history):
             card_player = self.deck[0] if is_player_1 else self.deck[1]
             card_opponent = self.deck[1] if is_player_1 else self.deck[0]
             reward = self.get_reward(history, card_player, card_opponent)
@@ -121,12 +121,6 @@ class AiKuhnBotTrainer:
             finalstrat[x] = self.nodeMap[x].get_average_strategy()
         return finalstrat
 
-    #Checks if the round has reached an end state
-    @staticmethod
-    def is_terminal(history):
-        if history[-2:] == 'pp' or history[-2:] == "bb" or history[-2:] == 'bp':
-            return True
-
     #Calculates the reward from a given end state
     @staticmethod
     def get_reward(history, player_card, opponent_card):
@@ -154,10 +148,11 @@ class Player:  # Object to represent player
         return self.strategyMap[key]
 
 class Game:  # Object to represent game
-    def __init__(self, aistrategymap):
+    def __init__(self, aistrategymap, debug = False):
         self.players = self.buildPlayers(10, aistrategymap)
         self.deck = np.array([0,1,2]) #ze kuhn poker deck
         self.actions = '' #string of actions in a given round
+        self.debug = debug
         self.start()
 
     def buildPlayers(self, initmoney, aistrategymap):
@@ -184,6 +179,7 @@ class Game:  # Object to represent game
 
     # Updates round and appends old round to round list
     def startnewRound(self):
+        print('\n')
         self.actions = '' #resets actions!
         self.players.reverse() #swaps the player order for the new round!
         rnd.shuffle(self.deck) #shuffles the deck
@@ -191,16 +187,18 @@ class Game:  # Object to represent game
             self.players[i].card = self.deck[0] if i==0 else self.deck[1]
         while True:
             for i in range(2):
-                if self.roundTerminate():
-                    self.roundWinnings()
+                if is_terminal(self.actions):
+                    self.moneyAdj(self.roundWinnings())
                     return 0
                 if self.players[i].cpu == True:
                     Aip = self.players[i].ai_get_strategy(self.actions[-2:])
                     Aichoice = np.random.choice(np.array(['p','b']),p=Aip)
-                    if Aichoice == 'p':
-                        print("The AIBOT has £{}, hand = {}, and has chosen to PASS!!!!".format(self.players[i].money, self.players[i].card))
+                    pasbet =  'pass' if Aichoice == 'p' else 'bet'
+                    if self.debug:
+                        print("The AIBOT has £{}, hand = {}, and has chosen to {}!!!!".format(self.players[i].money, self.players[i].card, pasbet))
                     else:
-                        print("The AIBOT has £{}, hand = {}, and has chosen to BET!!!!".format(self.players[i].money, self.players[i].card))
+                        print("The AIBOT has £{}, and has chosen to {}!!!!".format(self.players[i].money, pasbet))
+
                     self.actions += Aichoice
                 else:
                     print("You have £{}, and in your hand you have {}.".format(self.players[i].money,self.players[i].card))
@@ -211,28 +209,15 @@ class Game:  # Object to represent game
                     else:
                         self.actions += 'b'
 
-    def roundTerminate(self):
-        if self.actions[-2:] == 'pp' or self.actions[-2:] == "bb" or self.actions[-2:] == 'bp':
-            return True
-
     #divvies out the winnings
     def roundWinnings(self):
         if self.actions[-1] == 'p': #the last action was a pass
             if self.actions[-2:] == 'pp': #both players passed
-                if self.players[0].card > self.players[1].card:
-                    self.moneyAdj(1)
-                else:
-                    self.moneyAdj(-1)
+                return 1 if self.players[0].card > self.players[1].card else -1
             else:
-                if len(self.actions) % 2 == 0:
-                    self.moneyAdj(1)
-                else:
-                    self.moneyAdj(-1)
+                return 1 if len(self.actions) % 2 == 0 else -1
         elif self.actions[-2:] == "bb": #both players bet
-            if self.players[0].card > self.players[1].card:
-                self.moneyAdj(2)
-            else:
-                self.moneyAdj(-2)
+            return 2 if self.players[0].card > self.players[1].card else -2
 
     def moneyAdj(self, money):
         if money > 0:
@@ -243,6 +228,9 @@ class Game:  # Object to represent game
         self.players[1].money -= money
 
 
+def is_terminal(history):
+    if history[-2:] == 'pp' or history[-2:] == "bb" or history[-2:] == 'bp':
+        return True
 
 def display_results(ev, i_map):
     print('player 1 expected value: {}'.format(ev))

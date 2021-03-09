@@ -8,7 +8,7 @@ import time
 '''
 time1 = time.time()
 trainer = AiKuhnBotTrainer()
-trainer.train(n_iterations=25000)
+trainer.train(n_iterations=50000)
 print(abs(time1 - time.time()))
 game = Game(trainer.export_results())
 '''
@@ -64,5 +64,5 @@ print(count/n)
 #takes about 8.3e-05 secs to update the ranking over the course of the hand (kinda)
 
 #running through the game a few times for testing
-game = Game(1)
-game.start()
+#game = Game(1)
+#game.start()
