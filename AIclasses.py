@@ -129,20 +129,20 @@ class Player:  # Object to represent player
         self.curBid = 0
         self.state = 0
         self.chair = (self.chair + 1) % n
-        
+
     def decide(self, game_round): #decision function for an ai player
         return strat.functions[self.strategy](self, game_round)
-        
+
 """
 #decided to just keep this as part of the player class but will leave the code here in case it's useful for later
 class CPU(Player):
     def __init__(self, name, chair, money, strategy):
         super().__init__(name, chair, money)
-        if not strategy in strat.functions: #could also just try indexing strategies with numbers 
+        if not strategy in strat.functions: #could also just try indexing strategies with numbers
             strategy = vald.getChoice(strat.functions)
         self.strategy = strategy
         self.cpu = True
-        
+
     def decide(self, game_round):
         return strat.functions[]
 """
@@ -150,7 +150,7 @@ class CPU(Player):
 class Round:
     def __init__(self, bigBlind, players):
         self.deck = Deck()
-        self.pot = 0 
+        self.pot = 0
         self.playerMonies = {player: player.money for player in players} #used for calculating side pots
         self.prevBid = 0 #used to determine raising rules; lags one bet behind curBid
         #eventually will want to develop full hand history so that the above will be redundant anyway
@@ -159,7 +159,7 @@ class Round:
         self.bigBlind = bigBlind
         self.histPlayers = []
         self.histActions = []
-        self.street = 0 #street is one of preflop, flop, turn, river 
+        self.street = 0 #street is one of preflop, flop, turn, river
         self.numPlayers = len(players) #number of players not folded
         self.playon = True #turns false if there is only one player left to bet
         self.partial = 0 #to keep track of partial raise amounts
@@ -201,7 +201,7 @@ class Round:
         player.money -= amount
         self.pot += amount
         player.curBid += amount
-        
+
     def lower(self): #minimum amount you can raise to at any given point
         if self.partial + self.curBid <= max(self.bigBlind, 2*self.curBid - self.prevBid): #cumulative partial raises have not yet amounted to a full raise
             return max(self.bigBlind, self.partial + 2*self.curBid - self.prevBid)
@@ -234,7 +234,7 @@ class Round:
                     player.state = 5 #checking state
                     if player.cpu:
                         print("{} has decided to check.\n".format(player.name))
-                    
+
 
         def raize(player):
             # get a valid raise from user
@@ -272,7 +272,7 @@ class Round:
                         playee.state = 6 #player has made a partial raise so other players who have bet or called are not allowed to raise yet
                 for playee in [i for i in players if (i.state != 6 and i.state != 4 and i.state != 2)]: #others are set to 0
                     playee.state = 0
-            
+
         """
         remember to fix this!!
         also change strategies e.g. to deal with state 6
@@ -296,7 +296,7 @@ class Round:
                 print("{} has decided to bet £{}.\n".format(player.name, amount))
             else:
                 print("{} has decided to raise by £{}.\n".format(player.name, amount - self.prevBid))
-                
+
 
         while any([i.state in [0, 3, 6] for i in players]) and self.numPlayers >= 2 and self.playon:
             for player in [i for i in players if i.state in [0, 3, 6]]:
@@ -330,7 +330,7 @@ class Round:
                         else:
                             choice, amount = action
                             ai_raize(player, amount)
-        
+
         # resets state of remaining players for next bidding
         remaining_players = [i for i in players if (i.state != 2 and i.state != 4)]
         for player in remaining_players:
@@ -375,7 +375,7 @@ class Game:  # Object to represent entire game state
             if len(self.players) >= 2:
                 print("Would you like to play a new round?")
                 answer = vald.getChoice(["Yes", "No", "Y", "N"])
-                if answer == "y" or answer == "yes":
+                if answer in ["y","yes"]:
                     self.newRound()
                 else:
                     print("Good night")
@@ -399,8 +399,8 @@ class Game:  # Object to represent entire game state
         self.Rounds.append(self.curRound)
         # creates the new round
         self.curRound = Round(self.blind, self.players)
-    # divvies out the winnings
 
+    # divvies out the winnings
     def endRound(self):
         remainingPlyrs = [i for i in self.players if i.state != 2]
         if len(remainingPlyrs) == 1:
@@ -431,11 +431,11 @@ class Game:  # Object to represent entire game state
                     plyr.money += winnings[plyr]
                     #print("Player(s) {} won £{}.".format(str([str(i) for i in winplyrs]), int(self.curRound.pot/n)))
         # add something for how much monies init
-        
+
     def plyrs_check(self):
         if self.curRound.numPlayers <= 1:
             return True
-        
+
 
     def play(self):
         self.curRound.updRankings(self.players)

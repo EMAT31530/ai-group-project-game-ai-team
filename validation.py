@@ -1,3 +1,16 @@
+import json
+
+def exportJson(dict, filename = ''):
+    if filename == '':
+        filename = vald.checkString("Input a  filename for the exported AI strategy").lower() + '.json'
+    json.dump(dict, open('strategies/'+filename, 'w'))
+
+def importJson(filename = ''):
+    if filename == '':
+        filename = vald.checkString("Input a  filename for the exported AI strategy").lower() + '.json'
+    dict = json.load(open( 'strategies/'+filename))
+    return dict
+
 def checkInt(message):
     while True:
         try:
@@ -5,7 +18,7 @@ def checkInt(message):
             return userInt
         except ValueError:
             print('You must enter an integer')
-            
+
 
 def checkFloat(message):
     while True:
@@ -43,7 +56,7 @@ def howManyEqu(players):
             return thismany
 
 #similar to get choices to determine a player's chosen strategy
-def getStrategy(funcs): 
+def getStrategy(funcs):
     print("Please enter a number corresponding to which strategy this player is using.")
     print("Choose one of:\n")
     for i in range(len(funcs)):
@@ -51,5 +64,3 @@ def getStrategy(funcs):
     nums = list(range(1, len(funcs) + 1))
     nums = [str(j) for j in nums]
     return getChoice(nums) #returns a string of index one greater than element in function list e.g. if index is i then returns 'str(i+1)'
-
-    

@@ -7,7 +7,7 @@ import validation as vald
 
 class Node:
     def __init__(self, key, action_dict, n_actions=2):
-        self.key = key #the label of  the node in the form: [cards, previous actions]
+        self.key = key #the label of  the node in the form: [cards previous actions]
         self.n_actions = n_actions #the number of possible actions taken from said node
         self.regret_sum = np.zeros(self.n_actions) #the sum of the regret at each iteration (for each action)
         self.strategy_sum = np.zeros(self.n_actions) # the sum of the strategy at each iteration (for each action)
@@ -15,28 +15,28 @@ class Node:
         #the strategy(probability of choosing each action) from each node
         self.strategy = np.repeat(1/self.n_actions, self.n_actions) #initially, equal probability of each action occuring
         self.reach_pr = 0 #probablity of reaching said node (based on the strategy of previous nodes) for an individual iteration
-        self.reach_pr_sum = 0 #the sum over all itterations
+        self.reach_pr_sum = 0 #the sum over all iterations
 
     def update_strategy(self):
-        self.strategy_sum += self.reach_pr * self.strategy #adds the strategy for this itteration
-        self.reach_pr_sum += self.reach_pr #adds the reach pr for this itteration
+        self.strategy_sum += self.reach_pr * self.strategy #adds the strategy for this iteration
+        self.reach_pr_sum += self.reach_pr #adds the reach pr for this iteration
         self.strategy = self.get_strategy() #updates the strategy for the next iteration
-        self.reach_pr = 0 #resets the reach probablity for the next itteration
+        self.reach_pr = 0 #resets the reach probablity for the next iteration
 
     #Returns the strategy for the current regrets, i.e for regrets [50, 50, 100], returns [1/4,1/4,1/2]
     def get_strategy(self):
         regrets = self.regret_sum
         regrets[regrets < 0] = 0 #negative regrets are ignored
-        normalizing_sum = sum(regrets) #the total regret
-        if normalizing_sum > 0:
-            return regrets / normalizing_sum
-        else: #if regreats are negative, returns an even probability distribution for each action
+        normalising_sum = sum(regrets) #the total regret
+        if normalising_sum > 0:
+            return regrets / normalising_sum
+        else: #if regrets are negative, returns an even probability distribution for each action
             return np.repeat(1/self.n_actions, self.n_actions)
 
     #to get the final strategy over all iterations
     def get_average_strategy(self):
         strategy = self.strategy_sum / self.reach_pr_sum
-        # Re-normalize
+        #renormalise
         total = sum(strategy)
         strategy /= total
         return strategy
@@ -189,7 +189,6 @@ class Game:  # Object to represent game
         rnd.shuffle(self.deck) #shuffles the deck
         for i in range(len(self.players)): #gives each player their card
             self.players[i].card = self.deck[0] if i==0 else self.deck[1]
-        #PLAY!!!!!
         while True:
             for i in range(2):
                 if self.roundTerminate():
