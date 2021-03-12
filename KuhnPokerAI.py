@@ -3,6 +3,7 @@ import random as rnd
 import time
 import sys
 import validation as vald
+import matplotlib.pyplot as plt
 #taken from https://github.com/IanSullivan/PokerCFR under MIT license
 
 class Node:
@@ -87,6 +88,20 @@ class AiKuhnBotTrainer:
             for _, v in self.nodeMap.items():
                 v.update_strategy()
         vald.exportJson(self.winrate, 'winr8_{}_3'.format(n_iterations))
+        
+    def graphing(self, winratedict):
+        x=list(winratedict.items())
+        for i in range(0, len(x[0][1])):
+            """
+            currwinrate = []
+            for k in range(0, len(x)):
+                currwinrate.append(x[k][1][i])
+                print(currwinrate)"""
+            plt.plot([y for y in range(0, len(x))], [x[k][1][i] for k in range(0,len(x))])
+            plt.xlabel('Number of games played')
+            plt.ylabel('Win Rate')
+            plt.show()
+
 
     #The Counterfactual Regret Minimisation function
     def cfr(self, history, pr_1, pr_2):
@@ -287,3 +302,7 @@ def display_results(ev, i_map):
     print('player 2 strategies:')
     for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
         print(v)
+trainer=AiKuhnBotTrainer()
+dict={"0":[0.25,0.5,0.75],"1":[0.5,0.6,0.8],"3":[0.25,0.5,0.75],"4":[0.5,0.6,0.8],"5":[0.25,0.5,0.75],"6":[0.5,0.6,0.8]}
+
+trainer.graphing(dict)
