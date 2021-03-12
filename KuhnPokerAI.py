@@ -39,7 +39,7 @@ class Node:
         #renormalise
         total = sum(strategy)
         strategy /= total
-        return strategy
+        return list(strategy)
 
     #it's a str representation init
     def __str__(self):
@@ -148,7 +148,7 @@ class Player:  # Object to represent player
         return self.strategyMap[key]
 
 class Game:  # Object to represent game
-    def __init__(self, aistrategymap, debug = False):
+    def __init__(self, aistrategymap = {}, debug = False):
         self.players = self.buildPlayers(10, aistrategymap)
         self.deck = np.array([0,1,2]) #ze kuhn poker deck
         self.actions = '' #string of actions in a given round
@@ -158,9 +158,17 @@ class Game:  # Object to represent game
     def buildPlayers(self, initmoney, aistrategymap):
         playerlist = []
         name = vald.checkString("What is your name?\n")
+        if aistrategymap == {}:
+            aistrategymap = self.chooseai()
         playerlist.append(Player("AIBOT", initmoney, True, aistrategymap))
         playerlist.append(Player(name, initmoney))
         return playerlist
+
+    def chooseai(self):
+        message = "Please input the filename of your chosen AI to compete against. "
+        filename = vald.checkJson(input(message))
+        strategy = vald.importJson(filename)
+        return strategy
 
     def start(self):
         while True:

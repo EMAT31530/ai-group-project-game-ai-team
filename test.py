@@ -3,15 +3,23 @@ from ranking import *
 from AIclasses import *
 from KuhnPokerAI import *
 import time
+import validation as vald
 
 #test for kuhn pokerin
 '''
 time1 = time.time()
 trainer = AiKuhnBotTrainer()
-trainer.train(n_iterations=50000)
-print(abs(time1 - time.time()))
-game = Game(trainer.export_results())
+iterations = 50000
+trainer.train(n_iterations=25000)
+print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time1 - time.time())))
 '''
+'''strat = trainer.export_results()
+print(strat)
+vald.exportJson(strat,'AI1')'''
+
+
+game = Game()
+
 
 #test for overall ranking function
 """
