@@ -55,7 +55,7 @@ class AiKuhnBotTrainer:
         self.current_player = 0
         self.deck = np.array([0, 1, 2]) #Three card kuhn poker deck
         self.n_actions = 2 #number of possible actions (pass, bet)
-
+        self.winrate = {} #winrate throughout learning (iteration: [, ,])
     #Training function
     def train(self, n_iterations=50000):
         expected_game_value = 0
@@ -67,6 +67,26 @@ class AiKuhnBotTrainer:
 
         expected_game_value /= n_iterations
         display_results(expected_game_value, self.nodeMap)
+
+    def trainWcomparison(self, dummyai, n_iterations=50000, n_intervals=1000):
+        for _ in range(n_iterations):
+            if _ % n_intervals == 0:
+                cur_aistrat = self.get_aistrategy()
+                if _ == 0:
+                    cur_aistrat = vald.importJson('defaultkuhn')
+
+                cur_winrate = list(np.zeros(len(dummyai)))
+
+                for j in range(len(dummyai)):
+                    winstatistics = self.play_vs_dummy(cur_aistrat, dummyai[j])
+                    cur_winrate[j] = winstatistics
+                self.winrate[_] = cur_winrate
+
+            rnd.shuffle(self.deck)
+            self.cfr('', 1, 1)
+            for _, v in self.nodeMap.items():
+                v.update_strategy()
+        vald.exportJson(self.winrate, 'winr8_{}_3'.format(n_iterations))
 
     #The Counterfactual Regret Minimisation function
     def cfr(self, history, pr_1, pr_2):
@@ -105,6 +125,30 @@ class AiKuhnBotTrainer:
 
         return util
 
+    def play_vs_dummy(self, ai_strat, dummyfilename, test_iterations = 1000):
+        dummy_strat = vald.importJson(dummyfilename)
+        wins = 0
+        deck = np.array([0,1,2])
+        for j in range(test_iterations):
+            actions = ''
+            is_player_1 = j % 2 == 0
+            rnd.shuffle(deck)
+            ai_card = deck[0] if is_player_1 else deck[1]
+            dummy_card = deck[1] if is_player_1 else deck[0]
+
+            while not is_terminal(actions):
+                card = ai_card if is_player_1 else dummy_card
+                strat = ai_strat if is_player_1 else dummy_strat
+                action = ai_get_nodestrategy(strat, card, actions)
+                actions += action
+                is_player_1 = False if is_player_1 else True
+
+            won = roundWinnings(actions, ai_card, dummy_card)
+            won = 1 if won > 0 else 0
+            wins += won
+        win_average = wins/test_iterations
+        return win_average
+
     #Finds the node within the Ai's NodeMap
     def get_node(self, card, history):
         key = str(card) + " " + history
@@ -115,7 +159,7 @@ class AiKuhnBotTrainer:
             return info_set
         return self.nodeMap[key]
 
-    def export_results(self):
+    def get_aistrategy(self):
         finalstrat = {}
         for x in self.nodeMap:
             finalstrat[x] = self.nodeMap[x].get_average_strategy()
@@ -141,18 +185,18 @@ class Player:  # Object to represent player
         self.money = money
         self.cpu = cpu
         if cpu:
-            self.strategyMap = strategyMap
+            self.strategyMap = dict(strategyMap)
 
     def ai_get_strategy(self, actions):
         key = str(self.card) + " " + actions
         return self.strategyMap[key]
 
 class Game:  # Object to represent game
-    def __init__(self, aistrategymap = {}, debug = False):
+    def __init__(self, aistrategymap = {}, training = False):
         self.players = self.buildPlayers(10, aistrategymap)
         self.deck = np.array([0,1,2]) #ze kuhn poker deck
         self.actions = '' #string of actions in a given round
-        self.debug = debug
+        self.training = training
         self.start()
 
     def buildPlayers(self, initmoney, aistrategymap):
@@ -171,19 +215,11 @@ class Game:  # Object to represent game
         return strategy
 
     def start(self):
-        while True:
-            self.startnewRound()
-            if len(self.players) == 1:
-                print("{} wins the game with £{}.".format(self.players[0], self.players[0].money))
-                print("Good night")
-                break
-            print("Would you like to play a new round?")
-            answer = vald.getChoice(["Yes", "No", "Y", "N"])
-            if answer in ["y","yes"]:
+        roundcount = 10
+        while not roundcount < 1:
+            for i in range(roundcount):
                 self.startnewRound()
-            else:
-                print("Good night")
-                break
+            roundcount = vald.checkInt("How many more rounds would you like to play? ")
 
     # Updates round and appends old round to round list
     def startnewRound(self):
@@ -191,41 +227,24 @@ class Game:  # Object to represent game
         self.actions = '' #resets actions!
         self.players.reverse() #swaps the player order for the new round!
         rnd.shuffle(self.deck) #shuffles the deck
-        for i in range(len(self.players)): #gives each player their card
-            self.players[i].card = self.deck[0] if i==0 else self.deck[1]
-        while True:
-            for i in range(2):
-                if is_terminal(self.actions):
-                    self.moneyAdj(self.roundWinnings())
-                    return 0
-                if self.players[i].cpu == True:
-                    Aip = self.players[i].ai_get_strategy(self.actions[-2:])
-                    Aichoice = np.random.choice(np.array(['p','b']),p=Aip)
-                    pasbet =  'pass' if Aichoice == 'p' else 'bet'
-                    if self.debug:
-                        print("The AIBOT has £{}, hand = {}, and has chosen to {}!!!!".format(self.players[i].money, self.players[i].card, pasbet))
-                    else:
-                        print("The AIBOT has £{}, and has chosen to {}!!!!".format(self.players[i].money, pasbet))
-
-                    self.actions += Aichoice
-                else:
-                    print("You have £{}, and in your hand you have {}.".format(self.players[i].money,self.players[i].card))
-                    print("Would you like to pass or bet?")
-                    choice = vald.getChoice(['pass','bet'])
-                    if choice == 'pass':
-                        self.actions += 'p'
-                    else:
-                        self.actions += 'b'
-
-    #divvies out the winnings
-    def roundWinnings(self):
-        if self.actions[-1] == 'p': #the last action was a pass
-            if self.actions[-2:] == 'pp': #both players passed
-                return 1 if self.players[0].card > self.players[1].card else -1
+        for i in range(2):
+            self.players[i].card = self.deck[i]
+        i = 0
+        while not is_terminal(self.actions):
+            if self.players[i].cpu == True:
+                strat = self.players[i].strategyMap
+                card = self.players[i].card
+                aichoice = ai_get_nodestrategy(strat, card, self.actions)
+                self.actions += aichoice
+                pasbet =  'pass' if aichoice == 'p' else 'bet'
+                print("The AIBOT has £{}, and has chosen to {}!!!!".format(self.players[i].money, pasbet))
             else:
-                return 1 if len(self.actions) % 2 == 0 else -1
-        elif self.actions[-2:] == "bb": #both players bet
-            return 2 if self.players[0].card > self.players[1].card else -2
+                print("You have £{}, and in your hand you have {}.".format(self.players[i].money,self.players[i].card))
+                print("Would you like to pass or bet?")
+                choice = vald.getChoice(['pass','bet'])
+                self.actions += 'p' if choice == 'pass' else 'b'
+            i = (i +1) % 2
+        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card))
 
     def moneyAdj(self, money):
         if money > 0:
@@ -235,6 +254,21 @@ class Game:  # Object to represent game
         self.players[0].money += money
         self.players[1].money -= money
 
+
+def roundWinnings(actions, card1, card2):
+    if actions[-1] == 'p': #the last action was a pass
+        if actions[-2:] == 'pp': #both players passed
+            return 1 if card1 > card2 else -1
+        else:
+            return 1 if len(actions) % 2 == 0 else -1
+    elif actions[-2:] == "bb": #both players bet
+        return 2 if card1 > card2 else -2
+
+def ai_get_nodestrategy(strategy, card, history):
+    key = str(card) + " " + history
+    ai_p = strategy[key]
+    aichoice = np.random.choice(np.array(['p','b']),p=ai_p)
+    return aichoice
 
 def is_terminal(history):
     if history[-2:] == 'pp' or history[-2:] == "bb" or history[-2:] == 'bp':

@@ -6,19 +6,20 @@ import time
 import validation as vald
 
 #test for kuhn pokerin
-'''
+
 time1 = time.time()
 trainer = AiKuhnBotTrainer()
 iterations = 50000
-trainer.train(n_iterations=25000)
+trainer.trainWcomparison(['passDummy', 'betDummy','defaultkuhn'],n_iterations=1000, n_intervals=10)
 print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time1 - time.time())))
+
+
 '''
-'''strat = trainer.export_results()
+strat = trainer.get_aistrategy()
 print(strat)
-vald.exportJson(strat,'AI1')'''
-
-
-game = Game()
+vald.exportJson(strat,'AI1')
+'''
+#game = Game()
 
 
 #test for overall ranking function
