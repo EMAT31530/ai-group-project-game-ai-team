@@ -88,7 +88,7 @@ class AiKuhnBotTrainer:
             for _, v in self.nodeMap.items():
                 v.update_strategy()
         vald.exportJson(self.winrate, 'winr8_{}_3'.format(n_iterations))
-        
+
     def graphing(self, winratedict):
         x=list(winratedict.items())
         for i in range(0, len(x[0][1])):
@@ -302,7 +302,3 @@ def display_results(ev, i_map):
     print('player 2 strategies:')
     for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
         print(v)
-trainer=AiKuhnBotTrainer()
-dict={"0":[0.25,0.5,0.75],"1":[0.5,0.6,0.8],"3":[0.25,0.5,0.75],"4":[0.5,0.6,0.8],"5":[0.25,0.5,0.75],"6":[0.5,0.6,0.8]}
-
-trainer.graphing(dict)

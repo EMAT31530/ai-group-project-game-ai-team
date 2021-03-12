@@ -6,14 +6,15 @@ import time
 import validation as vald
 
 #test for kuhn pokerin
-
+'''
 time1 = time.time()
 trainer = AiKuhnBotTrainer()
 iterations = 50000
 trainer.trainWcomparison(['passDummy', 'betDummy','defaultkuhn'],n_iterations=1000, n_intervals=10)
 print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time1 - time.time())))
-
-
+'''
+trainer=AiKuhnBotTrainer()
+trainer.graphing(vald.importJson('winr8_1000_3'))
 '''
 strat = trainer.get_aistrategy()
 print(strat)
