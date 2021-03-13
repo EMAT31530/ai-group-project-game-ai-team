@@ -34,19 +34,19 @@ class AiKuhn:
         deck = np.array([0,1,2])
         for j in range(test_iterations):
             actions = ''
-            is_player_1 = j % 2 == 0
+            player = j % 2
             rnd.shuffle(deck)
-            ai_card = deck[0] if is_player_1 else deck[1]
-            dummy_card = deck[1] if is_player_1 else deck[0]
+            ai_card = deck[0] if player==0 else deck[1]
+            dummy_card = deck[1] if player==0 else deck[0]
 
             while not is_terminal(actions):
-                card = ai_card if is_player_1 else dummy_card
-                strat = ai_strat if is_player_1 else dummy_strat
+                card = ai_card if player==0 else dummy_card
+                strat = ai_strat if player==0 else dummy_strat
                 action = ai_get_nodestrategy(strat, card, actions)
                 actions += action
-                is_player_1 = False if is_player_1 else True
+                player = (player+1)%2
 
-            won = roundWinnings(actions, ai_card, dummy_card)
+            won = roundWinnings(actions, ai_card, dummy_card, train=False, player = j % 2)
             won = 1 if won > 0 else 0
             wins += won
         win_average = wins/test_iterations
@@ -110,12 +110,14 @@ def ai_get_nodestrategy(strategy, card, history):
     aichoice = np.random.choice(np.array(['p','b']),p=ai_p)
     return aichoice
 
-def roundWinnings(actions, card1, card2, train=True):
+def roundWinnings(actions, card1, card2, train=True, player=2):
     if actions[-1] == 'p': #the last action was a pass
         if actions[-2:] == 'pp': #both players passed
             return 1 if card1 > card2 else -1
         else:
-            if (train) or (len(actions) % 2 == 0):
+            if train:
+                return 1
+            if (len(actions) % 2 == 0 and player==0) or (len(actions) % 2 == 1 and player==1):
                 return 1
             else:
                 return -1
@@ -155,11 +157,10 @@ class Player:  # Object to represent player
         return self.strategyMap[key]
 
 class Game:  # Object to represent game
-    def __init__(self, aistrategymap = {}, training = False):
+    def __init__(self, aistrategymap = {}):
         self.players = self.buildPlayers(10, aistrategymap)
         self.deck = np.array([0,1,2]) #ze kuhn poker deck
         self.actions = '' #string of actions in a given round
-        self.training = training
         self.start()
 
     def buildPlayers(self, initmoney, aistrategymap):
@@ -207,7 +208,8 @@ class Game:  # Object to represent game
                 choice = vald.getChoice(['pass','bet'])
                 self.actions += 'p' if choice == 'pass' else 'b'
             i = (i +1) % 2
-        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card))
+        player = 1 if self.players[0].cpu else 0
+        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card), train=False, player=player)
 
     def moneyAdj(self, money):
         if money > 0:

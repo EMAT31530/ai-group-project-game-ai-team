@@ -17,7 +17,7 @@ class AiKuhnBotTrainer(AiKuhn):
         expected_game_value /= n_iterations
         display_results(expected_game_value, self.nodeMap)
 
-    def trainWcomparison(self, dummyai, n_iterations=50000, n_intervals=1000):
+    def trainWcomparison(self, dummyai, n_iterations=50000, n_intervals=100):
         for _ in range(n_iterations):
             if _ % n_intervals == 0:
                 cur_aistrat = self.get_aistrategy()

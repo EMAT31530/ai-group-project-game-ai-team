@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 def graphing(winratedict):
     x=list(winratedict.items())
     for i in range(0, len(x[0][1])):

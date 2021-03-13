@@ -8,20 +8,21 @@ import validation as vald
 from statistics import *
 
 #test for kuhn pokerai
-
+'''
 time1 = time.time()
 trainer1 = AiKuhnBotTrainer()
 trainer2 = AiKuhnBotTrainer2()
 iterations = 10000
-trainer1.train(n_iterations=iterations)
-#trainer.trainWcomparison(['passDummy','betDummy','defaultkuhn'],n_iterations=25000, n_intervals=10)
+#trainer1.train(n_iterations=iterations)
+trainer1.trainWcomparison(['passDummy','betDummy','defaultkuhn'],n_iterations=30000, n_intervals=10)
 print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time1 - time.time())))
-
+'''
+'''
 time2 = time.time()
 trainer2.train(n_iterations=iterations)
 print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time2 - time.time())))
-
-#graphing(vald.importJson('winr8_25000_3'))
+'''
+graphing(vald.importJson('winr8_30000_3'))
 
 '''
 strat = trainer.get_aistrategy()
