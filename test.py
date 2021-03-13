@@ -2,19 +2,27 @@ import random as rnd
 from ranking import *
 from AIclasses import *
 from KuhnPokerAI import *
+from KuhnPokerAI2 import *
 import time
 import validation as vald
+from statistics import *
 
-#test for kuhn pokerin
-'''
+#test for kuhn pokerai
+
 time1 = time.time()
-trainer = AiKuhnBotTrainer()
-iterations = 50000
-trainer.trainWcomparison(['passDummy', 'betDummy','defaultkuhn'],n_iterations=1000, n_intervals=10)
+trainer1 = AiKuhnBotTrainer()
+trainer2 = AiKuhnBotTrainer2()
+iterations = 10000
+trainer1.train(n_iterations=iterations)
+#trainer.trainWcomparison(['passDummy','betDummy','defaultkuhn'],n_iterations=25000, n_intervals=10)
 print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time1 - time.time())))
-'''
-trainer=AiKuhnBotTrainer()
-trainer.graphing(vald.importJson('winr8_1000_3'))
+
+time2 = time.time()
+trainer2.train(n_iterations=iterations)
+print('time ellapsed for {} iterations: '.format(iterations) + str(abs(time2 - time.time())))
+
+#graphing(vald.importJson('winr8_25000_3'))
+
 '''
 strat = trainer.get_aistrategy()
 print(strat)
