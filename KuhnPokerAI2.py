@@ -22,6 +22,29 @@ class AiKuhnBotTrainer2(AiKuhn):
         expected_game_value /= n_iterations
         display_results(expected_game_value, self.nodeMap)
 
+    def trainWcomparison(self, dummyai, n_iterations=10000, n_intervals=100):
+        for i in range(n_iterations):
+            if i == n_iterations//2:
+                for l, v in self.nodeMap.items():
+                    v.strategy_sum = np.zeros(v.n_actions)
+
+            if i % n_intervals == 0:
+                cur_aistrat = self.get_aistrategy()
+                if i == 0:
+                    cur_aistrat = vald.importJson('defaultkuhn')
+                cur_winrate = list(np.zeros(len(dummyai)))
+                for j in range(len(dummyai)):
+                    winstatistics = self.play_vs_dummy(cur_aistrat, dummyai[j])
+                    cur_winrate[j] = winstatistics
+                self.winrate[i] = cur_winrate
+
+            for k in range(2):
+                self.current_player = k
+                rnd.shuffle(self.deck)
+                self.cfr('', 1, 1, 1)
+
+        vald.exportJson(self.winrate, 'winr8_ai2_{}_3'.format(n_iterations))
+
     #The Counterfactual Regret Minimisation function
     def cfr(self, history, pr_1, pr_2, sample_prob):
         n = len(history)

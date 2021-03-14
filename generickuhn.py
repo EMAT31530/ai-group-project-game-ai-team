@@ -144,13 +144,15 @@ def display_results(ev, i_map):
 
 
 class Player:  # Object to represent player
-    def __init__(self, name, money, cpu = False, strategyMap = {}):
+    def __init__(self, name, money):
         self.name = name
         self.card = 0
         self.money = money
-        self.cpu = cpu
-        if cpu:
-            self.strategyMap = dict(strategyMap)
+
+class AiPlayer(Player):
+    def __init__(self, name, money, strategyMap = {}):
+        Player.__init__(self, name, money)
+        self.strategyMap = dict(strategyMap)
 
     def ai_get_strategy(self, actions):
         key = str(self.card) + " " + actions
@@ -165,10 +167,10 @@ class Game:  # Object to represent game
 
     def buildPlayers(self, initmoney, aistrategymap):
         playerlist = []
-        name = vald.checkString("What is your name?\n")
+        name = vald.checkString("What is your name? ")
         if aistrategymap == {}:
             aistrategymap = self.chooseai()
-        playerlist.append(Player("AIBOT", initmoney, True, aistrategymap))
+        playerlist.append(AiPlayer("AIBOT", initmoney, aistrategymap))
         playerlist.append(Player(name, initmoney))
         return playerlist
 
@@ -187,7 +189,6 @@ class Game:  # Object to represent game
 
     # Updates round and appends old round to round list
     def startnewRound(self):
-        print('\n')
         self.actions = '' #resets actions!
         self.players.reverse() #swaps the player order for the new round!
         rnd.shuffle(self.deck) #shuffles the deck
@@ -195,7 +196,7 @@ class Game:  # Object to represent game
             self.players[i].card = self.deck[i]
         i = 0
         while not is_terminal(self.actions):
-            if self.players[i].cpu == True:
+            if type(self.players[i]) == AiPlayer:
                 strat = self.players[i].strategyMap
                 card = self.players[i].card
                 aichoice = ai_get_nodestrategy(strat, card, self.actions)
@@ -208,13 +209,13 @@ class Game:  # Object to represent game
                 choice = vald.getChoice(['pass','bet'])
                 self.actions += 'p' if choice == 'pass' else 'b'
             i = (i +1) % 2
-        player = 1 if self.players[0].cpu else 0
-        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card), train=False, player=player)
+        player = 0 if type(self.players[0]) == Player else 1
+        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card, train=False, player=player) )
 
     def moneyAdj(self, money):
         if money > 0:
-            print("{} wins £{}.".format(self.players[0].name,money))
+            print("{} wins £{}.\n".format(self.players[0].name,money))
         else:
-            print("{} wins £{}.".format(self.players[1].name,-money))
+            print("{} wins £{}.\n".format(self.players[1].name,-money))
         self.players[0].money += money
         self.players[1].money -= money
