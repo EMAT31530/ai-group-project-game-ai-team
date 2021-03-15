@@ -1,3 +1,6 @@
+import numpy as np
+import random as rnd
+
 def ai_get_choice(strategy, card, history):
     key = str(card) + " " + history
     ai_p = strategy[key]
@@ -15,6 +18,8 @@ def get_reward(history, player_card, opponent_card, train=True, player=2):
         else: #bet followed by fold
             if train or (len(history) % 2 == 0 and player==0) or (len(history) % 2 == 1 and player==1):
                 return 1
+            else:
+                return -1
     else: #double bet
         return 2 if player_card > opponent_card else -2
 

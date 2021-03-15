@@ -1,7 +1,7 @@
 from KuhnModules import *
-import numpy as np
-import random as rnd
-from .. import validation
+import sys
+sys.path.append('../modules')
+import validation
 
 class Player:  # Object to represent player
     def __init__(self, name, money):
@@ -59,7 +59,7 @@ class Game:  # Object to represent game
             if type(self.players[i]) == AiPlayer:
                 strat = self.players[i].strategyMap
                 card = self.players[i].card
-                aichoice = ai_get_nodestrategy(strat, card, self.actions)
+                aichoice = ai_get_choice(strat, card, self.actions)
                 self.actions += aichoice
                 pasbet =  'pass' if aichoice == 'p' else 'bet'
                 print("The AIBOT has £{}, and has chosen to {}!!!!".format(self.players[i].money, pasbet))
@@ -70,7 +70,7 @@ class Game:  # Object to represent game
                 self.actions += 'p' if choice == 'pass' else 'b'
             i = (i +1) % 2
         player = 0 if type(self.players[0]) == Player else 1
-        self.moneyAdj(roundWinnings(self.actions, self.players[0].card, self.players[1].card, train=False, player=player) )
+        self.moneyAdj(get_reward(self.actions, self.players[0].card, self.players[1].card, train=False, player=player) )
 
     def moneyAdj(self, money):
         if money > 0:
@@ -81,4 +81,4 @@ class Game:  # Object to represent game
         self.players[1].money -= money
 
 if __name__ == "__main__":
-    game = game()
+    game = Game()

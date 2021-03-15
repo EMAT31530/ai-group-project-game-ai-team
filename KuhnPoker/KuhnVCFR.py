@@ -1,12 +1,12 @@
-import numpy as np
-from random import shuffle
-import sys
-sys.path.append('../modules')
-from validation import exportJson
 import time
 import sys
+from KuhnModules import *
+sys.path.append('../modules')
+from validation import exportJson
+#taken from https://github.com/IanSullivan/PokerCFR under MIT license
 
-class AIKunh:
+
+class AIKuhn:
     def __init__(self):
         self.nodeMap = {} #Will contains all possible nodes
         self.action_dict = {0: 'p', 1: 'b'}
@@ -16,14 +16,14 @@ class AIKunh:
         self.n_actions = 2 #number of possible actions (pass, bet)
 
     def train(self, n_iterations=50000):
-        expected_game_value = 0
+        self.expected_game_value = 0
         for _ in range(n_iterations):
-            shuffle(self.deck)
-            expected_game_value += self.cfr('', 1, 1)
+            rnd.shuffle(self.deck)
+            self.expected_game_value += self.cfr('', 1, 1)
             for _, v in self.nodeMap.items():
                 v.update_strategy()
 
-        expected_game_value /= n_iterations
+        self.expected_game_value /= n_iterations
 
     def cfr(self, history, pr_1, pr_2):
         n = len(history)
@@ -36,7 +36,7 @@ class AIKunh:
             reward = get_reward(history, card_player, card_opponent)
             return reward
 
-        node = self.get_node(player_card, history)
+        node = self.get_node(player_card, history, Node)
         strategy = node.strategy
 
         # Counterfactual utility per action.
@@ -65,7 +65,7 @@ class AIKunh:
         key = str(card) + " " + history
         return key
 
-    def get_node(self, card, history):
+    def get_node(self, card, history, Node):
         key = self.compose_key(card, history)
         if key not in self.nodeMap:
             newnode = Node(key, self.action_dict)
@@ -127,31 +127,6 @@ class Node:
                       for x in self.get_average_strategy()]
         return '{} {}'.format(self.key.ljust(6), strategies)
 
-#standalone methods
-def is_terminal(history):
-    terminal_strings = ['pp', 'bb', 'bp']
-    return history[-2:] in terminal_strings
-
-def get_reward(history, player_card, opponent_card):
-    if history[-1] == 'p':
-        if history[-2:] == 'pp': #double pass
-            return 1 if player_card > opponent_card else -1
-        else: #bet followed by fold
-            return 1
-    else: #double bet
-        return 2 if player_card > opponent_card else -2
-
-def display_results(ev, node_map):
-    print('\nplayer 1 expected value: {}'.format(ev))
-    print('player 2 expected value: {}'.format(-1 * ev))
-    print('\nplayer 1 strategies:')
-    sorted_items = sorted(node_map.items(), key=lambda x: x[0])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
-        print(v)
-    print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
-        print(v)
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -160,7 +135,7 @@ if __name__ == "__main__":
         iterations = int(sys.argv[1])
 
     time1 = time.time()
-    trainer = AIKunh()
+    trainer = AIKuhn()
     trainer.train(n_iterations=iterations)
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(sys.getsizeof(trainer)))

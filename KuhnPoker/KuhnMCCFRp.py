@@ -1,49 +1,27 @@
-from generickuhn import *
-import numpy as np
-import random as rnd
-import validation as vald
+import time
+import sys
+from KuhnModules import *
+from KuhnVCFR import AIKuhn, Node
+sys.path.append('../modules')
+from validation import exportJson
 #taken from https://github.com/IanSullivan/PokerCFR under MIT license
 
-class AiKuhnBotTrainer2(AiKuhn):
+
+class AIKuhn2(AIKuhn):
     #Training function
     def train(self, n_iterations=10000):
-        expected_game_value = 0
         for _ in range(n_iterations):
             # Regrets reset after half way through
             if _ == n_iterations//2:
                 for _, v in self.nodeMap.items():
                     v.strategy_sum = np.zeros(v.n_actions)
-                    expected_game_value = 0
+                    self.expected_game_value = 0
             for j in range(2):
                 self.current_player = j
                 rnd.shuffle(self.deck)
-                expected_game_value += self.cfr('', 1, 1, 1)
+                self.expected_game_value += self.cfr('', 1, 1, 1)
 
-        expected_game_value /= n_iterations
-        display_results(expected_game_value, self.nodeMap)
-
-    def trainWcomparison(self, dummyai, n_iterations=10000, n_intervals=100):
-        for i in range(n_iterations):
-            if i == n_iterations//2:
-                for l, v in self.nodeMap.items():
-                    v.strategy_sum = np.zeros(v.n_actions)
-
-            if i % n_intervals == 0:
-                cur_aistrat = self.get_aistrategy()
-                if i == 0:
-                    cur_aistrat = vald.importJson('defaultkuhn')
-                cur_winrate = list(np.zeros(len(dummyai)))
-                for j in range(len(dummyai)):
-                    winstatistics = self.play_vs_dummy(cur_aistrat, dummyai[j])
-                    cur_winrate[j] = winstatistics
-                self.winrate[i] = cur_winrate
-
-            for k in range(2):
-                self.current_player = k
-                rnd.shuffle(self.deck)
-                self.cfr('', 1, 1, 1)
-
-        vald.exportJson(self.winrate, 'winr8_ai2_{}_3'.format(n_iterations))
+        self.expected_game_value /= n_iterations
 
     #The Counterfactual Regret Minimisation function
     def cfr(self, history, pr_1, pr_2, sample_prob):
@@ -54,7 +32,7 @@ class AiKuhnBotTrainer2(AiKuhn):
         if is_terminal(history):
             card_player = self.deck[0] if player == 0 else self.deck[1]
             card_opponent = self.deck[1] if player == 0 else self.deck[0]
-            reward = roundWinnings(history, card_player, card_opponent)
+            reward = get_reward(history, card_player, card_opponent)
             return reward
 
         node = self.get_node(player_card, history, Node2)
@@ -94,9 +72,11 @@ class AiKuhnBotTrainer2(AiKuhn):
 
         return util
 
+
 class Node2(Node):
-    def __init__(self, key, action_dict, n_actions=2):
-        Node.__init__(self, key, action_dict, n_actions)
+    def __init__(self, key, action_dict):
+        Node.__init__(self, key, action_dict)
+        self.possible_actions = [x for x in action_dict]
         self.beta = 1000
         self.epsilon = 0.05
 
@@ -115,3 +95,23 @@ class Node2(Node):
 
     def get_action(self, strategy):
         return np.random.choice(self.possible_actions, p=strategy)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        iterations = 10000
+    else:
+        iterations = int(sys.argv[1])
+
+    time1 = time.time()
+    trainer = AIKuhn2()
+    trainer.train(n_iterations=iterations)
+    print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
+    print('With {} nodes.'.format(sys.getsizeof(trainer)))
+
+    display_results(trainer.expected_game_value, trainer.nodeMap)
+
+    if len(sys.argv) > 2:
+        filename = str(sys.argv[2]).lower()
+        exportJson(trainer.get_final_strategy(), filename)
+        print('Exported trained strategy as {}.json '.format(filename))
