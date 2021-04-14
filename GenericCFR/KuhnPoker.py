@@ -4,7 +4,6 @@ import time
 
 class Kuhn(GameState):
     def __init__(self):
-        self.action_dict = {0: 'p', 1: 'b'}
         self.num_players = 2
         self.history = ''
         self.active_player = 0
@@ -30,7 +29,7 @@ class Kuhn(GameState):
     def get_actions(self):
         return ['p', 'b']
 
-    def handle_action(self, action):
+    def handle_action(self, player, action):
         next_state = copy.deepcopy(self)
         next_state.history += action
         next_state.active_player = (next_state.active_player + 1) % self.num_players

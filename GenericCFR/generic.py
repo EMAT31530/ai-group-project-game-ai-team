@@ -53,6 +53,7 @@ class MCCFRTrainer:
     def reset(self):
         for node in self.nodeMap.values():
             node.strategy_sum = np.zeros(node.n_actions)
+        self.expected_game_value = 0
 
     def train(self, gamestatetype, n_iterations=10000):
         for _ in range(n_iterations):
@@ -75,7 +76,8 @@ class MCCFRTrainer:
             return reward
 
         active_player = gamestate.get_active_player()
-        opponent = (active_player+1)%2 #ONLY FOR TWO PLAYERS GAMES
+        player_index = gamestate.get_index(active_player)
+        opponent = (player_index+1)%2 #ONLY FOR TWO PLAYERS GAMES
         possible_actions = gamestate.get_actions()
         n_actions = len(possible_actions)
 
@@ -84,17 +86,17 @@ class MCCFRTrainer:
 
         # Counterfactual utility per action.
 
-        if active_player == self.current_player:
+        if player_index == self.current_player:
             counterfactual_utility  = np.zeros(n_actions)
-            reach_pr = reach_prs[active_player]
+            reach_pr = reach_prs[player_index]
             node.cumulative_reach_pr += reach_pr
             node.strategy_sum += reach_pr * strategy
 
             for i, action in enumerate(possible_actions): #WE WANT PRUNING
-                next_gamestate = gamestate.handle_action(action)
+                next_gamestate = gamestate.handle_action(active_player, action)
 
                 next_reach_prs = reach_prs
-                next_reach_prs[active_player] *= strategy[i]
+                next_reach_prs[player_index] *= strategy[i]
 
                 counterfactual_utility[i] = -1 * self.cfr(next_gamestate, next_reach_prs)
 
@@ -107,7 +109,7 @@ class MCCFRTrainer:
 
         else:
             action = np.random.choice(possible_actions, p=strategy) #SOME nuance to the choice of action (GREED)
-            next_gamestate = gamestate.handle_action(action)
+            next_gamestate = gamestate.handle_action(active_player, action)
             util = -1 * self.cfr(next_gamestate, reach_prs)
 
         return util
@@ -115,7 +117,7 @@ class MCCFRTrainer:
     def get_node(self, gamestate):
         key = gamestate.get_representation()
         if key not in self.nodeMap:
-            newnode = Node(key)
+            newnode = Node(key, len(gamestate.get_actions()))
             self.nodeMap[key] = newnode
             return newnode
         return self.nodeMap[key]
@@ -133,11 +135,9 @@ class MCCFRTrainer:
 
 
 class Node:
-    def __init__(self, key):
+    def __init__(self, key, n_actions):
         self.key = key #REMOVE ONCE TESTED WORKING FOR KUHN
-        self.n_actions = 2 #the number of possible actions taken from said node
-        self.beta = 1000
-        self.epsilon = 0.05
+        self.n_actions = n_actions #the number of possible actions taken from said node
 
         self.cumulative_regrets = np.zeros(self.n_actions) #the sum of the regret at each iteration (for each action)
         self.strategy_sum = np.zeros(self.n_actions) # the sum of the strategy at each iteration (for each action)
@@ -157,9 +157,9 @@ class Node:
 
     def get_average_strategy(self):
         if self.cumulative_reach_pr==0:
-            strategy = self.strategy_sum
+            strategy = self.strategy_sum.copy()
         else:
-            strategy = self.strategy_sum / self.cumulative_reach_pr
+            strategy = self.strategy_sum.copy() / self.cumulative_reach_pr.copy()
         return self.normalise(strategy)
 
     def get_average_strategy_with_threshold(self, threshold):
