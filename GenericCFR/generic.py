@@ -40,13 +40,10 @@ class GameState(ABC):
     def get_representation(self):
         pass
 
-    def printtest(self):
-        print("test")
 
 class MCCFRTrainer:
     def __init__(self):
         self.nodeMap = {} #Will contains all possible nodes
-
         self.current_player = 0
         self.expected_game_value = 0
 

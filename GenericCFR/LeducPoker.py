@@ -46,7 +46,7 @@ class Player:
 class Leduc(GameState):
     def __init__(self):
         self.num_players = 2
-        self.history = ['']
+        self.history = [' ']
 
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = 0
@@ -63,15 +63,16 @@ class Leduc(GameState):
         self.street = 1
         self.active_player = 0
         self.community_card = self.deck.draw()
-        self.history.append('')
+        self.history.append(' ')
 
     def is_terminal(self):
-        fold = self.history[-1] == 'f'
+        history_str = ''.join(self.history)
+        fold = history_str.endswith('f')
         if self.street == 0:
             return fold
 
-        check =  self.history[-2] ==  'ch' and self.history[-1] == 'ch'
-        fullraise = self.history[-1] == 'c'
+        check =  history_str.endswith('ch'*2)
+        fullraise = history_str.endswith('c')
         return fold or check or fullraise
 
     def get_rewards(self):
@@ -84,14 +85,14 @@ class Leduc(GameState):
         opponent = self.players[(self.active_player+1)%2]
         player_rank = rank(player.card + self.community_card)
         opponent_rank = rank(opponent.card + self.community_card)
-        if player_rank > opponent_rank:
+        if player_rank < opponent_rank:
             return self.pot - player.bet_amount
         else:
             return -(self.pot - opponent.bet_amount)
 
     def get_actions(self):
         prev_action = self.history[-1]
-        if prev_action in ['','ch']:
+        if prev_action in [' ','ch']:
             return ['ch', 'r']
         elif prev_action=='r':
             return ['f', 'c', 'rr']
@@ -101,12 +102,16 @@ class Leduc(GameState):
     def handle_action(self, player, action):
         next_state = copy.deepcopy(self)
         next_state.history.append(action)
+
+        nxtst_player = next_state.get_active_player()
         next_state.active_player = (next_state.active_player + 1) % self.num_players
 
         if action in ['r','rr','c']:
             next_state.pot += 2 * (self.street + 1)
-            player.bet_amount += 2 * (self.street + 1)
-        if action == 'c' and self.street == 0:
+            nxtst_player.bet_amount += 2 * (self.street + 1)
+
+        check = self.history[-1] == 'ch' and action == 'ch'
+        if self.street == 0 and (action == 'c' or check):
             next_state.newround()
 
         return next_state
@@ -146,7 +151,7 @@ if __name__ == "__main__":
     trainer = MCCFRTrainer()
     trainer.train(Leduc, n_iterations=iterations)
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
-    print('With {} nodes.'.format(sys.getsizeof(trainer)))
+    print('With {} nodes.'.format(len(trainer.nodeMap)))
 
     display_results(trainer.expected_game_value, trainer.nodeMap)
 
