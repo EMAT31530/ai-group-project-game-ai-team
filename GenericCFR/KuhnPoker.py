@@ -68,11 +68,11 @@ if __name__ == "__main__":
 
     time1 = time.time()
     trainer = MCCFRTrainer()
-    trainer.train(Kuhn, n_iterations=iterations)
+    util = trainer.train(Kuhn, n_iterations=iterations)
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(sys.getsizeof(trainer)))
 
-    display_results(trainer.expected_game_value, trainer.nodeMap)
+    display_results(util, trainer.nodeMap)
 
     if len(sys.argv) > 2:
         filename = str(sys.argv[2]).lower()

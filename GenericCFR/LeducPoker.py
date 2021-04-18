@@ -43,6 +43,7 @@ class Player:
         self.card = card
         self.bet_amount = 1
 
+
 class Leduc(GameState):
     def __init__(self):
         self.num_players = 2
@@ -59,7 +60,7 @@ class Leduc(GameState):
             self.players.append(Player(self.deck.draw()))
 
 
-    def newround(self):
+    def perform_flop(self):
         self.street = 1
         self.active_player = 0
         self.community_card = self.deck.draw()
@@ -80,7 +81,7 @@ class Leduc(GameState):
         player = self.get_active_player()
 
         if prev_action == 'f':
-            return self.pot - player.bet_amount
+            return (self.pot - player.bet_amount)
 
         opponent = self.players[(self.active_player+1)%2]
         player_rank = rank(player.card + self.community_card)
@@ -112,7 +113,7 @@ class Leduc(GameState):
 
         check = self.history[-1] == 'ch' and action == 'ch'
         if self.street == 0 and (action == 'c' or check):
-            next_state.newround()
+            next_state.perform_flop()
 
         return next_state
 
@@ -149,11 +150,17 @@ if __name__ == "__main__":
 
     time1 = time.time()
     trainer = MCCFRTrainer()
-    trainer.train(Leduc, n_iterations=iterations)
-    print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
+
+    print("Running CFR for 1000 iterations")
+    trainer.train(Leduc, 1000)
+    print("Resetting strategy sums")
+    trainer.reset()
+
+    util = trainer.train(Leduc, n_iterations=iterations)
+    print('Completed {}+1000 iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(len(trainer.nodeMap)))
 
-    display_results(trainer.expected_game_value, trainer.nodeMap)
+    display_results(util, trainer.nodeMap)
 
     if len(sys.argv) > 2:
         filename = str(sys.argv[2]).lower()
