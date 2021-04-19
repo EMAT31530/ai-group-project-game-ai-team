@@ -1,10 +1,7 @@
 from generic import *
-import sys
-import time
 
 class Kuhn(GameState):
     def __init__(self):
-        self.action_dict = {0: 'p', 1: 'b'}
         self.num_players = 2
         self.history = ''
         self.active_player = 0
@@ -30,7 +27,7 @@ class Kuhn(GameState):
     def get_actions(self):
         return ['p', 'b']
 
-    def handle_action(self, action):
+    def handle_action(self, player, action):
         next_state = copy.deepcopy(self)
         next_state.history += action
         next_state.active_player = (next_state.active_player + 1) % self.num_players
@@ -50,16 +47,7 @@ class Kuhn(GameState):
 
 
 
-def display_results(ev, node_map):
-    print('\nplayer 1 expected value: {}'.format(ev))
-    print('player 2 expected value: {}'.format(-1 * ev))
-    print('\nplayer 1 strategies:')
-    sorted_items = sorted(node_map.items(), key=lambda x: x[0])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
-        print(v)
-    print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
-        print(v)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -69,11 +57,11 @@ if __name__ == "__main__":
 
     time1 = time.time()
     trainer = MCCFRTrainer()
-    trainer.train(Kuhn, n_iterations=iterations)
+    util = trainer.train(Kuhn, n_iterations=iterations)
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(sys.getsizeof(trainer)))
 
-    display_results(trainer.expected_game_value, trainer.nodeMap)
+    display_results(util, trainer.get_final_strategy())
 
     if len(sys.argv) > 2:
         filename = str(sys.argv[2]).lower()
