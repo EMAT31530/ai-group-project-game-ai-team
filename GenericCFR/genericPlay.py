@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
 import sys
-import validation as vald
 import random
 import numpy as np
+sys.path.append('../modules')
+import validation as vald
 
 class GameState(ABC):
     #To check if the current gamestate is a terminal state
