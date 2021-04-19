@@ -58,13 +58,6 @@ class Leduc(GameState):
         for i in range(2):
             self.players.append(Player(self.deck.draw()))
 
-
-    def perform_flop(self):
-        self.street = 1
-        self.active_player = 0
-        self.community_card = self.deck.draw()
-        self.history.append(' ')
-
     def is_terminal(self):
         history_str = ''.join(self.history)
         fold = history_str.endswith('f')
@@ -115,6 +108,12 @@ class Leduc(GameState):
             next_state.perform_flop()
 
         return next_state
+
+    def perform_flop(self):
+        self.street = 1
+        self.active_player = 0
+        self.community_card = self.deck.draw()
+        self.history.append(' ')
 
     def get_active_player(self):
         return self.players[self.active_player]
