@@ -1,4 +1,4 @@
-import * from genericPlay
+from genericPlay import *
 
 def rank(cards):
     ranks = {
@@ -10,15 +10,15 @@ def rank(cards):
         'QJ': 6, 'JQ': 6,
         'K': 7, 'Q': 8, 'J': 9
     }
-    return ranks[cards]
+    return str(ranks[cards])
 
 def actions(action):
     acts = {
-            'Check': 'ch',
-            'Fold': 'f',
-            'Call': 'c',
-            'Raise': 'r',
-            'Reraise': 'rr'
+            'check': 'ch',
+            'fold': 'f',
+            'call': 'c',
+            'raise': 'r',
+            'reraise': 'rr'
         }
     return acts[action]
 
@@ -47,20 +47,21 @@ class Deck:  # Object to represent deck throughout game
 
 
 class Player:
-    def __init__(self, name, hand, money):
+    def __init__(self, name, money):
         self.name = name
-        self.hand = hand
+        self.card = 0
         self.money = money
         self.bet_amount = 1
 
     def get_action(self, gamestate):
         possible_actions = gamestate.get_actions()
         print("what be yere action")
-        action = vald.getChoice(possible_actions) 
+        action = vald.getChoice(possible_actions)
         return action
 
     def __str__(self):
-        return str("It is {} turn, they hold {} and have £{}.".format(self.name, self.hand, self.money))
+        return "It is your turn, you hold {} and have £{}, so far you've bet £{}.".format(
+        self.card, self.money, self.bet_amount)
 
 
 class AiPlayer(Player):
@@ -75,38 +76,41 @@ class AiPlayer(Player):
         action = np.random.choice(possible_actions, p=strategy)
         return action
 
+    def __str__(self):
+        return "It is {}'s turn, they have £{}, so far they've bet £{}.".format(
+        self.name, self.money, self.bet_amount)
+
 
 class Leduc(GameState):
     def __init__(self, opp_strategy):
         self.num_players = 2
         self.history = [' ']
-
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = 0
         self.pot = 2
-
+        self.deck = 0
         self.active_player = 0
 
-        self.deck = Deck()
-        #strat = importstrat(opp_strategy)
+
+        strat_map = vald.importJson(opp_strategy)
 
         self.players = []
-        plyr_name = input("what be yere name")
-        players.append(Player(plyr_name, self.deck.draw(), 50))
-        players.append(AiPlayer(opp_strategy, self.deck.draw(), 50, strat))
-        
+        plyr_name = input("what be yere name? ")
+        self.players.append(AiPlayer(opp_strategy, 50, strat_map))
+        self.players.append(Player(plyr_name, 50))
+
+
     def new_round(self):
         self.history = [' ']
-
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = 0
         self.pot = 2
         self.deck = Deck()
         for player in self.players:
-            player.hand = self.deck.draw()
+            player.card = self.deck.draw()
             player.bet_amount = 1
-            
-    
+        self.players.reverse()
+
     def is_terminal(self):
         history_str = ''.join(self.history)
         fold = history_str.endswith('f')
@@ -123,13 +127,14 @@ class Leduc(GameState):
         plyr = self.players[index]
         opp = self.players[opp_index]
 
-        
+
         prev_action = self.history[-1]
 
         rwds = [self.pot - player.bet_amount for player in self.players]
+        winr = index
         if prev_action == 'f':
             rwds[opp_index] = -(opp.bet_amount)
-            return rwds
+            return rwds, index
 
         player_rank = rank(plyr.card + self.community_card)
         opponent_rank = rank(opp.card + self.community_card)
@@ -138,8 +143,9 @@ class Leduc(GameState):
             rwds[opp_index] = -(opp.bet_amount)
         else:
             rwds[index] = -(plyr.bet_amount)
-        return rwds
-            
+            winr = opp_index
+        return rwds, winr
+
 
     def get_actions(self):
         prev_action = self.history[-1]
@@ -154,20 +160,27 @@ class Leduc(GameState):
         player = self.get_active_player()
         print("{} has chosen to {}.".format(player.name, action))
 
-        act = actions[action]
+        act = actions(action.lower())
 
 
         if act in ['r','rr','c']:
             self.pot += 2 * (self.street + 1)
             player.bet_amount += 2 * (self.street + 1)
 
-        check = self.history[-1] == 'ch' and action == 'ch'
-        if self.street == 0 and (action == 'c' or check):
-            self.perform_flop()
-
+        check = self.history[-1] == 'ch' and act == 'ch'
         self.history.append(act)
         self.active_player = (self.active_player + 1) % self.num_players
 
+
+        if self.street == 0 and (act == 'c' or check):
+            self.perform_flop()
+
+    def perform_flop(self):
+        self.street = 1
+        self.active_player = 0
+        self.community_card = self.deck.draw()
+        print('com card = {}'.format(self.community_card))
+        self.history.append(' ')
 
     def get_active_player(self):
         return self.players[self.active_player]
@@ -179,15 +192,17 @@ class Leduc(GameState):
         history_str = "/".join(self.history)
         return '{}-{}'.format(hand_rank, history_str)
 
-
+    def display_round_str(self):
+        print(str(self.get_active_player()))
+        if self.street ==1:
+            print("And the community card is {}.".format(self.community_card))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        strategy = 'defaultleduc'
+        strategy = 'Leduc1'
     else:
         strategy = str(sys.argv[1])
 
 
     game = Game()
     game.play(Leduc, strategy)
-    

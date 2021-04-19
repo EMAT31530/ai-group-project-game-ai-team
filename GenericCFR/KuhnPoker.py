@@ -1,6 +1,4 @@
 from generic import *
-import sys
-import time
 
 class Kuhn(GameState):
     def __init__(self):
@@ -49,16 +47,7 @@ class Kuhn(GameState):
 
 
 
-def display_results(ev, node_map):
-    print('\nplayer 1 expected value: {}'.format(ev))
-    print('player 2 expected value: {}'.format(-1 * ev))
-    print('\nplayer 1 strategies:')
-    sorted_items = sorted(node_map.items(), key=lambda x: x[0])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
-        print(v)
-    print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
-        print(v)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -72,7 +61,7 @@ if __name__ == "__main__":
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(sys.getsizeof(trainer)))
 
-    display_results(util, trainer.nodeMap)
+    display_results(util, trainer.get_final_strategy())
 
     if len(sys.argv) > 2:
         filename = str(sys.argv[2]).lower()

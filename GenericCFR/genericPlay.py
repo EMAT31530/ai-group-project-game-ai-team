@@ -1,4 +1,8 @@
 from abc import ABC, abstractmethod
+import sys
+import validation as vald
+import random
+import numpy as np
 
 class GameState(ABC):
     #To check if the current gamestate is a terminal state
@@ -20,7 +24,6 @@ class GameState(ABC):
     @abstractmethod
     def handle_action(self, player, action):
         pass
-        #next_state = copy.deepcopy(self)
 
     #To get the active player from the current state
     @abstractmethod
@@ -30,6 +33,10 @@ class GameState(ABC):
     #Initalises a new round
     @abstractmethod
     def new_round(self):
+        pass
+
+    @abstractmethod
+    def display_round_str(self):
         pass
 
     #To get get_indexthe representative key of a given state
@@ -42,22 +49,24 @@ class Game:
     def play(self, gamestatetype, opp_strategy):
         gamestate = gamestatetype(opp_strategy)
 
-        roundcount = 10
+        roundcount = 5
         while not roundcount < 1:
             for i in range(roundcount):
                 self.round(gamestate)
-                
-            roundcount = validation.checkInt("How many more rounds would you like to play? ")
+
+            roundcount = vald.checkInt("How many more rounds would you like to play? ")
 
     def round(self, gamestate):
         gamestate.new_round()
         while not gamestate.is_terminal():
+            gamestate.display_round_str()
             player = gamestate.get_active_player()
-            print(player)
             action = player.get_action(gamestate)
             gamestate.handle_action(action)
-    
-        rewards = gamestate.get_rewards()
-        for i in range(rewards):
-            gamestate.players[i].money += rewards[i]
-        
+
+        rewards, winr_index = gamestate.get_rewards()
+        winner = gamestate.players[winr_index].name
+        prize = rewards[winr_index]
+        print("{} wins £{}!\n".format(winner, prize))
+        for i, reward in enumerate(rewards):
+            gamestate.players[i].money += reward

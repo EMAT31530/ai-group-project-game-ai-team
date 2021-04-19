@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 import numpy as np
 import random
 import copy
+import sys
+import time
+sys.path.append('../modules')
+import validation as vald
 
 
 class GameState(ABC):
@@ -24,7 +28,6 @@ class GameState(ABC):
     @abstractmethod
     def handle_action(self, player, action):
         pass
-        #next_state = copy.deepcopy(self)
 
     #To get the active player from the current state
     @abstractmethod
@@ -49,8 +52,7 @@ class MCCFRTrainer:
 
     def reset(self):
         for node in self.nodeMap.values():
-            node.strategy_sum = np.zeros(node.n_actions)
-        self.expected_game_value = 0
+            node.strategy_sum *=0
 
     def train(self, gamestatetype, n_iterations=10000):
         gamestate = gamestatetype()
@@ -132,7 +134,7 @@ class MCCFRTrainer:
 
     def get_final_strategy(self):
         strategy = {}
-        for key, node in self.nodeMap:
+        for key, node in self.nodeMap.items():
             nodestategy = node.get_average_strategy_with_threshold(0.001)
             strategy[key] = nodestategy
         return strategy
@@ -165,4 +167,20 @@ class Node:
     def get_average_strategy_with_threshold(self, threshold):
         avg_strategy = self.get_average_strategy()
         avg_strategy[avg_strategy < threshold] = 0
-        return self.normalise(avg_strategy)
+        return list(self.normalise(avg_strategy))
+
+
+
+
+def display_results(ev, node_map):
+    print('\nplayer 1 expected value: {}'.format(ev))
+    print('player 2 expected value: {}'.format(-1 * ev))
+    print('\nplayer 1 strategies:')
+    sorted_items = sorted(node_map.items(), key=lambda x: x[0])
+    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
+        r = [round(i , 2) for i in v]
+        print('{}: {}'.format(_,r))
+    print('\nplayer 2 strategies:')
+    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
+        r = [round(i , 2) for i in v]
+        print('{}: {}'.format(_,r))
