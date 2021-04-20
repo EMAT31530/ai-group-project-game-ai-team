@@ -1,6 +1,6 @@
 from generic import *
 import ranking as rank
-
+from handleAction import *
 
 class Deck:  # Object to represent deck throughout game
     def __init__(self):
@@ -73,8 +73,8 @@ class NoLimit(Gamestate):
     def get_actions(self):
         return getActions(self, player)
 
-    def handle_action(self, player, action):
-        return handleAction(self, player, action)
+    def handle_action(self, action):
+        return handleAction(self, action) #running a func like this may be illegal 
 
     def get_active_player(self):
         return self.players[self.active_player]

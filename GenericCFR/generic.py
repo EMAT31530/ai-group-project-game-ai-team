@@ -26,7 +26,7 @@ class GameState(ABC):
 
     #To translate from the current state to a new state via the given action
     @abstractmethod
-    def handle_action(self, player, action):
+    def handle_action(self, action):
         pass
 
     #To get the active player from the current state
@@ -100,7 +100,7 @@ class MCCFRTrainer:
             node.strategy_sum += reach_prs[player_index] * strategy
 
             for i, action in enumerate(possible_actions): #WE WANT PRUNING
-                next_gamestate = gamestate.handle_action(active_player, action)
+                next_gamestate = gamestate.handle_action(action)
 
                 next_reach_prs = reach_prs
                 next_reach_prs[player_index] *= strategy[i]
@@ -117,7 +117,7 @@ class MCCFRTrainer:
 
         else:
             action = np.random.choice(possible_actions, p=strategy) #SOME nuance to the choice of action (GREED)
-            next_gamestate = gamestate.handle_action(active_player, action)
+            next_gamestate = gamestate.handle_action(action)
             util = -1 * self.cfr(next_gamestate, reach_prs)
 
         return util

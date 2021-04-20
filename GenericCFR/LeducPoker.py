@@ -92,19 +92,20 @@ class Leduc(GameState):
         elif prev_action=='rr':
             return ['f', 'c']
 
-    def handle_action(self, player, action):
+    def handle_action(self, action):
         next_state = copy.deepcopy(self)
         next_state.history.append(action)
 
-        nxtst_player = next_state.get_active_player()
+        active_player = next_state.get_active_player()
         next_state.active_player = (next_state.active_player + 1) % self.num_players
 
         if action in ['r','rr','c']:
             next_state.pot += 2 * (self.street + 1)
-            nxtst_player.bet_amount += 2 * (self.street + 1)
+            active_player.bet_amount += 2 * (self.street + 1)
 
         check = self.history[-1] == 'ch' and action == 'ch'
-        if self.street == 0 and (action == 'c' or check):
+        call = action == 'c'
+        if self.street == 0 and (call or check):
             next_state.perform_flop()
 
         return next_state
