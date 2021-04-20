@@ -1,11 +1,5 @@
 from generic import *
-
-
-def rank(cards, board):
-    ranks = {
-
-    }
-    return ranks[cards]
+import ranking as rank
 
 
 class Deck:  # Object to represent deck throughout game
@@ -67,14 +61,14 @@ class NoLimit(Gamestate):
             return (self.pot - player.bet_amount)
 
         opponent = self.players[(self.active_player+1)%2]
-        player_rank = rank(player.hand, self.board)
-        opponent_rank = rank(opponent.hand, self.board)
+        player_rank = rank.ranking(player.hand, self.board)
+        opponent_rank = rank.ranking(opponent.hand, self.board)
         if player_rank < opponent_rank:
             return self.pot - player.bet_amount
         elif player_rank > opponent_rank:
             return -(self.pot - opponent.bet_amount)
         else:
-            return 'tie'
+            return 0
 
     def get_actions(self):
         return getActions(self, player)
