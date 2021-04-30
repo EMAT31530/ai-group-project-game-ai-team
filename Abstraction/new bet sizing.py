@@ -14,17 +14,46 @@ end result is, for each point in the game, ie flop, river, turn
 we will have the most common bet sizes as parsed from several thousands
 of real poker players
 """
-
-test = open('rawdata/'+'abs NLH handhq_1-OBFUSCATED.txt', 'r')
+'''
+test = open('rawdata/'+'abs NLH handhq_1-OBFUSCATED.txt', 'r')'''
+test = open('testtestdata.txt', 'r')
 lines=test.readlines()
 print(lines[0])
 
 totalgames=0
 
-print(lines[0])
-print(len(lines))
-if 'stage' in lines[0].lower():
+
+print(lines[28])
+if len(lines[29].strip()) == 0:
     print('hi')
-for i in range(len(lines)):
-    if 'stage' in lines[i].lower():
-        totalgames+=1
+
+i = 0
+game = 0
+splitgames = []
+endoffile = False
+end = False
+while endoffile is False:
+    if i == len(lines):
+        endoffile = True
+    else:
+        if game == 0:
+            splitgames.append([])
+            end = False
+        else:
+            splitgames.append([])
+            game = game + 1
+            end = False
+    while end is False:
+        print('end false')
+        if len(lines[i].strip()) == 0:
+            print('blank line')
+            i = i+1
+            end = True
+        else:
+            print('not blank')
+            print(splitgames)
+            print(game)
+            splitgames[game].append(lines[i])
+            i = i+1
+
+print(splitgames[0])

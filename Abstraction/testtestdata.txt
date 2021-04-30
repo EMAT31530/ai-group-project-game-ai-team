@@ -1,0 +1,67 @@
+Stage #3017242716: Holdem  No Limit $4 - 2009-07-01 00:00:13 (ET)
+Table: FOX AVE (Real Money) Seat #2 is the dealer
+Seat 2 - Un/VQfq2mIJ0qOgXT3gBzw ($328.30 in chips)
+Seat 3 - ouQv0Sc4aPg8AuwhCk+lmw ($436 in chips)
+Seat 4 - Tnv2SPrC54RwcR46vkb9IQ ($911.60 in chips)
+Seat 5 - Qyp0ZiB1zwUnpRYCmgxsPg ($1,062.93 in chips)
+Seat 6 - uUr5VW+nLr7e9CueUrQ47g ($395.59 in chips)
+Seat 1 - yfCXwS1cl9T2vxS+eBNlkw ($794 in chips)
+ouQv0Sc4aPg8AuwhCk+lmw - Posts small blind $2
+Tnv2SPrC54RwcR46vkb9IQ - Posts big blind $4
+*** POCKET CARDS ***
+Qyp0ZiB1zwUnpRYCmgxsPg - Folds
+uUr5VW+nLr7e9CueUrQ47g - Folds
+yfCXwS1cl9T2vxS+eBNlkw - Folds
+Un/VQfq2mIJ0qOgXT3gBzw - Raises $14 to $14
+ouQv0Sc4aPg8AuwhCk+lmw - Folds
+Tnv2SPrC54RwcR46vkb9IQ - Folds
+Un/VQfq2mIJ0qOgXT3gBzw - returned ($10) : not called
+*** SHOW DOWN ***
+Un/VQfq2mIJ0qOgXT3gBzw - Does not show
+Un/VQfq2mIJ0qOgXT3gBzw Collects $10 from main pot
+*** SUMMARY ***
+Total Pot($10)
+Seat 1: yfCXwS1cl9T2vxS+eBNlkw Folded on the POCKET CARDS
+Seat 2: Un/VQfq2mIJ0qOgXT3gBzw (dealer) collected Total ($10)
+Seat 3: ouQv0Sc4aPg8AuwhCk+lmw (small blind) Folded on the POCKET CARDS
+Seat 4: Tnv2SPrC54RwcR46vkb9IQ (big blind) Folded on the POCKET CARDS
+Seat 5: Qyp0ZiB1zwUnpRYCmgxsPg Folded on the POCKET CARDS
+Seat 6: uUr5VW+nLr7e9CueUrQ47g Folded on the POCKET CARDS
+
+
+
+Stage #3017237866: Holdem  No Limit $4, $1 ante - 2009-07-01 00:00:14 (ET)
+Table: GIDDEON DR (Real Money) Seat #3 is the dealer
+Seat 3 - /P+7Z0P/b7YiK60FW9dRAQ ($1,034 in chips)
+Seat 4 - CBt/tAETPantO0fB6ibj8A ($823.35 in chips)
+Seat 5 - yfCXwS1cl9T2vxS+eBNlkw ($1,362.30 in chips)
+Seat 6 - F3OQMqZPiGQfAxJLSdSGYg ($1,000.06 in chips)
+Seat 1 - XT4bOIsWoAdtADfY1sjIyQ ($874.05 in chips)
+Seat 2 - 86j2wSYvihWVbKVu7oHDMQ ($569.50 in chips)
+XT4bOIsWoAdtADfY1sjIyQ - Ante $1
+86j2wSYvihWVbKVu7oHDMQ - Ante $1
+/P+7Z0P/b7YiK60FW9dRAQ - Ante $1
+CBt/tAETPantO0fB6ibj8A - Ante $1
+yfCXwS1cl9T2vxS+eBNlkw - Ante $1
+F3OQMqZPiGQfAxJLSdSGYg - Ante $1
+CBt/tAETPantO0fB6ibj8A - Posts small blind $2
+yfCXwS1cl9T2vxS+eBNlkw - Posts big blind $4
+*** POCKET CARDS ***
+F3OQMqZPiGQfAxJLSdSGYg - Folds
+XT4bOIsWoAdtADfY1sjIyQ - Raises $20 to $20
+86j2wSYvihWVbKVu7oHDMQ - Folds
+/P+7Z0P/b7YiK60FW9dRAQ - Folds
+CBt/tAETPantO0fB6ibj8A - Folds
+yfCXwS1cl9T2vxS+eBNlkw - Folds
+XT4bOIsWoAdtADfY1sjIyQ - returned ($16) : not called
+*** SHOW DOWN ***
+XT4bOIsWoAdtADfY1sjIyQ - Does not show
+XT4bOIsWoAdtADfY1sjIyQ Collects $16 from main pot
+*** SUMMARY ***
+Total Pot($16)
+Seat 1: XT4bOIsWoAdtADfY1sjIyQ collected Total ($16)
+Seat 2: 86j2wSYvihWVbKVu7oHDMQ Folded on the POCKET CARDS
+Seat 3: /P+7Z0P/b7YiK60FW9dRAQ (dealer) Folded on the POCKET CARDS
+Seat 4: CBt/tAETPantO0fB6ibj8A (small blind) Folded on the POCKET CARDS
+Seat 5: yfCXwS1cl9T2vxS+eBNlkw (big blind) Folded on the POCKET CARDS
+Seat 6: F3OQMqZPiGQfAxJLSdSGYg Folded on the POCKET CARDS
