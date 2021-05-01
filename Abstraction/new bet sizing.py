@@ -20,6 +20,7 @@ of real poker players
 for j in range(1,150):
     with open('rawdata/'+'abs NLH handhq_'+str(j)+'-OBFUSCATED.txt', "r") as f:
         lines = f.readlines()
+    #pop out -1 -2 -3
     lines.pop()
     lines.pop()
     lines.pop()
@@ -28,13 +29,11 @@ for j in range(1,150):
             f.write(line)
 
 '''
+import re
 
 
 test = open('rawdata/'+'abs NLH handhq_25-OBFUSCATED.txt', 'r')
-#test = open('testdata.txt', 'r')
 lines = test.readlines()
-print(lines[-4])
-#pop out -1 -2 -3
 i = 0
 game = 0
 splitgames = []
@@ -69,4 +68,49 @@ while endoffile is False:
 
             splitgames[game].append(lines[i])
             i = i+1
-print(splitgames[-1])
+
+
+# have to deal with ante, raise, call
+potstorage=[]
+ante = ''
+
+# counts through each game
+for j in range(0,1):
+    # checks each line of the game
+    # let's start with count total pot first
+    pot = 0
+    smallblind = ''
+    bigblind = ''
+    currentbet = ''
+    call = ''
+    raised = ''
+    for i in range(len(splitgames[j])):
+        ante = ''
+        print(splitgames[j][i])
+        if 'ante' in splitgames[j][i].lower():
+            pointer = splitgames[j][i].find('ante')-1
+            print(splitgames[j][i][pointer])
+            while splitgames[j][i][pointer] != '$':
+                print(splitgames[j][i][pointer])
+                if splitgames[j][i][pointer].isnumeric() is True:
+                    ante = str(ante) + str(splitgames[j][i][pointer])
+                    pointer -= 1
+                else:
+                    pointer -= 1
+            ante = int(ante[::-1])
+            print(ante)
+            pot += ante
+        '''
+        elif 'small blind' in splitgames[j][i].lower():
+            pointer = splitgames[j][i].find('small blind')-1
+            while splitgames[j][i][pointer] != '$':
+                if splitgames[j][i][pointer].isnumeric() is True:
+                    smallblind = str(smallblind) + str(splitgames[j][i][pointer])
+                    pointer -= 1
+                else:
+                    pointer -= 1
+        '''
+
+
+
+print(pot)
