@@ -34057,6 +34057,3 @@ Seat 3: OW6NE/GlSvS41RU0kzJ9XQ (big blind) won Total ($92.50) HI:($92.50) with O
 Seat 4: AQu1p4ST10z9lwlh8vbPiA Folded on the RIVER
 Seat 5: wlQzzjnXWUzgxjls41UtxQ HI:lost with ace high [10c Qd - B:Ac,P:Qd,B:Jh,P:10c,B:5h]
 Seat 6: oh8n7mSNEu5yImXukp7K1A Folded on the POCKET CARDS
-
-
-

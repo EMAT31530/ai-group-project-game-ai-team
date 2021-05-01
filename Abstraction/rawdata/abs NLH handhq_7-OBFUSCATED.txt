@@ -36502,6 +36502,3 @@ Seat 2: nTx5o0sg5WZkRER4KZ9ZMg collected Total ($157) HI:($157)  [Does not show]
 Seat 3: yfCXwS1cl9T2vxS+eBNlkw (dealer) Folded on the POCKET CARDS
 Seat 4: Zdvui/GqghgL1CttQtVJYw (small blind) Folded on the POCKET CARDS
 Seat 5: Ab36jUNt3gltY6BFHuXCww (big blind) Folded on the RIVER
-
-
-

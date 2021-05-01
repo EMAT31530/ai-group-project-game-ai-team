@@ -33810,6 +33810,3 @@ Seat 3: Jt2NLQSv5gW/r/9T3PNsRQ Folded on the FLOP
 Seat 4: Tf4+QcTgX0mTQZDcFd1FFQ Folded on the FLOP
 Seat 5: Acd3T58vNojvxt5FPy7D0g (dealer) Folded on the POCKET CARDS
 Seat 6: uUr5VW+nLr7e9CueUrQ47g (small blind) Folded on the FLOP
-
-
-

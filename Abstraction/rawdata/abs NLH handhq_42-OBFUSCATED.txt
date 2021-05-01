@@ -32477,6 +32477,3 @@ Seat 3: BcKvE53e6SEnbXhQc9uPRA (big blind) Folded on the POCKET CARDS
 Seat 4: w4CTNTmTkGuIHvHjRsKLFA Folded on the POCKET CARDS
 Seat 5: sm8gtPUJLXlkfd1Ge2nSUg HI:lost with One pair, nines [9d Ad - P:9d,B:9c,P:Ad,B:Qs,B:10c]
 Seat 6: 2/BS68DIlmXLv2unkYMPpw (dealer) won Total ($287.50) HI:($287.50) with One pair, queens [Kh Qh - B:Qs,P:Qh,P:Kh,B:10c,B:9c]
-
-
-

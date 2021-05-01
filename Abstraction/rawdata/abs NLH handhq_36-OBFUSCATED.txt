@@ -31789,6 +31789,3 @@ Total Pot($24) | Rake ($0.50)
 Board [Js 10c 3h 5h 3d]
 Seat 4: voiX/i/pJsGQCfl4kq8PkA (big blind) won Total ($23.50) HI:($23.50) with One pair, threes(king kicker) [Kc 4s - B:3h,B:3d,P:Kc,B:Js,B:10c]
 Seat 6: dc1VaFCnI9mh+kj1MNDOxg (dealer) (small blind) HI: [Mucked] [Qd 7s]
-
-
-

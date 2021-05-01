@@ -33773,6 +33773,3 @@ Seat 1: RYepban/VpPo42AolMP0oA (big blind) Folded on the FLOP
 Seat 4: NwdHJdRd9HDyCVdRlJt8nw Folded on the POCKET CARDS
 Seat 5: eQ/DFHqW786OLqBi8a8QxQ (dealer) Folded on the TURN
 Seat 6: FT4024kB621B4tqCTQHY3w (small blind) collected Total ($33.70) HI:($33.70)  [Does not show]
-
-
-

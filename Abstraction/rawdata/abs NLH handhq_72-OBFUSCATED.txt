@@ -35755,6 +35755,3 @@ Seat 2: WefpLFiYP2sBSBQspSQDNQ (small blind) Folded on the TURN
 Seat 3: 3he8PJXORUxmC6vQV03I6A (big blind) Folded on the TURN
 Seat 4: Lt384FxgCagI91feUExIig Folded on the POCKET CARDS
 Seat 5: 0nlK4bkWiM6nj69CXRGDkw Folded on the POCKET CARDS
-
-
-

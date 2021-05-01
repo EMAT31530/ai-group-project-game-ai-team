@@ -37172,6 +37172,3 @@ Board [2d 5d 6h]
 Seat 1: lF/sw3yPw6yAOTER+qQzmQ (dealer) collected Total ($24.70) HI:($24.70)  [Does not show]
 Seat 3: J6jeYNb6QxKA62jp+H1JnA (small blind) Folded on the POCKET CARDS
 Seat 5: zaeJugQlx6rfFr3i8iYbDQ (big blind) Folded on the FLOP
-
-
-

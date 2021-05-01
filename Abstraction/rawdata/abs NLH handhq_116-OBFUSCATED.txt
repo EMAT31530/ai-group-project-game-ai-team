@@ -33886,6 +33886,3 @@ Seat 3: tGTsUiYqb2TOicYgMlG8RA Folded on the FLOP
 Seat 4: PX4KpZmezshM0u2FOVc0cA Folded on the POCKET CARDS
 Seat 5: 0nlK4bkWiM6nj69CXRGDkw HI:lost with One pair, tens [Ac Jc - B:10d,B:10c,P:Ac,B:Qd,P:Jc]
 Seat 6: WlREWV+bHiflPw0pZc3LbQ (dealer) Folded on the POCKET CARDS
-
-
-

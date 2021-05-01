@@ -30359,6 +30359,3 @@ Seat 3: LiD180oLW0bKpDpZFV5Shg (big blind) Folded on the POCKET CARDS
 Seat 4: GnEz8Li9NYataEOiT5h6zw won Total ($85) HI:($85) with Two Pair, queens and jacks [As Jh - B:Qs,B:Qc,P:Jh,B:Jc,P:As]
 Seat 5: C7pQ5UjjGPpY1dB5zBz7qA Folded on the RIVER
 Seat 6: epYwv2vgGqc3Um+LY18qYw Folded on the POCKET CARDS
-
-
-

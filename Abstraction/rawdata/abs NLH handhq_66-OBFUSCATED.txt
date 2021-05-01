@@ -30566,6 +30566,3 @@ Seat 3: /Xy8BjtcwvEreEmyTKbwnA (small blind) Folded on the POCKET CARDS
 Seat 4: zMHjm9kewe9sT7snrSFeyA (big blind) Folded on the POCKET CARDS
 Seat 5: ZRdjNcicUx56e3d7pBxYGw HI:lost with Three of a kind, sevens [9d 8d - B:7h,B:7d,B:7c,B:Ad,P:9d]
 Seat 6: z18rxCgw39qGKfFzHeUuVA Folded on the POCKET CARDS
-
-
-

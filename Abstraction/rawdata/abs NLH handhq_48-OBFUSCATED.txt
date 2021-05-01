@@ -32738,6 +32738,3 @@ Seat 2: 9F1p/X5KznJpD73gWh9rcQ (dealer) Folded on the POCKET CARDS
 Seat 3: zkQeJZEJxkI1JNQ3BDLEfg (small blind) Folded on the POCKET CARDS
 Seat 4: 1lRqmMF/4IYz0bkl+Qz50w (big blind) Folded on the TURN
 Seat 6: uUr5VW+nLr7e9CueUrQ47g collected Total ($28) HI:($28)  [Does not show]
-
-
-

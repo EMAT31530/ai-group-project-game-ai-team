@@ -31920,6 +31920,3 @@ Total Pot($8) | Rake ($0.40)
 Board [6d Js As 4d 8c]
 Seat 4: ooXDTQXvjy+py4je06RamQ (dealer) (small blind) won Total ($7.60) HI:($7.60) with ace high [2d Qd - B:As,P:Qd,B:Js,B:8c,B:6d]
 Seat 6: T39pL39SjbaS2PMPefu2zQ (big blind) HI:lost with ace high [5d 10c - B:As,B:Js,P:10c,B:8c,B:6d]
-
-
-

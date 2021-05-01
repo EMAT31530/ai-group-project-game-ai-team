@@ -32815,6 +32815,3 @@ Seat 3: /CgyxNvYyO7QlMYP4SX4Yg (small blind) Folded on the POCKET CARDS
 Seat 4: gJCr5FPjTzJfExZ+z9151w (big blind) won Total ($86.50) HI:($86.50) with Two Pair, tens and twos [10c Kh - B:10d,P:10c,B:2d,B:2c,P:Kh]
 Seat 5: tJispMjb8tVdhb2ixcg9PA Folded on the POCKET CARDS
 Seat 6: rMpU48x4XTnv/ntHp9VCLw Folded on the POCKET CARDS
-
-
-

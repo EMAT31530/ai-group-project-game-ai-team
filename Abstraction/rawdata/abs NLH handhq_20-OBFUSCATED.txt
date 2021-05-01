@@ -33618,6 +33618,3 @@ Seat 3: 9F1p/X5KznJpD73gWh9rcQ (dealer) Folded on the POCKET CARDS
 Seat 4: tUao2jl5aNKf6KdSnvt5ew (small blind) Folded on the POCKET CARDS
 Seat 5: IeFTuLvJTtzohWGUQbpWKA (big blind) HI:lost with Two Pair, jacks and fours [4h 4c - B:Jh,B:Jd,P:4h,P:4c,B:Kc]
 Seat 6: r1lWTPmcUn2NS8irw1w8Dg Folded on the POCKET CARDS
-
-
-

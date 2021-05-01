@@ -34241,6 +34241,3 @@ Seat 2: sm8gtPUJLXlkfd1Ge2nSUg (big blind) Folded on the POCKET CARDS
 Seat 4: 5/44YZyJFDTChAt2/CqvuA HI:lost with One pair, fours [As 4h - P:4h,B:4d,P:As,B:9d,B:8c]
 Seat 5: DdYt9O93aLl3XboT1BK3HQ won Total ($520.50) HI:($520.50) with One pair, tens [10c 10s - P:10s,P:10c,B:9d,B:8c,B:4d]
 Seat 6: e3JhYmONYSTj/dOWD6DUug (dealer) Folded on the POCKET CARDS
-
-
-

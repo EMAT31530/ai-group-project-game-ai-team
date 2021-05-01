@@ -34793,6 +34793,3 @@ Total Pot($56) | Rake ($0.50)
 Board [3h 5c 8d 8h Kh]
 Seat 4: Acd3T58vNojvxt5FPy7D0g (big blind) collected Total ($55.50) HI:($55.50)  [Does not show]
 Seat 6: 7zp15s+aLEIOLxJhm14EKg (dealer) (small blind) Folded on the RIVER
-
-
-

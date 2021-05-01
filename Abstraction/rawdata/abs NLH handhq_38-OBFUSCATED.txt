@@ -36546,6 +36546,3 @@ Seat 3: AMqMLSbphDpif8xHwUsxOg Folded on the FLOP
 Seat 4: PX4KpZmezshM0u2FOVc0cA (dealer) Folded on the POCKET CARDS
 Seat 5: H7TvAHMQX+bVR81Nq796DQ (small blind) HI: [Mucked] [Qs 10d]
 Seat 6: 2l7GVs6mT5Vfpq4PoS1Lnw (big blind) won Total ($494.20) HI:($494.20) with Three of a kind, tens(king kicker) [10s Kc - P:10s,B:10h,B:10c,B:Ah,P:Kc]
-
-
-

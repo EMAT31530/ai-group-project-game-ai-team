@@ -35600,6 +35600,3 @@ Seat 3: WBRZgiO8YErMMMGR2vT/7g (big blind) Folded on the FLOP
 Seat 4: C0/h71xpHcR+tu8I433h9A Folded on the POCKET CARDS
 Seat 5: oh8n7mSNEu5yImXukp7K1A collected Total ($35.60) HI:($35.60)  [Does not show]
 Seat 6: Aow9hGyLaIsMIma7iNrm9A Folded on the FLOP
-
-
-

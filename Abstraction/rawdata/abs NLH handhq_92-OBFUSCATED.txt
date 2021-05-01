@@ -32048,6 +32048,3 @@ Total Pot($24) | Rake ($0.50)
 Board [5d Qc 5s]
 Seat 4: W6Fdz3dujPVn3KzAqYQhXA (big blind) Folded on the FLOP
 Seat 6: epIGkJOIv27KyGGFJpXONg (dealer) (small blind) collected Total ($23.50) HI:($23.50)  [Does not show]
-
-
-

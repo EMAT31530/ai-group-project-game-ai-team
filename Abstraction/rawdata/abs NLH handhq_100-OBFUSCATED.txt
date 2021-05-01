@@ -33116,6 +33116,3 @@ Seat 1: l8xEa9y3ZzXsazJ5x8qmEA (dealer) HI: [Mucked] [7h 8c]
 Seat 3: PyDPx0dF/ZjdmEuSZwU1Qw (small blind) Folded on the POCKET CARDS
 Seat 4: eAUz5+Isaq8RGv4FTcrQBg (big blind) won Total ($9.50) HI:($9.50) with Two Pair, kings and fives [5d 10s - B:Ks,B:Kd,P:5d,B:5c,B:Jd]
 Seat 5: AxbrPYn38/6IcBZvoVL/gA Folded on the POCKET CARDS
-
-
-

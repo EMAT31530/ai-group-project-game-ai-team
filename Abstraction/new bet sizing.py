@@ -15,10 +15,26 @@ we will have the most common bet sizes as parsed from several thousands
 of real poker players
 """
 
-#test = open('rawdata/'+'abs NLH handhq_1-OBFUSCATED.txt', 'r')
-test = open('testdata.txt', 'r')
-lines=test.readlines()
-print(lines[0])
+# archived code for removing the blank lines at the end of each file
+'''
+for j in range(1,150):
+    with open('rawdata/'+'abs NLH handhq_'+str(j)+'-OBFUSCATED.txt', "r") as f:
+        lines = f.readlines()
+    lines.pop()
+    lines.pop()
+    lines.pop()
+    with open('rawdata/'+'abs NLH handhq_'+str(j)+'-OBFUSCATED.txt', "w") as f:
+        for line in lines:
+            f.write(line)
+
+'''
+
+
+test = open('rawdata/'+'abs NLH handhq_25-OBFUSCATED.txt', 'r')
+#test = open('testdata.txt', 'r')
+lines = test.readlines()
+print(lines[-4])
+#pop out -1 -2 -3
 i = 0
 game = 0
 splitgames = []
@@ -49,7 +65,8 @@ while endoffile is False:
                     blankline = True
             end = True
         else:
-            #adds each line to the game item
+            # adds each line to the game item
+
             splitgames[game].append(lines[i])
             i = i+1
- 
+print(splitgames[-1])
