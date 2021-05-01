@@ -14,46 +14,42 @@ end result is, for each point in the game, ie flop, river, turn
 we will have the most common bet sizes as parsed from several thousands
 of real poker players
 """
-'''
-test = open('rawdata/'+'abs NLH handhq_1-OBFUSCATED.txt', 'r')'''
-test = open('testtestdata.txt', 'r')
+
+#test = open('rawdata/'+'abs NLH handhq_1-OBFUSCATED.txt', 'r')
+test = open('testdata.txt', 'r')
 lines=test.readlines()
 print(lines[0])
-
-totalgames=0
-
-
-print(lines[28])
-if len(lines[29].strip()) == 0:
-    print('hi')
-
 i = 0
 game = 0
 splitgames = []
 endoffile = False
 end = False
+blankline = False
+# splits each game into a separate list element for analysis
 while endoffile is False:
     if i == len(lines):
         endoffile = True
     else:
-        if game == 0:
+        if len(splitgames) == 0:
             splitgames.append([])
+            blankline = False
             end = False
         else:
-            splitgames.append([])
             game = game + 1
+            splitgames.append([])
+            blankline = False
             end = False
-    while end is False:
-        print('end false')
+    while end is False and i != len(lines):
         if len(lines[i].strip()) == 0:
-            print('blank line')
-            i = i+1
+            # skips through the blank lines until the next game begins
+            while blankline is False:
+                if len(lines[i].strip()) == 0:
+                    i = i+1
+                else:
+                    blankline = True
             end = True
         else:
-            print('not blank')
-            print(splitgames)
-            print(game)
+            #adds each line to the game item
             splitgames[game].append(lines[i])
             i = i+1
-
-print(splitgames[0])
+ 

@@ -65,3 +65,144 @@ Seat 3: /P+7Z0P/b7YiK60FW9dRAQ (dealer) Folded on the POCKET CARDS
 Seat 4: CBt/tAETPantO0fB6ibj8A (small blind) Folded on the POCKET CARDS
 Seat 5: yfCXwS1cl9T2vxS+eBNlkw (big blind) Folded on the POCKET CARDS
 Seat 6: F3OQMqZPiGQfAxJLSdSGYg Folded on the POCKET CARDS
+
+
+
+Stage #3017238818: Holdem  No Limit $4, $1 ante - 2009-07-01 00:00:16 (ET)
+Table: MYNAH AVE (Real Money) Seat #4 is the dealer
+Seat 4 - Tnv2SPrC54RwcR46vkb9IQ ($750.05 in chips)
+Seat 5 - Sb84wh2nqcwXXnyjZOukLA ($4,069.67 in chips)
+Seat 6 - XT4bOIsWoAdtADfY1sjIyQ ($852.50 in chips)
+Seat 1 - turd+9CckdZ5fpB7YjXEBA ($787 in chips)
+Seat 2 - CBt/tAETPantO0fB6ibj8A ($825.60 in chips)
+Seat 3 - /P+7Z0P/b7YiK60FW9dRAQ ($452.50 in chips)
+turd+9CckdZ5fpB7YjXEBA - Ante $1
+CBt/tAETPantO0fB6ibj8A - Ante $1
+/P+7Z0P/b7YiK60FW9dRAQ - Ante $1
+Tnv2SPrC54RwcR46vkb9IQ - Ante $1
+Sb84wh2nqcwXXnyjZOukLA - Ante $1
+XT4bOIsWoAdtADfY1sjIyQ - Ante $1
+Sb84wh2nqcwXXnyjZOukLA - Posts small blind $2
+XT4bOIsWoAdtADfY1sjIyQ - Posts big blind $4
+*** POCKET CARDS ***
+turd+9CckdZ5fpB7YjXEBA - Folds
+CBt/tAETPantO0fB6ibj8A - Folds
+/P+7Z0P/b7YiK60FW9dRAQ - Folds
+Tnv2SPrC54RwcR46vkb9IQ - Raises $20 to $20
+Sb84wh2nqcwXXnyjZOukLA - Folds
+XT4bOIsWoAdtADfY1sjIyQ - Folds
+Tnv2SPrC54RwcR46vkb9IQ - returned ($16) : not called
+*** SHOW DOWN ***
+Tnv2SPrC54RwcR46vkb9IQ - Does not show
+Tnv2SPrC54RwcR46vkb9IQ Collects $16 from main pot
+*** SUMMARY ***
+Total Pot($16)
+Seat 1: turd+9CckdZ5fpB7YjXEBA Folded on the POCKET CARDS
+Seat 2: CBt/tAETPantO0fB6ibj8A Folded on the POCKET CARDS
+Seat 3: /P+7Z0P/b7YiK60FW9dRAQ Folded on the POCKET CARDS
+Seat 4: Tnv2SPrC54RwcR46vkb9IQ (dealer) collected Total ($16)
+Seat 5: Sb84wh2nqcwXXnyjZOukLA (small blind) Folded on the POCKET CARDS
+Seat 6: XT4bOIsWoAdtADfY1sjIyQ (big blind) Folded on the POCKET CARDS
+
+
+
+Stage #3017248504: Holdem  No Limit $4, $1 ante - 2009-07-01 00:00:16 (ET)
+Table: NORFOLK (Real Money) Seat #6 is the dealer
+Seat 6 - Tnv2SPrC54RwcR46vkb9IQ ($658.50 in chips)
+Seat 1 - turd+9CckdZ5fpB7YjXEBA ($855.95 in chips)
+Seat 2 - XT4bOIsWoAdtADfY1sjIyQ ($798 in chips)
+Seat 3 - ZZ6iVbcQjzJkFrhpcw9hZA ($731.15 in chips)
+Seat 4 - ssdOBWc4l9Wh1z1Wgt7nyg ($641.50 in chips)
+Seat 5 - CBt/tAETPantO0fB6ibj8A ($789 in chips)
+turd+9CckdZ5fpB7YjXEBA - Ante $1
+XT4bOIsWoAdtADfY1sjIyQ - Ante $1
+ZZ6iVbcQjzJkFrhpcw9hZA - Ante $1
+ssdOBWc4l9Wh1z1Wgt7nyg - Ante $1
+CBt/tAETPantO0fB6ibj8A - Ante $1
+Tnv2SPrC54RwcR46vkb9IQ - Ante $1
+turd+9CckdZ5fpB7YjXEBA - Posts small blind $2
+XT4bOIsWoAdtADfY1sjIyQ - Posts big blind $4
+*** POCKET CARDS ***
+ZZ6iVbcQjzJkFrhpcw9hZA - Calls $4
+ssdOBWc4l9Wh1z1Wgt7nyg - Folds
+CBt/tAETPantO0fB6ibj8A - Folds
+Tnv2SPrC54RwcR46vkb9IQ - Folds
+turd+9CckdZ5fpB7YjXEBA - Folds
+XT4bOIsWoAdtADfY1sjIyQ - Raises $16 to $20
+ZZ6iVbcQjzJkFrhpcw9hZA - Calls $16
+*** FLOP *** [Qd Jh 2h]
+XT4bOIsWoAdtADfY1sjIyQ - Checks
+ZZ6iVbcQjzJkFrhpcw9hZA - Checks
+*** TURN *** [Qd Jh 2h] [Ah]
+XT4bOIsWoAdtADfY1sjIyQ - Bets $33
+ZZ6iVbcQjzJkFrhpcw9hZA - Calls $33
+*** RIVER *** [Qd Jh 2h Ah] [8d]
+XT4bOIsWoAdtADfY1sjIyQ - Bets $80
+ZZ6iVbcQjzJkFrhpcw9hZA - Folds
+XT4bOIsWoAdtADfY1sjIyQ - returned ($80) : not called
+*** SHOW DOWN ***
+XT4bOIsWoAdtADfY1sjIyQ - Does not show
+XT4bOIsWoAdtADfY1sjIyQ Collects $110.50 from main pot
+*** SUMMARY ***
+Total Pot($114) | Rake ($3) | Jackpot Rake ($0.50)
+Board [Qd Jh 2h Ah 8d]
+Seat 1: turd+9CckdZ5fpB7YjXEBA (small blind) Folded on the POCKET CARDS
+Seat 2: XT4bOIsWoAdtADfY1sjIyQ (big blind) collected Total ($110.50) HI:($110.50)  [Does not show]
+Seat 3: ZZ6iVbcQjzJkFrhpcw9hZA Folded on the RIVER
+Seat 4: ssdOBWc4l9Wh1z1Wgt7nyg Folded on the POCKET CARDS
+Seat 5: CBt/tAETPantO0fB6ibj8A Folded on the POCKET CARDS
+Seat 6: Tnv2SPrC54RwcR46vkb9IQ (dealer) Folded on the POCKET CARDS
+
+
+
+Stage #3017243014: Holdem  No Limit $4, $1 ante - 2009-07-01 00:00:16 (ET)
+Table: CADY AVE (Real Money) Seat #6 is the dealer
+Seat 6 - cLxxn6IqEGLF40GzQwJ92g ($395.60 in chips)
+Seat 2 - yfCXwS1cl9T2vxS+eBNlkw ($1,037.10 in chips)
+Seat 3 - /P+7Z0P/b7YiK60FW9dRAQ ($867.70 in chips)
+Seat 4 - turd+9CckdZ5fpB7YjXEBA ($799 in chips)
+Seat 5 - uUr5VW+nLr7e9CueUrQ47g ($951.40 in chips)
+yfCXwS1cl9T2vxS+eBNlkw - Ante $1
+/P+7Z0P/b7YiK60FW9dRAQ - Ante $1
+turd+9CckdZ5fpB7YjXEBA - Ante $1
+uUr5VW+nLr7e9CueUrQ47g - Ante $1
+cLxxn6IqEGLF40GzQwJ92g - Ante $1
+yfCXwS1cl9T2vxS+eBNlkw - Posts small blind $2
+/P+7Z0P/b7YiK60FW9dRAQ - Posts big blind $4
+*** POCKET CARDS ***
+turd+9CckdZ5fpB7YjXEBA - Folds
+uUr5VW+nLr7e9CueUrQ47g - Folds
+cLxxn6IqEGLF40GzQwJ92g - Folds
+yfCXwS1cl9T2vxS+eBNlkw - Folds
+*** SHOW DOWN ***
+/P+7Z0P/b7YiK60FW9dRAQ - Does not show
+/P+7Z0P/b7YiK60FW9dRAQ Collects $11 from main pot
+*** SUMMARY ***
+Total Pot($11)
+Seat 2: yfCXwS1cl9T2vxS+eBNlkw (small blind) Folded on the POCKET CARDS
+Seat 3: /P+7Z0P/b7YiK60FW9dRAQ (big blind) collected Total ($11)
+Seat 4: turd+9CckdZ5fpB7YjXEBA Folded on the POCKET CARDS
+Seat 5: uUr5VW+nLr7e9CueUrQ47g Folded on the POCKET CARDS
+Seat 6: cLxxn6IqEGLF40GzQwJ92g (dealer) Folded on the POCKET CARDS
+
+
+
+Stage #3017238180: Holdem  No Limit $4, $1 ante - 2009-07-01 00:00:19 (ET)
+Table: GUAM ST (Real Money) Seat #3 is the dealer
+Seat 3 - oyrRqRCdvIACwD1oh0I9jA ($189.95 in chips)
+Seat 2 - 1aSVy9/xe+Ubjm0WSW6q7A ($583.80 in chips)
+1aSVy9/xe+Ubjm0WSW6q7A - Ante $1
+oyrRqRCdvIACwD1oh0I9jA - Ante $1
+oyrRqRCdvIACwD1oh0I9jA - Posts small blind $2
+1aSVy9/xe+Ubjm0WSW6q7A - Posts big blind $4
+*** POCKET CARDS ***
+oyrRqRCdvIACwD1oh0I9jA - Raises $12 to $14
+1aSVy9/xe+Ubjm0WSW6q7A - Folds
+oyrRqRCdvIACwD1oh0I9jA - returned ($10) : not called
+*** SHOW DOWN ***
+oyrRqRCdvIACwD1oh0I9jA - Does not show
+oyrRqRCdvIACwD1oh0I9jA Collects $10 from main pot
+*** SUMMARY ***
+Total Pot($10)
+Seat 2: 1aSVy9/xe+Ubjm0WSW6q7A (big blind) Folded on the POCKET CARDS
+Seat 3: oyrRqRCdvIACwD1oh0I9jA (dealer) (small blind) collected Total ($10)
