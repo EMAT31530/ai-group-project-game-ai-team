@@ -6,6 +6,10 @@ class GameState(ABC):
     def is_terminal(self):
         pass
 
+    @abstractmethod
+    def is_fold(self):
+        pass
+
     #To check if the current gamestate is a chance state (i.e card draw)
     @abstractmethod
     def is_chance(self):
@@ -13,8 +17,8 @@ class GameState(ABC):
 
     #To get the payoff from a terminal state
     @abstractmethod
-    def get_rewards(self):
-        pass
+    def get_payoff(self, chance_outcome):
+        pass 
 
     #To get the possible actions of said player from the current gamestate
     @abstractmethod
@@ -40,12 +44,12 @@ class GameState(ABC):
     @abstractmethod
     def handle_public_chance(self, chance_outcome):
         pass
-    
-    #To translate from the current chance state to a new state
-    @abstractmethod
-    def handle_private_chance(self, chance_outcome):
-        pass 
 
+    #To translate from the current state to a new state via the given chance outcome
+    @abstractmethod
+    def handle_private_chance(self):
+        pass 
+    
     #To get the active player from the current state
     @abstractmethod
     def get_active_player_index(self):
