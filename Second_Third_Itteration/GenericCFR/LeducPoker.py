@@ -1,4 +1,4 @@
-from cfr import *
+from generic import *
 
 
 def rank(cards):
@@ -11,7 +11,8 @@ def rank(cards):
         'QJ': 4, 'JQ': 4,
         'K': 3, 'Q': 2, 'J': 1
     }
-    return ranks[cards]
+    repr = ''.join([x[0] for x in cards])
+    return ranks[repr]
 
 
 def build_deck():  # To build a deck, can be used to rebuild also
@@ -29,11 +30,15 @@ class Leduc(GameState):
         self.history = [' ']
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = 0
-        self.bet_amounts = [1, 1]
+        self.current_bets = [1, 1]
         self.active_player = 0
-        self.cards = [0,0]
-        self.deck = build_deck()
+        self.hands = []
+        self.deck = []
 
+    def initiate_round(self): #only priv node is drawing inital hands
+        self.deck = build_deck()
+        self.hands = [self.deck.pop(-1), self.deck.pop(-1)]
+        
     def is_terminal(self):
         history_str = ''.join(self.history)
         fold = history_str.endswith('f')
@@ -44,30 +49,21 @@ class Leduc(GameState):
         return fold or check or call
 
     def is_chance(self):
-        if self.history[-1] == ' ' or self.history[-2] == ' ' and self.history[-1] == 'd':
-            return 'pr' #Private chance node
-
         call = self.history[-1] == 'c'
         check = self.history[-1] == 'ch' and self.history[-2] == 'ch'
         if call or check:
-            return 'pu' #Public chance node
+            return 'P' #P Public chance node
         else:
-            return False #Not
+            return 'N' #Not
 
     def get_actions(self):
         prev_action = self.history[-1]
-        if prev_action in ['d',' ','ch']:
+        if prev_action in [' ','ch']:
             return ['ch', 'r']
         elif prev_action=='r':
             return ['f', 'c', 'rr']
         elif prev_action=='rr':
             return ['f', 'c']
-
-    def get_public_chanceoutcomes(self):
-        return self.deck
-
-    def get_private_chanceoutcomes(self):
-        return self.deck
 
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
@@ -78,33 +74,24 @@ class Leduc(GameState):
         next_state.active_player = (1 - player)
         return next_state
 
-    def handle_private_chance(self, chance_outcome):
-        next_state = copy.deepcopy(self)  
-        player = next_state.get_active_player_index()
-        next_state.active_player = (1 - player)
-        next_state.history.append('d') #d for dummy action
-
-        next_state.deck.remove(chance_outcome)
-        next_state.cards[player] = chance_outcome
-        return next_state
-
-    def handle_public_chance(self, chance_outcome):
+    def sample_public_chance(self): #only public chance node is the flop
         next_state = copy.deepcopy(self)
         next_state.street = 1
         next_state.active_player = 0
-        next_state.community_card = chance_outcome
+        next_state.community_card = next_state.deck.pop(-1)
         next_state.history.append(' ') #dummy action
+
+        #following final public chance event, hand sorting can be computed and stored!
         return next_state
 
 
     def get_active_player_index(self):
         return self.active_player
 
-    def get_representation(self):
-        player = self.get_active_player_index()
-        hand_rank = rank(self.cards[player][0])
-        community_rank = '' if self.street == 0 else rank(self.community_card[0])
-        history_str = "/".join(self.history[3:])
+    def get_representation(self, player):
+        hand_rank = rank(self.hands[player])
+        community_rank = '' if self.street == 0 else rank(self.community_card)
+        history_str = "/".join(self.history)
         return '{}|{}-{}'.format(hand_rank, community_rank, history_str)
 
     def get_rewards(self):
@@ -112,30 +99,17 @@ class Leduc(GameState):
         opponent = 1 - player
 
         if self.history[-1] == 'f':
-            return self.bet_amounts[opponent]
+            return self.current_bets[opponent]
 
-        player_rank = rank(self.cards[player][0]+self.community_card[0])
-        opponent_rank = rank(self.cards[opponent][0]+self.community_card[0])
+        player_rank = rank([self.hands[player], self.community_card])
+        opponent_rank = rank([self.hands[opponent], self.community_card])
         if player_rank > opponent_rank:
-            return self.bet_amounts[opponent]
+            return self.current_bets[opponent]
         elif player_rank < opponent_rank:
-            return -self.bet_amounts[player]
+            return -self.current_bets[player]
         else:
             return 0
 
-def display_results(ev, node_map):
-    print('\nplayer 1 expected value: {}'.format(ev))
-    print('player 2 expected value: {}'.format(-1 * ev))
-    print('\nplayer 1 strategies:')
-    #print([i for i in node_map.items()])
-    sorted_items = sorted(node_map.items(), key=lambda x: ranking[x[0][0]])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
-        r = [round(i , 2) for i in v]
-        print('{}: {}'.format(_,r))
-    print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
-        r = [round(i , 2) for i in v]
-        print('{}: {}'.format(_,r))
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
@@ -144,7 +118,7 @@ if __name__ == "__main__":
         iterations = int(sys.argv[1])
 
     time1 = time.time()
-    trainer = VCFRTrainer()
+    trainer = PCSCFRPlusTrainer()
 
 
     util = trainer.train(Leduc, n_iterations=iterations)

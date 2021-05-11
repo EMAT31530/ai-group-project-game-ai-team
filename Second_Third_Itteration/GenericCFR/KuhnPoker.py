@@ -12,6 +12,9 @@ class Kuhn(GameState):
         terminal_strings = ['pp', 'bb', 'bp']
         return self.history[-2:] in terminal_strings
 
+    def is_chance(self):
+        return self.history == ''
+
     def get_rewards(self):
         player_card = self.cards[self.active_player]
         opponent_card = self.cards[(self.active_player+1)%2]
@@ -33,6 +36,9 @@ class Kuhn(GameState):
         next_state.active_player = (next_state.active_player + 1) % self.num_players
         return next_state
 
+    def handle_chance(self):
+        pass
+
     def get_active_player(self):
         return self.active_player
 
@@ -51,12 +57,13 @@ class Kuhn(GameState):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        iterations = 20000
+        iterations = 100000
     else:
         iterations = int(sys.argv[1])
 
     time1 = time.time()
-    trainer = MCCFRTrainer()
+    trainer = PCSCFRPlusTrainer()
+
     util = trainer.train(Kuhn, n_iterations=iterations)
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(sys.getsizeof(trainer)))
