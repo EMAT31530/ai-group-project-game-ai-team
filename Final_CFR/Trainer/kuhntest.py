@@ -57,8 +57,8 @@ if type == 9:
     trainer = vec.CFRPlusTrainer(Kuhn, KuhnRules)
 
 if train:
+    print('\nTraining kuhn poker via {}.'.format(trainer.__name__()))
     time1 = time.time()
-    
     util = trainer.train(n_iterations=iterations)
     finalstrat = trainer.get_final_strategy()
 
@@ -67,9 +67,9 @@ if train:
     display_results(util, finalstrat)
 '''
 else:
-    time1 = time.time()
-    trainer = VectorAlternatingVCFR(gamestatestype, gamerulestype)
     ExplCalc = Exploit_Calc()
+    print('\nTraining kuhn poker via {}.'.format(trainer.__name__()))
+    time1 = time.time()
     util = 0
     exploit = []
     timestep = []

@@ -36,7 +36,7 @@ class Kuhn(GameState):
         return self.history[-2:] in terminal_strings
 
     def is_fold(self):
-        return self.history[-1] == 'p' and self.history[-2] != 'p'
+        return self.history[-2:] == 'bp'
 
     def is_chance(self): #no chance nodes in kuhn
         return False
