@@ -90,8 +90,11 @@ The fourth index is if you want to export the finalised strategy map to a .Json 
 
 For more specifics see the various test.py files...
 
-
-You can also play against the AIs by running the playgame.py file, check it for stuff. 
+You can also play against the AIs by running 
+```terminal
+python testgame.py
+```
+check it for choosing which gametype etc. 
 
 <!-- ROADMAP -->
 ## Roadmap
