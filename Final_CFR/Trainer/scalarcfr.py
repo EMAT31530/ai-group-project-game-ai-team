@@ -2,12 +2,12 @@ from node import Node
 import numpy as np
 import random
 import copy
-
+import itertools
 
 # Vanilla, scalar-form/Simultaneous updates, no sampling
 class VCFRTrainer:
     def __init__(self, gamestatetype, rules):
-        self.nodeMap = {} 
+        self.node_map = {} 
         self.rules = rules()
         deck, _ = self.rules.build_deck_and_hands()
         self.gamestate = gamestatetype(deck, [[],[]])
@@ -20,7 +20,7 @@ class VCFRTrainer:
 
     def cfr(self, gamestate, rps_1, rps_2):
         if gamestate.is_terminal():
-            return self.terminal_node(gamestate, rps_2)
+            return self.terminal_node(gamestate)
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
         #for private chance nodes
@@ -30,8 +30,8 @@ class VCFRTrainer:
         else:
             return self.decision_node(gamestate, rps_1, rps_2)
 
-    def terminal_node(self, gamestate, rps_2):
-        return self.get_utility(gamestate, rps_2)
+    def terminal_node(self, gamestate):
+        return self.get_utility(gamestate)
 
     def private_chance_node(self, gamestate, rps_1, rps_2):
         utility  = 0 # average utility per comb
@@ -81,33 +81,33 @@ class VCFRTrainer:
         node.cumulative_regrets += regret
         node.strategy_sum += strategy
 
-    def get_utility(self, gamestate, rp_2):
+    def get_utility(self, gamestate):
         player = gamestate.get_active_player_index() 
         payoff = gamestate.get_payoff()
 
         if gamestate.is_fold():
-            utility = payoff #* rp_2
+            utility = payoff
             return utility
             
-        player_rank = self.rules.get_rank(gamestate.hands[player])
-        opp_rank = self.rules.get_rank(gamestate.hands[1-player])
+        player_rank = gamestate.get_rank(gamestate.hands[player])
+        opp_rank = gamestate.get_rank(gamestate.hands[1-player])
         if player_rank > opp_rank:
-            return payoff #* rp_2
+            return payoff
         elif player_rank < opp_rank:
-            return -payoff #* rp_2
+            return -payoff
         else:
             return 0
 
     def get_node(self, key, n_actions):
-        if key not in self.nodeMap:
+        if key not in self.node_map:
             newnode = Node(n_actions)
-            self.nodeMap[key] = newnode
+            self.node_map[key] = newnode
             return newnode
-        return self.nodeMap[key]
+        return self.node_map[key]
 
     def get_final_strategy(self):
         strategy = {}
-        for key, node in self.nodeMap.items():
+        for key, node in self.node_map.items():
             nodestategy = node.get_average_strategy_with_threshold(0.01)
             strategy[key] = nodestategy
         return strategy
@@ -167,7 +167,7 @@ class PruningCFRTrainer(VCFRTrainer):
 class OutcomeSamplingCFRTrainer(VCFRTrainer):
     def __init__(self, gamestatetype, rules):
         super().__init__(gamestatetype, rules)
-        self.epsilon = 0.8
+        self.epsilon = 0.9
 
     #here is where we will sample actions based on prob espilon = 0.6 greedy
     def decision_node(self, gamestate, rp_1, rp_2):
@@ -216,7 +216,7 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
 
     def cfr(self, gamestate, rps_1, rps_2):
         if gamestate.is_terminal():
-            return self.terminal_node(gamestate, rps_2)
+            return self.terminal_node(gamestate)
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
         #if gamestate.is_decision(): 

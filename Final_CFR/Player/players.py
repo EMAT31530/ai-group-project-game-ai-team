@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../modules')
 from validation import getChoice
 import numpy as np
 
@@ -20,7 +22,7 @@ class AiPlayer(Player):
 
     def get_action(self, gamestate):
         possible_actions = gamestate.get_actions()
-        key = gamestate.get_representation(self.cards[0])
+        key = gamestate.get_representation(self.cards)
         strategy = self.strategyMap[key]
         action = np.random.choice(possible_actions, p=strategy)
         return action

@@ -104,7 +104,7 @@ class VectorAlternatingVCFR:
         
         if gamestate.is_fold():
             totalpi = sum(pi)
-            removecr = np.zeros(len(self.orighands))
+            removecr = np.zeros(len(lookuptable))
             for index, rank in gamestate.ranks_tuple:
                 hand = self.orighands[index]
                 for card in hand:
@@ -119,7 +119,7 @@ class VectorAlternatingVCFR:
 
             return utility if player == self.current_player else -utility
 
-        wincr = np.zeros(len(self.orighands))
+        wincr = np.zeros(len(lookuptable))
         winsum = 0
         j = 0    
         for index, rank in gamestate.ranks_tuple:
@@ -135,7 +135,7 @@ class VectorAlternatingVCFR:
                 winsum -= wincr[lookuptable[card]]
             utility[index] += winsum * payoff
 
-        losecr = np.zeros(len(self.orighands))
+        losecr = np.zeros(len(lookuptable))
         losesum = 0
         j = len(gamestate.ranks_tuple) - 1
         reversed_tuple = gamestate.ranks_tuple.copy()
@@ -180,7 +180,7 @@ class VectorAlternatingVCFR:
     def __name__(self):
         return 'Vanilla CFR (Vector/Alternating)'
 
-
+    
 #https://webdocs.cs.ualberta.ca/~bowling/papers/12aamas-pcs.pdf
 class PublicCSCFRTrainer(VectorAlternatingVCFR):
     #monte carlo Public Chance Sampling so only chance nodes encountered are public nodes
@@ -284,7 +284,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
                 utility[index] = payoff
             return utility if player == self.current_player else -utility
        
-        opprank = self.rules.get_rank(self.sampled_hand)
+        opprank = gamestate.get_rank(self.sampled_hand)
         for index, rank in gamestate.ranks_tuple:
             if rank > opprank:
                 utility[index] = payoff
@@ -365,7 +365,7 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
             return utility if player == self.current_player else -utility
 
         rp2_sum = 0
-        rank = self.rules.get_rank(self.sampled_hand)
+        rank = gamestate.get_rank(self.sampled_hand)
         for index, opprank in gamestate.ranks_tuple:
             if rank > opprank:
                 rp2_sum += rps_2[index]

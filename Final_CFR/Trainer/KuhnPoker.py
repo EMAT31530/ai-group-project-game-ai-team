@@ -15,11 +15,6 @@ class KuhnRules():
         enum_hands = list(enumerate(deck))
         return deck, enum_hands
 
-    @staticmethod
-    def get_rank(card):
-        ranks = {'K': 3, 'Q': 2, 'J': 1}
-        return ranks[card[0]]
-
 
 class Kuhn(GameState):
     def __init__(self, deck, hands):
@@ -53,6 +48,10 @@ class Kuhn(GameState):
     def get_private_chanceoutcomes(self):
         return self.deck 
 
+    def get_rank(self, card):
+        ranks = {'K': 3, 'Q': 2, 'J': 1}
+        return ranks[card[0]]
+
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
         next_state.history += action
@@ -79,7 +78,7 @@ class Kuhn(GameState):
         return key
 
     def sort_by_ranking(self):
-        g = lambda hand: [hand[0], KuhnRules.get_rank(hand[1])]
+        g = lambda hand: [hand[0], self.get_rank(hand[1])]
         ranking_list = list(map(g, self.hands))
         return list(sorted(ranking_list, key=itemgetter(1)))
 

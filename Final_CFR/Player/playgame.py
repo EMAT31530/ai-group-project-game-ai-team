@@ -33,9 +33,9 @@ class Game:
             #imagine having a mac, can you even run python on mac?
             os.system('cls') if platform.system() == 'Windows' else os.system('clear')
             if gamestate.is_chance():
-                gamestate.sample_chance()
+                gamestate.handle_chance()
 
-            gamestate.display_round_str(round)
+            gamestate.display_round_str(round+1)
             player = gamestate.get_active_player()
             action = player.get_action(gamestate)
 
@@ -48,5 +48,3 @@ class Game:
         
 
         _ = input('\nPress enter to contine...')
-
-'AI1'
