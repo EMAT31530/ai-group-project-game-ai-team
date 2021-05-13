@@ -7,7 +7,7 @@ import itertools
 class LeducRules():
     def __init__(self):
         self.lookuptable = {'J♥': 0, 'Q♥': 1, 'K♥': 2, 'J♦': 3, 'Q♦': 4, 'K♦': 5}
-        self.hand_size = 2
+        self.hand_size = 1
     
     @staticmethod
     def build_deck_and_hands():
@@ -22,20 +22,6 @@ class LeducRules():
         enum_hands = list(enumerate(comb_hands))
         return deck,enum_hands
 
-    @staticmethod
-    def get_rank(cards):
-        ranks = {
-        'KK': 9,
-        'QQ': 8,
-        'JJ': 7,
-        'KQ': 6, 'QK': 6,
-        'KJ': 5, 'JK': 5,
-        'QJ': 4, 'JQ': 4,
-        'K': 3, 'Q': 2, 'J': 1
-        }
-        repr = ''.join([x[0] for x in cards])
-        return ranks[repr]
-
 
 class Leduc(GameState):
     def __init__(self, deck, hands):
@@ -49,6 +35,8 @@ class Leduc(GameState):
         self.hands = hands
         if hands[0] != []:
             self.ranks_tuple = self.sort_by_ranking()
+
+        self.training=True
 
     def is_terminal(self):
         history_str = ''.join(self.history)
@@ -87,6 +75,19 @@ class Leduc(GameState):
     def get_private_chanceoutcomes(self):
         return self.deck 
 
+    def get_rank(self, cards):
+        ranks = {
+        'KK': 9,
+        'QQ': 8,
+        'JJ': 7,
+        'KQ': 6, 'QK': 6,
+        'KJ': 5, 'JK': 5,
+        'QJ': 4, 'JQ': 4,
+        'K': 3, 'Q': 2, 'J': 1
+        }
+        repr = ''.join([x[0] for x in cards])
+        return ranks[repr]
+
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
         player = next_state.get_active_player_index()
@@ -102,10 +103,11 @@ class Leduc(GameState):
         next_state.active_player = 0
         next_state.history.append(' ') #dummy action
         next_state.community_cards.append(outcome)
-        #following each public chance event, hand filtering can be computed
-        next_state.filterer(next_state.community_cards)
-        #following final chance event sorting can be computed!
-        next_state.ranks_tuple = next_state.sort_by_ranking()
+        if self.training:
+            #following each public chance event, hand filtering can be computed
+            next_state.filterer(next_state.community_cards)
+            #following final chance event sorting can be computed!
+            next_state.ranks_tuple = next_state.sort_by_ranking()
         return next_state
 
     def handle_private_chance(self, outcome):
@@ -120,7 +122,7 @@ class Leduc(GameState):
         return self.active_player
 
     def get_representation(self, cards):
-        hand_rank = LeducRules.get_rank([i for i in cards]+self.community_cards)
+        hand_rank = self.get_rank(cards + self.community_cards)
         history_str = "/".join(self.history)
         return '{}-{}'.format(hand_rank, history_str)
 
@@ -129,7 +131,7 @@ class Leduc(GameState):
         self.hands = list(filter(f,self.hands))
    
     def sort_by_ranking(self):
-        g = lambda hand: [hand[0], LeducRules.get_rank(list(hand[1])+self.community_cards)]
+        g = lambda hand: [hand[0], self.get_rank(list(hand[1]))]
         ranking_list = list(map(g, self.hands))
         sorted_list = list(sorted(ranking_list, key=itemgetter(1)))
         return sorted_list

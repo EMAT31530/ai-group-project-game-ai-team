@@ -3,9 +3,9 @@ import time
 import vectorcfr as vec
 import scalarcfr as scal
 from KuhnPoker import Kuhn, KuhnRules
-#from exploitability import *
-#sys.path.append('../modules')
-#import validation as vald
+from exploitability import Exploit_Calc, Exploit_Vec_Calc
+sys.path.append('../modules')
+from validation import exportJson
 
 
 def display_results(ev, node_map):
@@ -36,6 +36,10 @@ if len(sys.argv) < 4:
     train = True
 else:
     train = 0 == int(sys.argv[3])
+if len(sys.argv) < 5:
+    export = False
+else:
+    export = 1 == int(sys.argv[4])
 
 if type == 1:
     trainer = scal.VCFRTrainer(Kuhn, KuhnRules)
@@ -56,32 +60,41 @@ if type == 8:
 if type == 9:
     trainer = vec.CFRPlusTrainer(Kuhn, KuhnRules)
 
+print('\nTraining kuhn poker via {}.'.format(trainer.__name__()))
+
 if train:
     time1 = time.time()
-    
     util = trainer.train(n_iterations=iterations)
     finalstrat = trainer.get_final_strategy()
 
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(len(finalstrat)))
     display_results(util, finalstrat)
-'''
+
 else:
-    time1 = time.time()
-    trainer = VectorAlternatingVCFR(gamestatestype, gamerulestype)
     ExplCalc = Exploit_Calc()
+    ExplVecCalc = Exploit_Vec_Calc()
+    time1 = time.time()
     util = 0
     exploit = []
+    exploitvec = []
     timestep = []
-    stepnum = 2
+    stepnum = 100
     steps = int(iterations/stepnum)
     for i in range(stepnum):
         util += trainer.train(n_iterations=steps)
-        exploit.append(round(ExplCalc.compute_exploitability(trainer)[0] , 3))
-        timestep.append(steps * (i+1))
+        exp1 = ExplCalc.compute_exploitability(trainer)[0]
+        #exp2 = ExplVecCalc.compute_exploitability(trainer)[0]
+        exploit.append(round(exp1, 5))
+        #exploitvec.append(round(exp2, 3))
+        #timestep.append(steps * (i+1))
 
     finalstrat = trainer.get_final_strategy()
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(len(finalstrat)))
     display_results(util, finalstrat)
-    print('expl : {}'.format(exploit))'''
+    print('expl lin: {}'.format(exploit))
+    print('expl vec: {}'.format(exploitvec))
+
+if export:
+    exportJson(finalstrat, 'kuhn{}-{}'.format(type, iterations))

@@ -2,12 +2,12 @@ from node import Node
 import numpy as np
 import random
 import copy
-
+import itertools
 
 # Vanilla, scalar-form/Simultaneous updates, no sampling
 class VCFRTrainer:
     def __init__(self, gamestatetype, rules):
-        self.nodeMap = {} 
+        self.node_map = {} 
         self.rules = rules()
         deck, _ = self.rules.build_deck_and_hands()
         self.gamestate = gamestatetype(deck, [[],[]])
@@ -20,7 +20,7 @@ class VCFRTrainer:
 
     def cfr(self, gamestate, rps_1, rps_2):
         if gamestate.is_terminal():
-            return self.terminal_node(gamestate, rps_2)
+            return self.terminal_node(gamestate)
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
         #for private chance nodes
@@ -30,8 +30,8 @@ class VCFRTrainer:
         else:
             return self.decision_node(gamestate, rps_1, rps_2)
 
-    def terminal_node(self, gamestate, rps_2):
-        return self.get_utility(gamestate, rps_2)
+    def terminal_node(self, gamestate):
+        return self.get_utility(gamestate)
 
     def private_chance_node(self, gamestate, rps_1, rps_2):
         utility  = 0 # average utility per comb
@@ -81,53 +81,39 @@ class VCFRTrainer:
         node.cumulative_regrets += regret
         node.strategy_sum += strategy
 
-    def get_utility(self, gamestate, rp_2):
+    def get_utility(self, gamestate):
         player = gamestate.get_active_player_index() 
         payoff = gamestate.get_payoff()
 
         if gamestate.is_fold():
-            utility = payoff #* rp_2
+            utility = payoff
             return utility
             
-        player_rank = self.rules.get_rank(gamestate.hands[player])
-        opp_rank = self.rules.get_rank(gamestate.hands[1-player])
+        player_rank = gamestate.get_rank(gamestate.hands[player])
+        opp_rank = gamestate.get_rank(gamestate.hands[1-player])
         if player_rank > opp_rank:
-            return payoff #* rp_2
+            return payoff
         elif player_rank < opp_rank:
-            return -payoff #* rp_2
+            return -payoff
         else:
             return 0
 
     def get_node(self, key, n_actions):
-        if key not in self.nodeMap:
+        if key not in self.node_map:
             newnode = Node(n_actions)
-            self.nodeMap[key] = newnode
+            self.node_map[key] = newnode
             return newnode
-        return self.nodeMap[key]
+        return self.node_map[key]
 
     def get_final_strategy(self):
         strategy = {}
-        for key, node in self.nodeMap.items():
+        for key, node in self.node_map.items():
             nodestategy = node.get_average_strategy_with_threshold(0.01)
             strategy[key] = nodestategy
         return strategy
 
-
-#cfr+'s modifications on scalar-form/Simultaneous cfr.
-#includes: weighting the stored strategy by max(t - d, 0), t = timestep, d a constant
-#          regret matching plus (negative regret not stored)
-class CFR2Trainer(VCFRTrainer):
-    def train(self, n_iterations=10000, d=1000):
-        utility = 0
-        for t in range(n_iterations):
-            self.w = max(t-d, 0) #weighting later iterations
-            utility += self.cfr(copy.deepcopy(self.gamestate), 1, 1)
-        return utility / n_iterations
-
-    def update_node(self, node, regret, strategy):
-        regret[regret < 0] = 0 #negative regret not stored
-        node.cumulative_regrets += regret
-        node.strategy_sum += strategy #* self.w #weighting
+    def __name__(self):
+        return 'Vanilla CFR (Scalar/Simultaneous)'
 
 
 #https://papers.nips.cc/paper/2009/file/00411460f7c92d2124a67ea0f4cb5f85-Paper.pdf
@@ -165,6 +151,8 @@ class PruningCFRTrainer(VCFRTrainer):
 
         return utility
 
+    def __name__(self):
+        return 'Vanilla CFR with Pruning (Scalar/Simultaneous)'
     '''def get_purning_prob(self, node, n_actions, ia):
         strategy = node.strategy_sum.copy()
         normaliser = np.sum(strategy)
@@ -175,12 +163,12 @@ class PruningCFRTrainer(VCFRTrainer):
         return max(strategy[ia], 0.05) #min_prune_prob = 0.05
 '''
 
-#https://papers.nips.cc/paper/2009/file/00411460f7c92d2124a67ea0f4cb5f85-Paper.pdf
+#http://www.mlanctot.info/files/papers/colt_ws_mccfr.pdf
 class OutcomeSamplingCFRTrainer(VCFRTrainer):
-    '''
-    At each information set, we sample an action uniformly ran-domly with 
-    probability epsilon and according to the player’s current strategy σt
-    '''
+    def __init__(self, gamestatetype, rules):
+        super().__init__(gamestatetype, rules)
+        self.epsilon = 0.9
+
     #here is where we will sample actions based on prob espilon = 0.6 greedy
     def decision_node(self, gamestate, rp_1, rp_2):
         utility = 0
@@ -191,24 +179,30 @@ class OutcomeSamplingCFRTrainer(VCFRTrainer):
         node = self.get_node(gamestate.get_representation(gamestate.hands[player]), n_actions)
         strategy = node.get_strategy()
 
-        counterfactual_utility  = np.zeros(n_actions) # Counterfactual utility per action
-        for ia, action in enumerate(possible_actions):
-
-            next_gamestate = gamestate.handle_action(action)
+        counterfactual_utility = np.zeros(n_actions) # Counterfactual utility per action
+        #epsilon greedy strategy
+        if random.random() > self.epsilon: 
+            probs = np.repeat((1.0/n_actions),n_actions)
+            indexes = [np.random.choice(range(n_actions), p=probs)] #sampled action
+        else:
+            indexes = range(n_actions) #all actions
+        for ia in indexes:
+            next_gamestate = gamestate.handle_action(possible_actions[ia])
             if player == 0:
                 counterfactual_utility[ia] = -self.cfr(next_gamestate, rp_1 * strategy[ia], rp_2)
             else:
                 counterfactual_utility[ia] = -self.cfr(next_gamestate, rp_1, rp_2 * strategy[ia])
-
+    
         utility = np.sum(counterfactual_utility * strategy)
         regrets = counterfactual_utility - utility
         if player == 0:
             self.update_node(node, regrets * rp_2, rp_1 * strategy)
         else:
             self.update_node(node, regrets * rp_1, rp_2 * strategy)
-
         return utility
-    
+
+    def __name__(self):
+        return 'Outcome Sampling CFR'
 
 
 #https://webdocs.cs.ualberta.ca/~bowling/papers/12aamas-pcs.pdf
@@ -222,7 +216,7 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
 
     def cfr(self, gamestate, rps_1, rps_2):
         if gamestate.is_terminal():
-            return self.terminal_node(gamestate, rps_2)
+            return self.terminal_node(gamestate)
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
         #if gamestate.is_decision(): 
@@ -233,14 +227,12 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
         self.hands = [[],[]]
         next_gamestate = copy.deepcopy(gamestate)
         random.shuffle(next_gamestate.deck)
-        for i in range(2):
-            for j in range(self.rules.hand_size):
+        for _ in range(self.rules.hand_size):
+            for i in range(2):
                 deck_probs = np.repeat(1.0/len(next_gamestate.deck), len(next_gamestate.deck))
                 sample_card = np.random.choice(next_gamestate.deck, p=deck_probs)
                 self.hands[i].append(sample_card)
                 next_gamestate.deck.remove(sample_card)
-        #next_gamestate.filterer(self.hands)
-        #next_gamestate.ranks_tuple = next_gamestate.sort_by_ranking()
         next_gamestate.hands = self.hands
         return next_gamestate
 
@@ -251,4 +243,5 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
         next_gamestate = gamestate.handle_public_chance(outcome)
         return self.cfr(next_gamestate, rps_1, rps_2)
 
-    
+    def __name__(self):
+        return 'Chance Sampling CFR'
