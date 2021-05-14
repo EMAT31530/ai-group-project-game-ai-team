@@ -222,7 +222,6 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
         for card in sample:
             next_gamestate.deck.remove(card)
         next_gamestate.filterer(sample)
-        next_gamestate.ranks_tuple = next_gamestate.sort_by_ranking()
         self.sampled_hand = sample
         return next_gamestate
 

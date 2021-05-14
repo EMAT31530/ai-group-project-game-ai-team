@@ -1,5 +1,5 @@
-from playgame import *
-from games import PlayKuhn, PlayLeduc, Rules
+from game import *
+from gametypes import PlayKuhn, PlayLeduc, Rules
 
 kuhnrules = Rules({"J": {"diamonds": 1}, "Q": {"diamonds": 2}, "K": {"diamonds": 3}}, 
     {'check': 'p', 'fold': 'p', 'bet': 'b', 'call': 'b'}, 

@@ -9,7 +9,6 @@ class Rules:
         self.Action_Spec = Action_Spec
         self.start_money = start_money
 
-
 class PlayKuhn:
     def __init__(self, deck, players, rules):
         self.history = ''
@@ -109,8 +108,7 @@ class PlayKuhn:
 
 class PlayLeduc():
     def __init__(self, deck, players, rules):
-        self.history = ['', ' ']
-        self.playeractions = []
+        self.history = []
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = []
         self.current_bets = [1,1]
@@ -133,17 +131,12 @@ class PlayLeduc():
         repr = ''.join([x.face for x in cards])
         return ranks[repr]
 
-    def actions(action):
-        acts = 'ur mu'
-        return acts[action]
-
     def start_round(self):
-        self.history = ['', ' ']
-        self.playeractions = []
+        self.history = []
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_card = []
         self.active_player = 0
-        self.current_bets = [1,1]
+        self.current_bets = np.ones(2)
         self.players.reverse()
         self.deck = copy.deepcopy(self.reset_deck)
         self.deck.shuffle()
@@ -167,13 +160,13 @@ class PlayLeduc():
         return check or call
 
     def get_actions(self):
-        prev_action = self.history[-1]
-        if prev_action in [' ','ch']:
-            return ['Check', 'Raise']
-        elif prev_action=='r':
-            return ['Fold', 'Call', 'Reraise']
-        elif prev_action=='rr':
-            return ['Fold', 'Call']
+        history_str = ''.join(self.history)
+        if self.history == [] or history_str.endswith(('d','ch')):
+            return ['ch', 'r']
+        elif history_str.endswith('r'):
+            return ['f', 'c', 'R']
+        elif history_str.endswith('R'):
+            return ['f', 'c']
 
     def get_rewards(self):
         plyr = self.get_active_player_index()
@@ -183,7 +176,7 @@ class PlayLeduc():
 
 
         prev_action = self.history[-1]
-        rwds = -1 * np.array(self.current_bets)
+        rwds = -1 * self.current_bets
         if prev_action == 'f':
             winr = plyr
             rwds[winr] = self.current_bets[opp]
@@ -201,16 +194,14 @@ class PlayLeduc():
         player = self.get_active_player_index()
         self.active_player = (1 - player)
         self.history.append(action)
-        self.playeractions.append(action)
-        if action in ['r','rr','c']:
+        if action in ['r','R','c']:
             self.current_bets[player] += 2 * (self.street + 1)
 
     def handle_chance(self):
         self.street = 1
         self.active_player = 0
         self.community_card.append(self.deck.pop())
-        self.history.append(' ')
-        self.playeractions[-1] += '\n'
+        self.history.append('d')
 
     def get_active_player(self):
         return self.players[self.active_player]
@@ -219,8 +210,8 @@ class PlayLeduc():
         return self.active_player
 
     def get_representation(self, cards):
-        hand_rank = self.get_rank(cards + self.community_card)
-        history_str = "/".join(self.history)
+        hand_rank = self.get_rank(cards + self.community_cards)
+        history_str = ".".join(self.history)
         return '{}-{}'.format(hand_rank, history_str)
 
     def display_round_str(self, round, terminal=False):
@@ -241,12 +232,14 @@ class PlayLeduc():
         if not terminal:
             print('You have £{}, the Ai has £{}.\n'.format(human.money, Ai.money))
             
-        
-        for ia, action in enumerate(self.playeractions):
-            acting_player = self.players[ia%2]
-            print('{} chose to {}'.format(acting_player.name, 
-            action))
-
+        player = 0
+        for action in self.history:
+            acting_player = self.players[player]
+            if action != 'd':
+                print('{} chose to {}'.format(acting_player.name, action))
+                player = (1-player)
+            else:
+                print('\n')
 
         if terminal:
             prize, winner = self.get_rewards()

@@ -25,7 +25,7 @@ class LeducRules():
 
 class Leduc(GameState):
     def __init__(self, deck, hands):
-        self.history = ['', ' ']
+        self.history = []
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_cards = []
         self.current_bets = [1, 1]
@@ -44,16 +44,18 @@ class Leduc(GameState):
         if self.street == 0:
             return fold
 
-        check =  history_str.endswith('ch'*2)
+        check = history_str.endswith('ch'*2)
         call = history_str.endswith('c')
         return fold or check or call
 
     def is_fold(self):
-        return self.history[-1] == 'f'
+        history_str = ''.join(self.history)
+        return history_str.endswith('f')
 
     def is_chance(self):
-        call = self.history[-1] == 'c'
-        check = self.history[-2] == 'ch' and self.history[-1] == 'ch'
+        history_str = ''.join(self.history)
+        check = history_str.endswith('ch'*2)
+        call = history_str.endswith('c')
         return call or check
 
     def get_payoff(self):
@@ -61,12 +63,12 @@ class Leduc(GameState):
         return self.current_bets[1 - player]
 
     def get_actions(self):
-        prev_action = self.history[-1]
-        if prev_action in [' ','ch']:
+        history_str = ''.join(self.history)
+        if self.history == [] or history_str.endswith(('d','ch')):
             return ['ch', 'r']
-        elif prev_action=='r':
-            return ['f', 'c', 'rr']
-        elif prev_action=='rr':
+        elif history_str.endswith('r'):
+            return ['f', 'c', 'R']
+        elif history_str.endswith('R'):
             return ['f', 'c']
 
     def get_public_chanceoutcomes(self):
@@ -91,7 +93,7 @@ class Leduc(GameState):
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
         player = next_state.get_active_player_index()
-        if action in ['r','rr','c']:
+        if action in ['r','R','c']:
             next_state.current_bets[player] += 2 * (next_state.street + 1)
         next_state.history.append(action)
         next_state.active_player = (1- player)
@@ -101,7 +103,7 @@ class Leduc(GameState):
         next_state = copy.deepcopy(self)
         next_state.street = 1
         next_state.active_player = 0
-        next_state.history.append(' ') #dummy action
+        next_state.history.append('d') #dummy action
         next_state.community_cards.append(outcome)
         if self.training:
             #following each public chance event, hand filtering can be computed
@@ -122,8 +124,8 @@ class Leduc(GameState):
         return self.active_player
 
     def get_representation(self, cards):
-        hand_rank = self.get_rank(cards + self.community_cards)
-        history_str = "/".join(self.history)
+        hand_rank = self.get_rank(list(cards) + self.community_cards)
+        history_str = ".".join(self.history)
         return '{}-{}'.format(hand_rank, history_str)
 
     def filterer(self, cards): #returns filtered list
