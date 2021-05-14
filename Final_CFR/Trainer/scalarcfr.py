@@ -10,7 +10,7 @@ class VCFRTrainer:
         self.node_map = {} 
         self.rules = rules()
         deck, _ = self.rules.build_deck_and_hands()
-        self.gamestate = gamestatetype(deck, [[],[]])
+        self.gamestate = gamestatetype(deck, [[],[]], vectorised=False)
         
     def train(self, n_iterations=10000):
         utility = 0
@@ -116,7 +116,7 @@ class VCFRTrainer:
         return 'Vanilla CFR (Scalar/Simultaneous)'
 
 
-#https://papers.nips.cc/paper/2009/file/00411460f7c92d2124a67ea0f4cb5f85-Paper.pdf
+#https://papers.nips.cc/paper/2009/sort_by_rankinge/00411460f7c92d2124a67ea0f4cb5f85-Paper.pdf
 class PruningCFRTrainer(VCFRTrainer):
     def decision_node(self, gamestate, rp_1, rp_2):
         utility = 0

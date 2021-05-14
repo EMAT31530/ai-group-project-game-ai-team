@@ -1,16 +1,5 @@
 from abc import ABC, abstractmethod
 
-class Card: #temp  holding place, come back to me dad
-    def __init__(self, value, suit, index):
-        self.value = value
-        self.suit = suit
-        self.index = index
-        if value in range(11,15):
-            conv = {11: 'J', 12: 'Q', 13: 'K', 14: 'A'}
-            self.face = conv[value]
-        else:
-            self.face = value
-
 class GameState(ABC):
     #To check if the current gamestate is a terminal state
     @abstractmethod

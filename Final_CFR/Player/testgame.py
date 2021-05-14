@@ -6,8 +6,10 @@ kuhnrules = Rules({"J": {"diamonds": 1}, "Q": {"diamonds": 2}, "K": {"diamonds":
     10 )
 leducrules = Rules({"J": {"diamonds": 1, "hearts": 1}, 
     "Q": {"diamonds": 2, "hearts": 2}, "K": {"diamonds": 3, "hearts": 3}}, 
-    {'check': 'ch', 'fold': 'f', 'call': 'c', 'raise': 'r', 'reraise': 'rr'}, 
+    {'check': 'ch', 'fold': 'f', 'call': 'c', 'raise': 'r', 'reraise': 'R'}, 
     20 )
-newgame = Game(PlayLeduc, leducrules, 'AILeduc')
+    
+#game = Game(PlayLeduc, leducrules, 'AILeduc')
+game = Game(PlayKuhn, kuhnrules, 'AIKuhn')
 
-newgame.play()
+game.play()

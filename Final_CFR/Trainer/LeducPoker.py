@@ -24,7 +24,7 @@ class LeducRules():
 
 
 class Leduc(GameState):
-    def __init__(self, deck, hands):
+    def __init__(self, deck, hands, vectorised=False):
         self.history = []
         self.street = 0 #street is one of preflop [0], postflop [1]
         self.community_cards = []
@@ -33,10 +33,7 @@ class Leduc(GameState):
 
         self.deck = deck
         self.hands = hands
-        if hands[0] != []:
-            self.ranks_tuple = self.sort_by_ranking()
-
-        self.training=True
+        self.vectorised = vectorised
 
     def is_terminal(self):
         history_str = ''.join(self.history)
@@ -93,8 +90,12 @@ class Leduc(GameState):
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
         player = next_state.get_active_player_index()
-        if action in ['r','R','c']:
-            next_state.current_bets[player] += 2 * (next_state.street + 1)
+        if action == 'r':
+            self.current_bets[player] += 2 * (self.street + 1)
+        elif action == 'R':
+            self.current_bets[player] += 4 * (self.street + 1)
+        elif action == 'c':
+            self.current_bets[player] = self.current_bets[1-player]
         next_state.history.append(action)
         next_state.active_player = (1- player)
         return next_state
@@ -105,7 +106,7 @@ class Leduc(GameState):
         next_state.active_player = 0
         next_state.history.append('d') #dummy action
         next_state.community_cards.append(outcome)
-        if self.training:
+        if self.vectorised:
             #following each public chance event, hand filtering can be computed
             next_state.filterer(next_state.community_cards)
             #following final chance event sorting can be computed!
@@ -133,7 +134,7 @@ class Leduc(GameState):
         self.hands = list(filter(f,self.hands))
    
     def sort_by_ranking(self):
-        g = lambda hand: [hand[0], self.get_rank(list(hand[1]))]
+        g = lambda hand: [hand[0], self.get_rank(list(hand[1]) + self.community_cards)]
         ranking_list = list(map(g, self.hands))
         sorted_list = list(sorted(ranking_list, key=itemgetter(1)))
         return sorted_list

@@ -81,7 +81,7 @@ class PlayKuhn:
         2: 'Q',
         1: 'J'
         }
-        key = repr[card.value] + self.history
+        key = repr[card[0].value] + self.history
         return key
 
     def display_round_str(self, round, terminal=False):
@@ -162,11 +162,11 @@ class PlayLeduc():
     def get_actions(self):
         history_str = ''.join(self.history)
         if self.history == [] or history_str.endswith(('d','ch')):
-            return ['ch', 'r']
+            return ['Check', 'Raise']
         elif history_str.endswith('r'):
-            return ['f', 'c', 'R']
+            return ['Fold', 'Call', 'reraise']
         elif history_str.endswith('R'):
-            return ['f', 'c']
+            return ['Fold', 'Call']
 
     def get_rewards(self):
         plyr = self.get_active_player_index()
@@ -181,8 +181,15 @@ class PlayLeduc():
             winr = plyr
             rwds[winr] = self.current_bets[opp]
         else:
-            winr = plyr if player_card < opponent_card else opp
-            rwds[winr] *= -1
+            if player_card < opponent_card:
+                winr = plyr 
+                rwds[winr] *= -1
+            elif player_card > opponent_card:
+                winr = opp 
+                rwds[winr] *= -1
+            else:
+                return 0, 0
+            
 
         
         for ip, player in enumerate(self.players):
@@ -194,9 +201,13 @@ class PlayLeduc():
         player = self.get_active_player_index()
         self.active_player = (1 - player)
         self.history.append(action)
-        if action in ['r','R','c']:
+        if action == 'r':
             self.current_bets[player] += 2 * (self.street + 1)
-
+        elif action == 'R':
+            self.current_bets[player] += 4 * (self.street + 1)
+        elif action == 'c':
+            self.current_bets[player] = self.current_bets[1-player]
+            
     def handle_chance(self):
         self.street = 1
         self.active_player = 0
@@ -210,7 +221,7 @@ class PlayLeduc():
         return self.active_player
 
     def get_representation(self, cards):
-        hand_rank = self.get_rank(cards + self.community_cards)
+        hand_rank = self.get_rank(cards + self.community_card)
         history_str = ".".join(self.history)
         return '{}-{}'.format(hand_rank, history_str)
 
@@ -234,14 +245,18 @@ class PlayLeduc():
             
         player = 0
         for action in self.history:
-            acting_player = self.players[player]
+            acting_player = self.players[player%2]
             if action != 'd':
                 print('{} chose to {}'.format(acting_player.name, action))
-                player = (1-player)
+                player += 1
             else:
-                print('\n')
+                player = 0
+                print('')
 
         if terminal:
             prize, winner = self.get_rewards()
-            print("\n{} wins £{}!\n".format(winner.name, prize))
-            print('You now have £{}, and the Ai has £{}.\n'.format(human.money, Ai.money))
+            if prize == 0:
+                print('it was a draw!')
+            else:
+                print("\n{} wins £{}!\n".format(winner.name, prize))
+                print('You now have £{}, and the Ai has £{}.\n'.format(human.money, Ai.money))

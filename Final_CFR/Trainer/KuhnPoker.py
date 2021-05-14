@@ -17,12 +17,12 @@ class KuhnRules():
 
 
 class Kuhn(GameState):
-    def __init__(self, deck, hands):
+    def __init__(self, deck, hands, vectorised=False):
         self.history = ''
         self.active_player = 0
         self.deck = deck
         self.hands = hands
-        if hands[0] != []:
+        if vectorised:
             self.ranks_tuple = self.sort_by_ranking()
         #initial ranking of hands [in vectorisation]
 

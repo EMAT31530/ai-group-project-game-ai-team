@@ -10,13 +10,13 @@ class VectorAlternatingVCFR:
         self.rules = rules()
         self.current_player = 0
         deck, hands = self.rules.build_deck_and_hands()
-        self.gamestate = gamestatetype(deck, hands)
+        self.gamestate = gamestatetype(deck, hands, vectorised=True)
         self.private_states = len(self.gamestate.hands)
+        #fci represents the fixed probability of each private state (hole cards in poker)
+        self.fci = np.repeat(1.0/self.private_states, self.private_states)
         self.orighands = [i[1] for i in self.gamestate.hands]
         
     def train(self, n_iterations=10000):
-        #fci represents the fixed probability of each private state (hole cards in poker)
-        self.fci = np.repeat(1.0/self.private_states, self.private_states)
         util = 0
         for _ in range(n_iterations):
             for j in range(2): #alternating updates
@@ -96,26 +96,26 @@ class VectorAlternatingVCFR:
         node.cumulative_regrets += regret
         node.strategy_sum += strategy
 
-    def get_utility(self, gamestate, pi):
+    def get_utility(self, gamestate, rps_2):
         lookuptable = self.rules.lookuptable
         utility = np.zeros(self.private_states)
         player = gamestate.get_active_player_index() 
         payoff = gamestate.get_payoff()
         
         if gamestate.is_fold():
-            totalpi = sum(pi)
+            total_rp = sum(rps_2)
             removecr = np.zeros(len(lookuptable))
-            for index, rank in gamestate.ranks_tuple:
+            for index, rank in gamestate.hands:
                 hand = self.orighands[index]
                 for card in hand:
-                    removecr[lookuptable[card]] += pi[index] 
+                    removecr[lookuptable[card]] += rps_2[index] 
                 
-            for index, rank in gamestate.ranks_tuple:
+            for index, rank in gamestate.hands:
                 hand = self.orighands[index]
-                temppi = totalpi
+                temp_rp = total_rp
                 for card in hand:
-                    temppi -= removecr[lookuptable[card]]
-                utility[index] += temppi * payoff
+                    temp_rp -= removecr[lookuptable[card]]
+                utility[index] += temp_rp * payoff
 
             return utility if player == self.current_player else -utility
 
@@ -126,10 +126,10 @@ class VectorAlternatingVCFR:
             hand = self.orighands[index]
             while gamestate.ranks_tuple[j][1] < rank: #rank of opp hand
                 opp_index = gamestate.ranks_tuple[j][0]
-                winsum += pi[opp_index] 
+                winsum += rps_2[opp_index] 
                 ophand = self.orighands[opp_index]
                 for card in ophand:
-                    wincr[lookuptable[card]] += pi[opp_index] 
+                    wincr[lookuptable[card]] += rps_2[opp_index] 
                 j += 1 
             for card in hand:
                 winsum -= wincr[lookuptable[card]]
@@ -144,10 +144,10 @@ class VectorAlternatingVCFR:
             hand = self.orighands[index]
             while gamestate.ranks_tuple[j][1] > rank:
                 opp_index = gamestate.ranks_tuple[j][0]
-                losesum += pi[opp_index] 
+                losesum += rps_2[opp_index] 
                 ophand = self.orighands[opp_index]
                 for card in ophand:
-                    losecr[lookuptable[card]] += pi[opp_index] 
+                    losecr[lookuptable[card]] += rps_2[opp_index] 
                 j -= 1
             for card in hand:
                 losesum -= losecr[lookuptable[card]]
@@ -203,8 +203,6 @@ class PublicCSCFRTrainer(VectorAlternatingVCFR):
 #donny work idk why sad, will come back to
 class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
     def train(self, n_iterations=10000):
-        #fci represents the fixed probability of each private state (hole cards in poker)
-        self.fci = np.repeat(1.0/self.private_states, self.private_states)
         util = 0
         for _ in range(n_iterations):
             next_gamestate = self.sample_one_hand(self.gamestate)
@@ -212,13 +210,14 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
                 self.current_player = j
                 rps_1 = np.ones(self.private_states)
                 rp_2 = 1
-                util += self.cfr(copy.deepcopy(next_gamestate), rps_1, rp_2)
-        return sum((util) / (n_iterations))
+                temputil = self.cfr(copy.deepcopy(self.gamestate), rps_1, rp_2)
+                util += sum(temputil)/len(temputil)
+        return util / n_iterations
 
     def sample_one_hand(self, gamestate):
         next_gamestate = copy.deepcopy(gamestate)
         sample_num = np.random.choice(range(len(gamestate.hands)), p=self.fci)
-        sample = gamestate.hands[sample_num][1]
+        sample = next_gamestate.hands[sample_num][1]
         for card in sample:
             next_gamestate.deck.remove(card)
         next_gamestate.filterer(sample)
@@ -226,7 +225,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
         return next_gamestate
 
     def terminal_node(self, gamestate, rp_2):
-        return self.fci * self.get_utility(gamestate, rp_2)
+        return self.fci * self.get_utility(gamestate, self.fci[0] * rp_2)
 
     def decision_node(self, gamestate, rps_1, rp_2):
         active_player = gamestate.get_active_player_index()
@@ -261,7 +260,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
 
             for iI, node in enumerate(node_vec):
                 if node!=0:
-                    regrets = (counterfactual_utility[:,iI] - utility[iI]) * rp_2
+                    regrets = (counterfactual_utility[:,iI] - utility[iI])
                     strategy = rps_1[iI] * strategy_vec[iI]
                     self.update_node(node, regrets, strategy)   
             
@@ -270,7 +269,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
             strategy = node.get_strategy()
             for ia, action in enumerate(possible_actions):
                 next_gamestate = gamestate.handle_action(action)
-                utility = self.cfr(next_gamestate, rps_1, rp_2 * strategy[ia]) # M arrow
+                utility += self.cfr(next_gamestate, rps_1, rp_2 * strategy[ia]) # M arrow
         return utility
 
     def get_utility(self, gamestate, rp_2):
@@ -281,7 +280,10 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
         if gamestate.is_fold():
             for index, _ in gamestate.hands:
                 utility[index] = payoff
-            return utility if player == self.current_player else -utility
+            if player == self.current_player:
+                return utility * rp_2
+            else:
+                return -1 * utility * rp_2
        
         opprank = gamestate.get_rank(self.sampled_hand)
         for index, rank in gamestate.ranks_tuple:
@@ -290,7 +292,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
             elif rank < opprank:
                 utility[index] = -payoff
 
-        return utility
+        return utility * rp_2
 
     def __name__(self):
         return 'Opponent Public Chance Sampling CFR'
@@ -298,8 +300,6 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
 #does work nice
 class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
     def train(self, n_iterations=10000):
-        #fci represents the fixed probability of each private state (hole cards in poker)
-        self.fci = np.repeat(1.0/self.private_states, self.private_states)
         util = 0
         for _ in range(n_iterations):
             next_gamestate = self.sample_one_hand(self.gamestate)
@@ -308,7 +308,7 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
                 rps_1 = 1
                 rps_2 = np.ones(self.private_states)
                 util += self.cfr(copy.deepcopy(next_gamestate), rps_1, rps_2)
-        return (util) / (n_iterations)
+        return util / n_iterations
 
     def terminal_node(self, gamestate, rps_2):
         return self.get_utility(gamestate, self.fci * rps_2)
@@ -378,18 +378,22 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
 
 #https://arxiv.org/pdf/1407.5042.pdf
 class CFRPlusTrainer(VectorAlternatingVCFR):
+    def __init__(self, gamestatetype, rules):
+        super().__init__(gamestatetype, rules)
+        self.timestep = 0
+
     def train(self, n_iterations=10000, d=500):
-        #fci represents the fixed probability of each private state (hole cards in poker)
-        self.fci = np.repeat(1.0/self.private_states, self.private_states)
         util = 0
-        for t in range(n_iterations):
-            self.w = max(t - d, 0) #weights later strategy updates
+        for _ in range(n_iterations):
+            self.w = max(self.timestep - d, 0) #weights later strategy updates
+            self.timestep += 1
             for j in range(2): #alternating updates
                 self.current_player = j
                 rps_1 = np.ones(self.private_states)
                 rps_2 = np.ones(self.private_states)
-                util += sum(self.cfr(copy.deepcopy(self.gamestate), rps_1, rps_2))
-        return (util) / (n_iterations)
+                temputil = self.cfr(copy.deepcopy(self.gamestate), rps_1, rps_2)
+                util += sum(temputil)/len(temputil)
+        return util / n_iterations
 
     def update_node(self, node, regret, strategy):
         regret[regret < 0] = 0 #negative regret is not stored
