@@ -85,4 +85,3 @@ class Kuhn(GameState):
     def filterer(self, cards): #returns filtered list
         f = lambda hand: not any(i in hand[1] for i in cards)
         self.hands = list(filter(f,self.hands))
-

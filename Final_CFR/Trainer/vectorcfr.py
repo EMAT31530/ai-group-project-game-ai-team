@@ -47,14 +47,8 @@ class VectorAlternatingVCFR:
             utility += self.cfr(next_gamestate, rps_1, rps_2) 
         return utility * chance_prob
 
-    def decision_node(self, gamestate, rps_1, rps_2):
-        active_player = gamestate.get_active_player_index()
-        possible_actions = gamestate.get_actions()
-        n_actions = len(possible_actions)
-        #invalid hands are filtered at each public chance node
+    def get_nodes_and_strategy(self, gamestate, n_actions):
         keys, indicies_grouping = self.group_hands_by_key(gamestate)
-        #e.g. key1, [1,3,5,6] so key1 represents hands at index 1,3,5,6
-
         f = lambda key: self.get_node(key, n_actions)
         temp_node_vec = list(map(f, keys)) 
         g = lambda x: x.get_strategy()
@@ -62,13 +56,20 @@ class VectorAlternatingVCFR:
 
         strategy_vec = np.zeros((self.private_states, n_actions)) 
         node_vec = [0] * self.private_states
-        for iI, indicies in enumerate(indicies_grouping):
-            strategy = temp_strategy_vec[iI]
-            node = temp_node_vec[iI]
+        for Ii, indicies in enumerate(indicies_grouping):
+            strategy = temp_strategy_vec[Ii]
+            node = temp_node_vec[Ii]
             for index in indicies:
                 strategy_vec[index] = strategy
                 node_vec[index] = node
+        return node_vec, strategy_vec
 
+    def decision_node(self, gamestate, rps_1, rps_2):
+        active_player = gamestate.get_active_player_index()
+        possible_actions = gamestate.get_actions()
+        n_actions = len(possible_actions)
+
+        node_vec, strategy_vec = self.get_nodes_and_strategy(gamestate, n_actions)
         utility  = np.zeros(self.private_states) # average utility per comb
         counterfactual_utility = np.zeros((n_actions, self.private_states))
         for ia, action in enumerate(possible_actions):
@@ -161,7 +162,7 @@ class VectorAlternatingVCFR:
             if key not in keys:
                 keys[key] = []
             keys[key].append(hand[0])
-        return zip(*keys.items()) #[0] = keys, [1] = weightings
+        return zip(*keys.items()) #[0] = keys, [1] = indicies
 
     def get_node(self, key, n_actions):
         if key not in self.node_map:
@@ -191,16 +192,10 @@ class PublicCSCFRTrainer(VectorAlternatingVCFR):
         next_gamestate = gamestate.handle_public_chance(outcome)
         return self.cfr(next_gamestate, rps_1, rps_2)
 
-    def update_node(self, node, regret, strategy):
-        regret[regret < 0] = 0 #negative regret is not stored
-        node.cumulative_regrets += regret
-        node.strategy_sum += strategy
-
     def __name__(self):
         return 'Public Chance Sampling CFR'
 
 
-#donny work idk why sad, will come back to
 class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
     def train(self, n_iterations=10000):
         util = 0
@@ -210,7 +205,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
                 self.current_player = j
                 rps_1 = np.ones(self.private_states)
                 rp_2 = 1
-                temputil = self.cfr(copy.deepcopy(self.gamestate), rps_1, rp_2)
+                temputil = self.cfr(copy.deepcopy(next_gamestate), rps_1, rp_2)
                 util += sum(temputil)/len(temputil)
         return util / n_iterations
 
@@ -221,11 +216,12 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
         for card in sample:
             next_gamestate.deck.remove(card)
         next_gamestate.filterer(sample)
+        next_gamestate.ranks_tuple = next_gamestate.sort_by_ranking()
         self.sampled_hand = sample
         return next_gamestate
 
     def terminal_node(self, gamestate, rp_2):
-        return self.fci * self.get_utility(gamestate, self.fci[0] * rp_2)
+        return self.fci * self.get_utility(gamestate, rp_2)
 
     def decision_node(self, gamestate, rps_1, rp_2):
         active_player = gamestate.get_active_player_index()
@@ -235,21 +231,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
         utility  = np.zeros(self.private_states) # average utility per comb
         counterfactual_utility = np.zeros((n_actions, self.private_states))
         if active_player == self.current_player:
-            keys, indicies_grouping = self.group_hands_by_key(gamestate)
-            f = lambda key: self.get_node(key, n_actions)
-            temp_node_vec = list(map(f, keys)) 
-            g = lambda x: x.get_strategy()
-            temp_strategy_vec = np.array(list(map(g, temp_node_vec))) 
-
-            strategy_vec = np.zeros((self.private_states, n_actions)) 
-            node_vec = [0] * self.private_states
-            for Ii, indicies in enumerate(indicies_grouping):
-                strategy = temp_strategy_vec[Ii]
-                node = temp_node_vec[Ii]
-                for index in indicies:
-                    strategy_vec[index] = strategy
-                    node_vec[index] = node
-
+            node_vec, strategy_vec = self.get_nodes_and_strategy(gamestate, n_actions)
 
             for ia, action in enumerate(possible_actions):
                     new_rps_1 = rps_1 * strategy_vec[:,ia] #unitwise numpy multiplication
@@ -263,13 +245,13 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
                     regrets = (counterfactual_utility[:,iI] - utility[iI])
                     strategy = rps_1[iI] * strategy_vec[iI]
                     self.update_node(node, regrets, strategy)   
-            
         else: #for other player no regrets calculated
             node = self.get_node(gamestate.get_representation(self.sampled_hand), n_actions)
             strategy = node.get_strategy()
             for ia, action in enumerate(possible_actions):
+                new_rp_2 = rp_2 * strategy[ia]
                 next_gamestate = gamestate.handle_action(action)
-                utility += self.cfr(next_gamestate, rps_1, rp_2 * strategy[ia]) # M arrow
+                utility += self.cfr(next_gamestate, rps_1, new_rp_2) 
         return utility
 
     def get_utility(self, gamestate, rp_2):
@@ -291,13 +273,11 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
                 utility[index] = payoff
             elif rank < opprank:
                 utility[index] = -payoff
-
         return utility * rp_2
 
     def __name__(self):
         return 'Opponent Public Chance Sampling CFR'
 
-#does work nice
 class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
     def train(self, n_iterations=10000):
         util = 0
@@ -334,24 +314,12 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
             self.update_node(node, regrets, strategy)   
             
         else: #for other player no regrets calculated
-            keys, indicies_grouping = self.group_hands_by_key(gamestate)
-            f = lambda key: self.get_node(key, n_actions)
-            temp_node_vec = list(map(f, keys)) 
-            g = lambda x: x.get_strategy()
-            temp_strategy_vec = np.array(list(map(g, temp_node_vec))) 
-
-            strategy_vec = np.zeros((self.private_states, n_actions))
-            for i, indicies in enumerate(indicies_grouping):
-                strategy = temp_strategy_vec[i]
-                node = temp_node_vec[i]
-                for index in indicies:
-                    strategy_vec[index] = strategy
+            _, strategy_vec = self.get_nodes_and_strategy(gamestate, n_actions)
 
             for ia, action in enumerate(possible_actions):
                     new_rps_2 = rps_2 * strategy_vec[:,ia] #unitwise numpy multiplication
                     next_gamestate = gamestate.handle_action(action)
-                    temputil = self.cfr(next_gamestate, rps_1, new_rps_2)
-                    utility += temputil #unitwise numpy multiplication   
+                    utility += self.cfr(next_gamestate, rps_1, new_rps_2)
 
         return utility
 
@@ -382,7 +350,7 @@ class CFRPlusTrainer(VectorAlternatingVCFR):
         super().__init__(gamestatetype, rules)
         self.timestep = 0
 
-    def train(self, n_iterations=10000, d=500):
+    def train(self, n_iterations=10000, d=250):
         util = 0
         for _ in range(n_iterations):
             self.w = max(self.timestep - d, 0) #weights later strategy updates

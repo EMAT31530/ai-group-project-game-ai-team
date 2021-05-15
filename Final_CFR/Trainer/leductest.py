@@ -82,7 +82,7 @@ else:
         exploit.append(round(exp1, 5))
         #exploitvec.append(round(exp2, 3))
         #timestep.append(steps * (i+1))
-
+    util = util/stepnum
     finalstrat = trainer.get_final_strategy()
     print('Completed {} iterations in {} seconds.'.format(iterations, abs(time1 - time.time())))
     print('With {} nodes.'.format(len(finalstrat)))

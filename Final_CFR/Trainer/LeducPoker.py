@@ -91,11 +91,11 @@ class Leduc(GameState):
         next_state = copy.deepcopy(self)
         player = next_state.get_active_player_index()
         if action == 'r':
-            self.current_bets[player] += 2 * (self.street + 1)
+            next_state.current_bets[player] += 2 * (next_state.street + 1)
         elif action == 'R':
-            self.current_bets[player] += 4 * (self.street + 1)
+            next_state.current_bets[player] += 4 * (next_state.street + 1)
         elif action == 'c':
-            self.current_bets[player] = self.current_bets[1-player]
+            next_state.current_bets[player] = next_state.current_bets[1-player]
         next_state.history.append(action)
         next_state.active_player = (1- player)
         return next_state
