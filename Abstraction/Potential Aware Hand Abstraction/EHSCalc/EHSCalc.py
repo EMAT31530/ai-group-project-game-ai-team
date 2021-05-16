@@ -16,12 +16,8 @@ with open('allturns.txt', 'rb') as fp:
     totalturns = pickle.load(fp)
 
 
-"""
-riverget()
 with open ('allrivers.txt', 'rb') as fp:
-    allrivers = pickle.load(fp)
-print(allrivers)
-"""
+    totalrivers = pickle.load(fp)
 
 
 def build_deck():  # To build a deck, can be used to rebuild also
@@ -30,6 +26,7 @@ def build_deck():  # To build a deck, can be used to rebuild also
         for i in range(2, 15):
             cards.append(str(i)+'♥♦♣♠'[suit])
     return cards
+
 
 deck = build_deck()
 hand = random.sample(deck, 2)
@@ -61,7 +58,7 @@ for x in allhands:
         print("true")
 """
 currhand = ['5♥', '11♦']
-prunedhands = [i for i in allhands if not (currhand[0] in i or currhand[1] in i)]
+prunedhands = [i for i in totalhands if not (currhand[0] in i or currhand[1] in i)]
 
 """
 lst = copy.copy(allhands)
@@ -79,9 +76,9 @@ def pruner(currhand, allhands, allflops, allturns, allrivers):
     prunedhands = [i for i in allhands if not currhand[0] in i or currhand[1] in i]
     prunedflops = [i for i in allflops if not (currhand[0] in i or currhand[1] in i)]
     prunedturns = [i for i in allturns if not (currhand[0] in i or currhand[1] in i)]
-#   prunedrivers= [i for i in allrivers if not (currhand[0] in i or currhand[1] in i)]
+    prunedrivers= [i for i in allrivers if not (currhand[0] in i or currhand[1] in i)]
 
-    return(prunedhands, prunedflops, prunedturns)
+    return(prunedhands, prunedflops, prunedturns, prunedrivers)
 
 
 # flop winrate tester
@@ -94,24 +91,31 @@ def pruner(currhand, allhands, allflops, allturns, allrivers):
 # CHECK THIS function
 def flopper():
     # iterate through each hands
-    for currhand in allhands:
+    floptable = {}
+    for currhand in totalhands:
         # one loop of this will calculate EHS for 1 hand, 1325 to go
         wintally = 0
         totaltally = 0
+        handsdone = []
+
         # hand to remove, keep track of hands that have been removed before
-        for opphand in allhands\currhand:
+        for opphand in [x for x in totalhands if x not in handsdone]:
             # list comprehension
             # need to then remove this hand
-            opphand = random.sample(allhands, 1)
+            handsdone.append(opphand)
             # removes illegal hands, flops, turns, rivers
+            current = pruner(currhand, totalhands, totalflops, totalturns, totalrivers)
             final = pruner(opphand, current[0], current[1], current[2], current[3])
             # myrank = rank.ranking(currhand, flop)
             # opprank = rank.ranking(opphand, flop)
             # test tomororw
             for flop in final[1]:
                 totaltally += 1
-                myrank = rank.ranking(currhand, flop)
-                opprank = rank.ranking(opphand, flop)
+                print(list(currhand))
+                print(opphand)
+                print(flop)
+                myrank = rank.ranking(list(currhand), list(flop))
+                opprank = rank.ranking(list(opphand), list(flop))
                 # how to deal with ties? figure it out
                 if myrank > opprank:
                     wintally += 1
@@ -120,10 +124,13 @@ def flopper():
         # need to consider ties
         totalwinrate = (wintally / totaltally) * 100
         floptable[currhand] = totalwinrate
+        return floptable
 
+flopper()
 
+"""
 # turn function, river function is identical, can make them separate function for ease of use
-
+# FIX THIS
 def turner():
     # iterate through each hands
     for currhand in allhands:
@@ -151,7 +158,7 @@ def turner():
         floptable[currhand] = totalwinrate
 
 
-
+"""
 
 
 
