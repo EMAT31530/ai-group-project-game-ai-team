@@ -84,6 +84,7 @@ for j in range(0,1):
     currentbet = ''
     call = ''
     raised = ''
+    antetotal = 0
     for i in range(len(splitgames[j])):
         ante = ''
         print(splitgames[j][i])
@@ -100,16 +101,17 @@ for j in range(0,1):
             ante = int(ante[::-1])
             print(ante)
             pot += ante
-        '''
-        elif 'small blind' in splitgames[j][i].lower():
-            pointer = splitgames[j][i].find('small blind')-1
-            while splitgames[j][i][pointer] != '$':
-                if splitgames[j][i][pointer].isnumeric() is True:
-                    smallblind = str(smallblind) + str(splitgames[j][i][pointer])
-                    pointer -= 1
-                else:
-                    pointer -= 1
-        '''
+
+'''
+elif 'small blind' in splitgames[j][i].lower():
+    pointer = splitgames[j][i].find('small blind')-1
+    while splitgames[j][i][pointer] != '$':
+        if splitgames[j][i][pointer].isnumeric() is True:
+            smallblind = str(smallblind) + str(splitgames[j][i][pointer])
+            pointer -= 1
+        else:
+            pointer -= 1
+'''
 
 
 
