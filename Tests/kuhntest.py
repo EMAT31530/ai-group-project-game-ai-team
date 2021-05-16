@@ -4,7 +4,8 @@ import numpy as np
 sys.path.append('..')
 import Trainer.vectorcfr as vec
 import Trainer.scalarcfr as scal
-from Trainer.gamestates.KuhnPoker import Kuhn, KuhnRules
+from Trainer.gamestates.blankgamestate import GenericPoker
+from Trainer.gamestates.gamerules import KuhnRules
 from Trainer.exploitability import Exploit_Calc, Exploit_Vec_Calc
 from modules.validation import exportJson
 
@@ -15,11 +16,11 @@ def display_results(ev, node_map):
     print('\nplayer 1 strategies:')
     #print([i for i in node_map.items()])
     sorted_items = sorted(node_map.items(), key=lambda x: ranking[x[0][0]])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
+    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
         r = [round(i , 2) for i in v]
         print('{}: {}'.format(_,r))
     print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
+    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
         r = [round(i , 2) for i in v]
         print('{}: {}'.format(_,r))
 
@@ -43,21 +44,29 @@ else:
     export = 1 == int(sys.argv[4])
 
 if type == 1:
-    trainer = scal.VCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules)
+    trainer = scal.VCFRTrainer(gamestate)
 if type == 2:
-    trainer = scal.OutcomeSamplingCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules)
+    trainer = scal.OutcomeSamplingCFRTrainer(gamestate)
 if type == 3:
-    trainer = scal.CSCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules)
+    trainer = scal.CSCFRTrainer(gamestate)
 if type == 4:
-    trainer = vec.VectorAlternatingVCFR(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    trainer = vec.VectorAlternatingVCFR(gamestate)
 if type == 5:
-    trainer = vec.PublicCSCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    trainer = vec.PublicCSCFRTrainer(gamestate)
 if type == 6:
-    trainer = vec.OpponentPublicCSCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    trainer = vec.OpponentPublicCSCFRTrainer(gamestate)
 if type == 7:
-    trainer = vec.SelfPublicCSCFRTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    trainer = vec.SelfPublicCSCFRTrainer(gamestate)
 if type == 8:
-    trainer = vec.CFRPlusTrainer(Kuhn, KuhnRules)
+    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    trainer = vec.CFRPlusTrainer(gamestate)
 
 print('\nTraining kuhn poker via {}.'.format(trainer.__name__()))
 
@@ -108,9 +117,9 @@ else:
     display_results(util, finalstrat)
     print('expl lin: {}'.format(exploit))
     milblinds = np.array(exploit)/0.001
-    print('milblinds lin: {}'.format(milblinds))
+    #print('milblinds lin: {}'.format(milblinds))
     print('expl vec: {}'.format(exploitvec))
-    print('toucing: {}'.format(nodes_touched))
+    print('touching nodes: {}'.format(nodes_touched))
     print('time: {}'.format(timestep))
 
 if export:

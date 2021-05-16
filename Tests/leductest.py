@@ -4,7 +4,8 @@ import numpy as np
 sys.path.append('..')
 import Trainer.vectorcfr as vec
 import Trainer.scalarcfr as scal
-from Trainer.gamestates.LeducPoker import Leduc, LeducRules
+from Trainer.gamestates.blankgamestate import GenericPoker
+from Trainer.gamestates.gamerules import LeducRules
 from Trainer.exploitability import Exploit_Calc, Exploit_Vec_Calc
 from modules.validation import exportJson
 
@@ -45,21 +46,29 @@ else:
     export = 1 == int(sys.argv[4])
     
 if type == 1:
-    trainer = scal.VCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules)
+    trainer = scal.VCFRTrainer(gamestate)
 if type == 2:
-    trainer = scal.OutcomeSamplingCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules)
+    trainer = scal.OutcomeSamplingCFRTrainer(gamestate)
 if type == 3:
-    trainer = scal.CSCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules)
+    trainer = scal.CSCFRTrainer(gamestate)
 if type == 4:
-    trainer = vec.VectorAlternatingVCFR(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules, vectorised=True)
+    trainer = vec.VectorAlternatingVCFR(gamestate)
 if type == 5:
-    trainer = vec.PublicCSCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules, vectorised=True)
+    trainer = vec.PublicCSCFRTrainer(gamestate)
 if type == 6:
-    trainer = vec.OpponentPublicCSCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules, vectorised=True)
+    trainer = vec.OpponentPublicCSCFRTrainer(gamestate)
 if type == 7:
-    trainer = vec.SelfPublicCSCFRTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules, vectorised=True)
+    trainer = vec.SelfPublicCSCFRTrainer(gamestate)
 if type == 8:
-    trainer = vec.CFRPlusTrainer(Leduc, LeducRules)
+    gamestate = GenericPoker(LeducRules, vectorised=True)
+    trainer = vec.CFRPlusTrainer(gamestate)
 
 print('\nTraining leduc poker via {}.'.format(trainer.__name__()))
 
@@ -102,9 +111,9 @@ else:
     display_results(util, finalstrat)
     print('expl lin: {}'.format(exploit))
     milblinds = np.array(exploit)/0.001
-    print('milblinds lin: {}'.format(milblinds))
+    #print('milblinds lin: {}'.format(milblinds))
     print('expl vec: {}'.format(exploitvec))
-    print('toucing: {}'.format(nodes_touched))
+    print('touching nodes: {}'.format(nodes_touched))
     print('time: {}'.format(timestep))
 if export:
     exportJson(finalstrat, 'leduc{}-{}'.format(type, iterations))

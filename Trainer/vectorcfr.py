@@ -5,13 +5,11 @@ import copy
 #dont have a paper for this in vector alternating form but the paper of cfr+ says its a 
 #thing so maybe its mentioned in the base cfr paper....
 class VectorAlternatingVCFR:
-    def __init__(self, gamestatetype, rules):
+    def __init__(self, gamestate):
         self.node_map = {}
         self.nodes_touched = 0
-        self.rules = rules()
         self.current_player = 0
-        deck, hands = self.rules.build_deck_and_hands()
-        self.gamestate = gamestatetype(deck, hands, vectorised=True)
+        self.gamestate = gamestate
         self.private_states = len(self.gamestate.hands)
         #fci represents the fixed probability of each private state (hole cards in poker)
         self.fci = np.repeat(1.0/self.private_states, self.private_states)
@@ -100,7 +98,7 @@ class VectorAlternatingVCFR:
         node.strategy_sum += strategy
 
     def get_utility(self, gamestate, rps_2):
-        lookuptable = self.rules.lookuptable
+        lookuptable = self.gamestate.rules.lookuptable
         utility = np.zeros(self.private_states)
         payoff = gamestate.get_payoff()
         
@@ -187,8 +185,8 @@ class PublicCSCFRTrainer(VectorAlternatingVCFR):
     def chance_node(self, gamestate, rps_1, rps_2):
         chance_outcomes = gamestate.get_public_chanceoutcomes()
         chance_probs = np.repeat(1.0/len(chance_outcomes),len(chance_outcomes))
-        outcome = np.random.choice(chance_outcomes, p=chance_probs)
-        next_gamestate = gamestate.handle_public_chance(outcome)
+        outcome = np.random.choice(range(len(chance_outcomes)), p=chance_probs)
+        next_gamestate = gamestate.handle_public_chance(chance_outcomes[outcome])
         return self.cfr(next_gamestate, rps_1, rps_2)
 
     def __name__(self):
@@ -346,8 +344,8 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
 
 #https://arxiv.org/pdf/1407.5042.pdf
 class CFRPlusTrainer(VectorAlternatingVCFR):
-    def __init__(self, gamestatetype, rules):
-        super().__init__(gamestatetype, rules)
+    def __init__(self, gamestate):
+        super().__init__(gamestate)
         self.timestep = 0
 
     def train(self, n_iterations=10000, d=250):

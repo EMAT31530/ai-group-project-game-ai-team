@@ -5,12 +5,10 @@ import copy
 
 # Vanilla, scalar-form/Simultaneous updates, no sampling
 class VCFRTrainer:
-    def __init__(self, gamestatetype, rules):
+    def __init__(self, gamestate):
         self.node_map = {} 
         self.nodes_touched = 0
-        self.rules = rules()
-        deck, _ = self.rules.build_deck_and_hands()
-        self.gamestate = gamestatetype(deck, [[],[]], vectorised=False)
+        self.gamestate = gamestate
         
     def train(self, n_iterations=10000):
         utility = 0
@@ -24,7 +22,7 @@ class VCFRTrainer:
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
         #for private chance nodes
-        if any((len(hand)<self.rules.hand_size) for hand in gamestate.hands):
+        if any((len(hand)<self.gamestate.rules.hand_size) for hand in gamestate.hands):
             return self.private_chance_node(gamestate, rps_1, rps_2)
         #if gamestate.is_decision(): 
         else:
@@ -128,8 +126,8 @@ class VCFRTrainer:
 
 #http://www.mlanctot.info/files/papers/colt_ws_mccfr.pdf
 class OutcomeSamplingCFRTrainer(VCFRTrainer):
-    def __init__(self, gamestatetype, rules):
-        super().__init__(gamestatetype, rules)
+    def __init__(self, gamestate):
+        super().__init__(gamestate)
         self.epsilon = 0.9
 
     #here is where we will sample actions based on prob espilon = 0.6 greedy
@@ -190,7 +188,7 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
         self.hands = [[],[]]
         next_gamestate = copy.deepcopy(gamestate)
         random.shuffle(next_gamestate.deck)
-        for _ in range(self.rules.hand_size):
+        for _ in range(self.gamestate.rules.hand_size):
             for i in range(2):
                 deck_probs = np.repeat(1.0/len(next_gamestate.deck), len(next_gamestate.deck))
                 sample_card = np.random.choice(next_gamestate.deck, p=deck_probs)
@@ -202,8 +200,8 @@ class CSCFRTrainer(VCFRTrainer): #all chances sampled
     def chance_node(self, gamestate, rps_1, rps_2): #sample a chance
         chance_outcomes = gamestate.get_public_chanceoutcomes()
         chance_probs = np.repeat(1.0/len(chance_outcomes),len(chance_outcomes))
-        outcome = np.random.choice(chance_outcomes, p=chance_probs)
-        next_gamestate = gamestate.handle_public_chance(outcome)
+        outcome = np.random.choice(range(len(chance_outcomes)), p=chance_probs)
+        next_gamestate = gamestate.handle_public_chance(chance_outcomes[outcome])
         return self.cfr(next_gamestate, rps_1, rps_2)
 
     def __name__(self):
