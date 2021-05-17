@@ -7,6 +7,7 @@ from itertools import combinations
 
 class PlayGeneric:
     def __init__(self, deck, players, rules):
+        self.rules = rules
         self.history = []
         self.community_cards = []
         self.active_player = 0
@@ -15,7 +16,6 @@ class PlayGeneric:
         self.deck = deck
         self.players = players
         self.reset_deck = copy.deepcopy(deck)
-        self.rules = rules
 
     def start_round(self):
         self.history = []
@@ -63,16 +63,15 @@ class PlayGeneric:
         player_card = self.get_rank(self.players[plyr].cards)
         opponent_card = self.get_rank(self.players[opp].cards)
 
-        prev_action = self.history[-1]
         rwds = -1 * self.current_bets
-        if prev_action == 'f':
+        if self.history[-1] == 'f':
             winr = plyr
             rwds[winr] = self.current_bets[opp]
         else:
-            if player_card < opponent_card:
+            if player_card > opponent_card:
                 winr = plyr 
                 rwds[winr] *= -1
-            elif player_card > opponent_card:
+            elif player_card < opponent_card:
                 winr = opp 
                 rwds[winr] *= -1
             else:
@@ -82,8 +81,12 @@ class PlayGeneric:
             player.money += rwds[ip]
         return rwds[winr], self.players[winr]
 
-    def get_public_chanceoutcomes(self):
-        return list(combinations(self.deck, self.rules.round_s[self.round].n_communitycards))
+    def handle_chance(self):
+        for _ in range(self.rules.round_s[self.round].n_communitycards):
+            self.community_card.append(self.deck.pop())
+        self.round += 1
+        self.active_player = 0        
+        self.history.append('d')
 
     def handle_action(self, action):
         player = self.get_active_player_index()
@@ -127,14 +130,14 @@ class PlayGeneric:
             else:
                 Ai = player
         human_hand = View(human.cards)
-        board_hand = View(self.community_card)
-        flop='preflop'
-        if self.street == 1:
+        
+        if self.community_cards != []:
+            board_hand = View(self.community_cards)
             print('On the board there is: {}'.format(board_hand))
-            flop = 'postflop'
 
-        print('Round: {}, {}. In your hand you have:'.format(round, flop))
+        print('Round: {}. In your hand you have:'.format(round))
         print(human_hand)
+        print('ai has {}'.format(Ai.cards))
         if not terminal:
             print('You have £{}, the Ai has £{}.\n'.format(human.money, Ai.money))
             
@@ -155,24 +158,3 @@ class PlayGeneric:
             else:
                 print("\n{} wins £{}!\n".format(winner.name, prize))
                 print('You now have £{}, and the Ai has £{}.\n'.format(human.money, Ai.money))
-
-class PlayLeduc():
-    def get_rank(self, cards):
-        ranks = {
-            'KK': 9,
-            'QQ': 8,
-            'JJ': 7,
-            'KQ': 6, 'QK': 6,
-            'KJ': 5, 'JK': 5,
-            'QJ': 4, 'JQ': 4,
-            'K': 3, 'Q': 2, 'J': 1
-        }
-        repr = ''.join([x.face for x in cards])
-        return ranks[repr]
-
-    def get_representation(self, cards):
-        hand_rank = self.get_rank(cards + self.community_card)
-        history_str = ".".join(self.history)
-        return '{}-{}'.format(hand_rank, history_str)
-
-    

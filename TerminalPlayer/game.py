@@ -1,11 +1,11 @@
 from terminal_playing_cards import Deck
-from TerminalPlayer.players import Player, AiPlayer
-from TerminalPlayer.gamerules import kuhnrules, leducrules
-from TerminalPlayer.blankplaytypes import PlayGeneric 
 import os
 import sys
 import platform
 sys.path.append('..')
+from TerminalPlayer.players import Player, AiPlayer
+from TerminalPlayer.gamerules import kuhnrules, leducrules
+from TerminalPlayer.blankplaytypes import PlayGeneric 
 from modules.validation import checkInt, checkString, importJson
 
 
@@ -18,7 +18,8 @@ class Game:
             Player(player_name, gamestaterules.start_money), 
             AiPlayer(opp_strategy, gamestaterules.start_money, strat_map) ]
 
-        self.gamestate = gamestatetype(deck, players, self.rules)
+        self.gamestate = gamestatetype(deck, players, gamestaterules)
+
 
     def play(self, roundcount=5):
         while not roundcount < 1:
@@ -38,7 +39,8 @@ class Game:
             gamestate.display_round_str(round+1)
             player = gamestate.get_active_player()
             action = player.get_action(gamestate)
-            gamestate.handle_action(action)
+            tac = gamestate.rules.ACTION_SPEC[action.lower()]
+            gamestate.handle_action(tac)
 
         os.system('cls') if platform.system() == 'Windows' else os.system('clear')
         gamestate.display_round_str(round, terminal=True)

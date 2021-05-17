@@ -1,3 +1,6 @@
+from terminal_playing_cards.card import Card
+
+
 class Round:
     def __init__(self, n_communitycards, raise_amount, num_raises):
         self.n_communitycards = n_communitycards #num of cards added to community pool
@@ -11,6 +14,7 @@ class GameRules:
             get_representation, get_rank
         ):
         self.DECK_SPEC = DECK_SPEC
+        self.ACTION_SPEC = {'check': 'ch', 'fold': 'f', 'call': 'c', 'raise': 'r'}
         self.hand_size = hand_size
         self.blinds = blinds
         self.start_money = start_money
@@ -23,13 +27,14 @@ class GameRules:
 #-------------------------------------------------------
 #STANDARD KUHN POKER
 def get_rank_kuhn(card):
+    print(card)
     ranks = {'K': 3, 'Q': 2, 'J': 1}
-    return ranks[card[0][0]]
+    return ranks[card[0].face]
 
-def get_representation_kuhn(hand, history):
-    conv = {'fold': 'p', 'check': 'p', 'call': 'b', 'raise': 'b'}
-    history_str = "".join([conv[i.lower()] for i in history])
-    return str(hand[0][0])+history_str
+def get_representation_kuhn(card, history):
+    repr = {'f': 'p', 'ch': 'p', 'c': 'b', 'r': 'b'}
+    history_str = "".join([repr[i] for i in history])
+    return str(card[0].face)+history_str
 
 kuhnrules = GameRules(
     {"J": {"diamonds": 1}, "Q": {"diamonds": 2}, "K": {"diamonds": 3}},
@@ -51,14 +56,14 @@ def get_rank_leduc(cards):
     return ranks[repr]
 
 def get_representation_leduc(hand, history):
-    conv = {'check': 'ch', 'fold': 'f', 'call': 'c', 'raise': 'r'}, 
     repr = ''.join([x.face for x in hand])
-    history_str = ".".join([conv[i.lower()] for i in history])
+    history_str = ".".join(history)
     return '{}-{}'.format(repr, history_str)
     
 leducrules = GameRules(
     {"J": {"diamonds": 1, "hearts": 1}, "Q": {"diamonds": 2, "hearts": 2}, 
-    "K": {"diamonds": 3, "hearts": 3}}, [Round(1,2,2), Round(0,4,2)],
+    "K": {"diamonds": 3, "hearts": 3}},
+    [Round(1,2,2), Round(0,4,2)],
     1, 1, 25,
     get_representation_leduc, get_rank_leduc
     )
