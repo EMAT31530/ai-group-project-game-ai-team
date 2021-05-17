@@ -1,2 +1,0 @@
-def getRepresentation(self):
-    pass

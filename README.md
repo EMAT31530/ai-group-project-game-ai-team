@@ -6,11 +6,11 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Poker Ai via CFR</h3>
+  <h3 align="center">Poker Ai via CFRs</h3>
 
   <p align="center">
-    Employing various methods of Counterfactual Regret Minimization to generate Kuhn, Leduc, and Texas Hold'dem poker AIs. 
-    Those methods being: vanilla cfr (scalar/simultanious, vector/alternating), cfr+, the various sampling forms of mccfr (PCS, SPCS, CS), and finally outcome sampling cfr.
+    Employing various methods of Counterfactual Regret Minimization to generate Kuhn, Leduc, and HULH poker AIs. 
+    Those methods being: vanilla cfr (scalar/simultanious, vector/alternating), cfr+, the various sampling forms of mccfr (PCS, OPCS, SPCS, CS), and finally outcome sampling cfr.
     <br />
   </p>
 </p>
@@ -75,7 +75,7 @@ This is an example of how to list things you need to use the software and how to
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-If you want to run a training you do the ole 
+If you want to train an ai, first cd to the Tests folder in your terminal, then run 
 ```terminal
 python leductest.py 6 1000 0 1
 ```
@@ -83,18 +83,19 @@ or
 ```terminal
 python kuhntest.py 1 10000 0 1
 ```
-The first index specifies the method used, 1: Vanilla CFR (scalar/simultanious), 3: Outcome Sampling Cfr, 4: Chance Sampling, 5: Vanilla (vector/alternating), 6: Public CS, 8: SelfPublic CS, 9: CFR+.
-The second index is the number of iterations.
-The third index is if you want exploitability to be calculated.
-The fourth index is if you want to export the finalised strategy map to a .Json file.
+The first index specifies the method used, 1: Vanilla CFR (scalar/simultanious), 2: Outcome Sampling Cfr, 3: Chance Sampling, 4: Vanilla (vector/alternating), 5: Public CS, 6: OpponentPublic CS, 7: SelfPublic CS, 8: CFR+.
+The second index is the number of iterations performed.
+The third index is if you wish exploitability and various other metrics to be calculated.
+The fourth index is if you wish to export the trained strategy map to a .Json file, found in Trainer/Strategy.
 
-For more specifics see the various test.py files...
+For more specifics see the various ____test.py files.
 
-You can also play against the AIs by running 
+You can also play against the AIs within TerminalPlayer by first moving over a strategy to the strategy folder within TerminalPlayer then running 
 ```terminal
-python testgame.py
+python game.py k AIKuhn
 ```
-check it for choosing which gametype etc. 
+The first index specifies the type of game to play, 'k': Kuhn, 'l': Leduc. The second index is the name of the AI strategy file to use.
+For more specifics see the file.
 
 <!-- ROADMAP -->
 ## Roadmap
