@@ -29,11 +29,13 @@ class Rules:
         deck = []
         for suit in suits:
             for val in vals:
-                deck.append(val+suit)
+                deck.append(str(val)+suit)
         shuffle(deck)
         return deck
 
 
+#-------------------------------------------------------
+#STANDARD KUHN POKER
 def get_rank_kuhn(card):
     ranks = {'K': 3, 'Q': 2, 'J': 1}
     return ranks[card[0][0]]
@@ -43,10 +45,22 @@ def get_representation_kuhn(hand, history):
     history_str = "".join([conv[i] for i in history])
     return str(hand[0][0])+history_str
 
-
 KuhnRules = Rules([Round(0,1,1)], ['J','Q','K'], ['♥'], 1, 1,
     get_representation_kuhn, get_rank_kuhn)
+#-------------------------------------------------------
+#(https://www.cs.cmu.edu/~ggordon/ggordon.CMU-CALD-05-112.no-regret.pdf)
+# is a generalization of Kuhn Poker
+def get_rank_onecardpoker(card):
+    return int(card[0][:-1])
 
+def get_representation_onecardpoker(hand, history):
+    conv = {'f': 'p', 'ch': 'p', 'c': 'b', 'r': 'b'}
+    history_str = "".join([conv[i] for i in history])
+    return str(hand[0][:-1])+history_str
+
+OnecardpokerRules = Rules([Round(0,1,1)], range(100), ['♥'], 1, 1,
+    get_representation_onecardpoker, get_rank_onecardpoker)
+#-------------------------------------------------------
 
 def get_rank_leduc(cards):
     ranks = {
@@ -69,8 +83,7 @@ def get_representation_leduc(hand, history):
 LeducRules = Rules([Round(1,2,2), Round(0,4,2)],
     ['J','Q','K'], ['♥','♦'], 1, 1,
     get_representation_leduc, get_rank_leduc)
-
-
+#-------------------------------------------------------
 
 def get_rank_royal():
     pass

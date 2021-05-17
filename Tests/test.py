@@ -5,26 +5,20 @@ sys.path.append('..')
 import Trainer.vectorcfr as vec
 import Trainer.scalarcfr as scal
 from Trainer.gamestates.blankgamestate import GenericPoker
-from Trainer.gamestates.gamerules import KuhnRules
+from Trainer.gamestates.gamerules import KuhnRules, OnecardpokerRules, LeducRules, RoyalRules
 from Trainer.exploitability import Exploit_Calc, Exploit_Vec_Calc
 from modules.validation import exportJson
 
 
 def display_results(ev, node_map):
-    ranking = {'J': 1, 'Q': 2, 'K': 3}
     print('\nexpected value: {}'.format(ev))
     print('\nplayer 1 strategies:')
-    #print([i for i in node_map.items()])
-    sorted_items = sorted(node_map.items(), key=lambda x: ranking[x[0][0]])
-    for _, v in filter(lambda x: len(x[0]) % 2 == 1, sorted_items):
-        r = [round(i , 2) for i in v]
-        print('{}: {}'.format(_,r))
-    print('\nplayer 2 strategies:')
-    for _, v in filter(lambda x: len(x[0]) % 2 == 0, sorted_items):
-        r = [round(i , 2) for i in v]
-        print('{}: {}'.format(_,r))
+    for j, v in enumerate(node_map.items()):
+        if j < 10 or j > len(node_map.items()) - 10:
+            r = [round(i , 2) for i in v[1]]
+            print('{}: {}'.format(v[0],r))
 
-
+rules = OnecardpokerRules
 
 if len(sys.argv) < 2:
     type = 1
@@ -44,31 +38,31 @@ else:
     export = 1 == int(sys.argv[4])
 
 if type == 1:
-    gamestate = GenericPoker(KuhnRules)
+    gamestate = GenericPoker(rules)
     trainer = scal.VCFRTrainer(gamestate)
 if type == 2:
-    gamestate = GenericPoker(KuhnRules)
+    gamestate = GenericPoker(rules)
     trainer = scal.OutcomeSamplingCFRTrainer(gamestate)
 if type == 3:
-    gamestate = GenericPoker(KuhnRules)
+    gamestate = GenericPoker(rules)
     trainer = scal.CSCFRTrainer(gamestate)
 if type == 4:
-    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    gamestate = GenericPoker(rules, vectorised=True)
     trainer = vec.VectorAlternatingVCFR(gamestate)
 if type == 5:
-    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    gamestate = GenericPoker(rules, vectorised=True)
     trainer = vec.PublicCSCFRTrainer(gamestate)
 if type == 6:
-    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    gamestate = GenericPoker(rules, vectorised=True)
     trainer = vec.OpponentPublicCSCFRTrainer(gamestate)
 if type == 7:
-    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    gamestate = GenericPoker(rules, vectorised=True)
     trainer = vec.SelfPublicCSCFRTrainer(gamestate)
 if type == 8:
-    gamestate = GenericPoker(KuhnRules, vectorised=True)
+    gamestate = GenericPoker(rules, vectorised=True)
     trainer = vec.CFRPlusTrainer(gamestate)
 
-print('\nTraining kuhn poker via {}.'.format(trainer.__name__()))
+print('\nTraining whateva poker via {}.'.format(trainer.__name__()))
 
 if train:
     time1 = time.time()
@@ -101,14 +95,14 @@ else:
         nodes_touched.append("{:1.2e}".format(trainer.nodes_touched))
         time1 = time.time()
         
-        boel = True
+        '''boel = True
         for key in brLIN:
             if not (key in brVEC and np.array_equal(brLIN[key],brVEC[key])):
                 boel = False
         for key in brVEC:
             if not (key in brLIN and np.array_equal(brLIN[key],brVEC[key])):
                 boel = False    
-        print(boel)
+        print(boel)'''
 
 
     finalstrat = trainer.get_final_strategy()

@@ -24,7 +24,6 @@ class GenericPoker:
         else:
             self.hands = [[],[]]
         
-    
     def is_terminal(self):
         history_str = ''.join(self.history)
         fold = history_str.endswith('f')

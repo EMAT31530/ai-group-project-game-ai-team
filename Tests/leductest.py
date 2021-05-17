@@ -95,9 +95,9 @@ else:
     time1 = time.time()
     for i in range(stepnum):
         util += trainer.train(n_iterations=steps)
+        timestep.append(round(timestep[-1] + abs(time.time() - time1),2))
         exp1 = ExplCalc.compute_exploitability(trainer)[0]
         exp2 = ExplVecCalc.compute_exploitability(trainer)[0]
-        timestep.append(round(timestep[-1] + abs(time.time() - time1),2))
         exploit.append(round(exp1, 5))
         exploitvec.append(round(exp2, 5))
         nodes_touched.append("{:1.2e}".format(trainer.nodes_touched))

@@ -92,10 +92,10 @@ For more specifics see the various ____test.py files.
 
 You can also play against the AIs within TerminalPlayer by first moving over a strategy to the strategy folder within TerminalPlayer then running 
 ```terminal
-python testgame.py k AIKuhn
+python game.py k AIKuhn
 ```
-The first index specifies the game to play, 'k': Kuhn, 'l': Leduc.
-For more specifics see the various file.
+The first index specifies the type of game to play, 'k': Kuhn, 'l': Leduc. The second index is the name of the AI strategy file to use.
+For more specifics see the file.
 
 <!-- ROADMAP -->
 ## Roadmap
