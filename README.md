@@ -9,7 +9,7 @@
   <h3 align="center">Poker Ai via CFRs</h3>
 
   <p align="center">
-    Employing various methods of Counterfactual Regret Minimization to generate Kuhn, Leduc, and HULH poker AIs. 
+    Employing various methods of Counterfactual Regret Minimization to generate Kuhn, Leduc, and HULH poker AIs.
     Those methods being: vanilla cfr (scalar/simultanious, vector/alternating), cfr+, the various sampling forms of mccfr (PCS, OPCS, SPCS, CS), and finally outcome sampling cfr.
     <br />
   </p>
@@ -65,7 +65,9 @@ This is an example of how to list things you need to use the software and how to
   ```sh
   pip install terminal-playing-cards
   ```
-
+  ```sh
+  pip install -U scikit-learn
+  ```
 ### Installation
 
 1. Clone the repo
@@ -75,11 +77,11 @@ This is an example of how to list things you need to use the software and how to
 
 <!-- USAGE EXAMPLES -->
 ## Usage
-If you want to train an ai, first cd to the Tests folder in your terminal, then run 
+If you want to train an ai, first cd to the Tests folder in your terminal, then run
 ```terminal
 python leductest.py 6 1000 0 1
 ```
-or 
+or
 ```terminal
 python kuhntest.py 1 10000 0 1
 ```
@@ -90,7 +92,7 @@ The fourth index is if you wish to export the trained strategy map to a .Json fi
 
 For more specifics see the various ____test.py files.
 
-You can also play against the AIs within TerminalPlayer by first moving over a strategy to the strategy folder within TerminalPlayer then running 
+You can also play against the AIs within TerminalPlayer by first moving over a strategy to the strategy folder within TerminalPlayer then running
 ```terminal
 python game.py k AIKuhn
 ```
