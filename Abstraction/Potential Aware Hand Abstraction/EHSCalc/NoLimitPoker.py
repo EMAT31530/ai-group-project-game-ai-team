@@ -1,15 +1,15 @@
-from generic import *
 import ranking as rank
-from handleAction import *
-
+import random
 
 def build_deck():  # To build a deck, can be used to rebuild also
     cards = []
     for suit in range(4):
-        for i in range(2, 15):
+        for i in range(10, 15):
             cards.append(str(i)+'♥♦♣♠'[suit])
     random.shuffle(cards)
     return cards
+deck = build_deck()
+print(len(deck))
 
 class NoLimit(Gamestate):
     def __init__(self):

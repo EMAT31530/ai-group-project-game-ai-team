@@ -1,9 +1,14 @@
 def val(cards):
-    return [int(card[:-1]) for card in cards]
+    if type(cards) != list:
+        return int(cards[:-1])
+    else:
+        return [int(card[:-1]) for card in cards]
 
 def suit(cards):
-    return [card[-1] for card in cards]
-
+    if type(cards) != list:
+        return cards[-1]
+    else:
+        return [card[-1] for card in cards]
 
 def sort_by_key(dictionary, backwards = False): #function to sort a dictionary by key whilst preserving the dictionary
     dict_2 = {}

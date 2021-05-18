@@ -10,7 +10,7 @@ import itertools
 def build_deck():  # To build a deck, can be used to rebuild also
     cards = []
     for suit in range(4):
-        for i in range(2, 15):
+        for i in range(10, 15):
             cards.append(str(i)+'♥♦♣♠'[suit])
     return cards
 
@@ -73,5 +73,5 @@ riverget()
 
 with open('allrivers.txt', 'rb') as fp:
     allrivers = pickle.load(fp)
-
+print(len(allhands))
 # on comparison, iterate through all flops and remove any flop that contains either of the cards
