@@ -347,7 +347,7 @@ class CFRPlusTrainer(VectorAlternatingVCFR):
         super().__init__(gamestate)
         self.timestep = 0
 
-    def train(self, n_iterations=10000, d=250):
+    def train(self, n_iterations=10000, d=50):
         util = 0
         for _ in range(n_iterations):
             self.w = max(self.timestep - d, 0) #weights later strategy updates
