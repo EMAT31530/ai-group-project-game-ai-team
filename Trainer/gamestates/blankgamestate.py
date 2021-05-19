@@ -15,6 +15,7 @@ class GenericPoker:
         self.active_player = 0
         self.deck = self.rules.deck.copy()
 
+        self.pRecall = rules.pRecall
         self.vectorised = vectorised
         self.ranks_tuple = []
         if self.vectorised:
@@ -45,6 +46,9 @@ class GenericPoker:
         check = history_str.endswith('ch'*2)
         call = history_str.endswith('c')
         return call or check
+
+    def is_private_chance(self):
+        return not self.vectorised and any((len(hand)<self.rules.hand_size) for hand in self.hands)
 
     def handle_action(self, action):
         next_state = copy.deepcopy(self)
@@ -105,14 +109,19 @@ class GenericPoker:
     def get_private_chanceoutcomes(self):
         return self.deck 
 
-    def get_rank(self, hand):
+    def get_hand_rank(self, hand):
         hand_to_rank = list(hand) + self.community_cards
         return self.rules.get_rank(hand_to_rank)
 
-    def get_representation(self, hand):
-        hand_to_rrepresent = list(hand) + self.community_cards
-        return self.rules.get_representation(hand_to_rrepresent, self.history)
+    def get_player_rank(self, player):
+        return self.get_hand_rank(self.hands[player])
 
+    def get_representation(self, hand):
+        if not self.pRecall:
+            return self.rules.get_representation(list(hand), self.community_cards, self.history)
+        else:
+            return self.rules.get_representation(list(hand), self.community_cards, self.history, self.round)
+    
     def get_active_player_index(self):
         return self.active_player
 
@@ -121,6 +130,6 @@ class GenericPoker:
         self.hands = list(filter(f,self.hands))
    
     def sort_by_ranking(self):
-        g = lambda hand: [hand[0], self.get_rank(hand[1]), hand[1]]
+        g = lambda hand: [hand[0], self.get_hand_rank(hand[1]), hand[1]]
         ranking_list = list(map(g, self.hands))
         self.ranks_tuple = list(sorted(ranking_list, key=itemgetter(1)))

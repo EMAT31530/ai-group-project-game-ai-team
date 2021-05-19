@@ -51,8 +51,7 @@ class VectorAlternatingVCFR:
         f = lambda key: self.get_node(key, n_actions)
         temp_node_vec = list(map(f, keys)) 
         g = lambda x: x.get_strategy()
-        temp_strategy_vec = np.array(list(map(g, temp_node_vec))) 
-
+        temp_strategy_vec = np.array(list(map(g, temp_node_vec)))
         strategy_vec = np.zeros((self.private_states, n_actions)) 
         node_vec = [0] * self.private_states
         for Ii, indicies in enumerate(indicies_grouping):
@@ -264,7 +263,7 @@ class OpponentPublicCSCFRTrainer(PublicCSCFRTrainer):
             else:
                 return -1 * utility * rp_2
        
-        opprank = gamestate.get_rank(self.sampled_hand)
+        opprank = gamestate.get_hand_rank(self.sampled_hand)
         for index, rank, _ in gamestate.ranks_tuple:
             if rank > opprank:
                 utility[index] = payoff
@@ -330,7 +329,7 @@ class SelfPublicCSCFRTrainer(OpponentPublicCSCFRTrainer):
             return utility if player == self.current_player else -utility
 
         rp2_sum = 0
-        rank = gamestate.get_rank(self.sampled_hand)
+        rank = gamestate.get_hand_rank(self.sampled_hand)
         for index, opprank, _ in gamestate.ranks_tuple:
             if rank > opprank:
                 rp2_sum += rps_2[index]

@@ -21,8 +21,7 @@ class VCFRTrainer:
             return self.terminal_node(gamestate)
         if gamestate.is_chance(): #public chance nodes
             return self.chance_node(gamestate, rps_1, rps_2)
-        #for private chance nodes
-        if any((len(hand)<self.gamestate.rules.hand_size) for hand in gamestate.hands):
+        if gamestate.is_private_chance(): #for private chance nodes
             return self.private_chance_node(gamestate, rps_1, rps_2)
         #if gamestate.is_decision(): 
         else:
@@ -87,8 +86,8 @@ class VCFRTrainer:
             utility = payoff
             return utility
             
-        player_rank = gamestate.get_rank(gamestate.hands[player])
-        opp_rank = gamestate.get_rank(gamestate.hands[1-player])
+        player_rank = gamestate.get_player_rank(player)
+        opp_rank = gamestate.get_player_rank(1-player)
         if player_rank > opp_rank:
             return payoff
         elif player_rank < opp_rank:

@@ -6,11 +6,11 @@ import copy
 
 
 TexasRules = Rules([Round(3,2,3),Round(1,2,3),Round(1,2,3),Round(0,2,3)], 
-    range(14), ['♥','♦','♣','♠'], 2, 1,
+    range(2,15), ['♥','♦','♣','♠'], 2, 1,
     get_representation_Texas, get_ranking)
 
 
-class HULHPoker(GenericPoker):
+class HUNLHPoker(GenericPoker):
     def is_terminal(self): #btec for now
         history_str = ''.join(self.history)
         if history_str.contains('Arc'): #contains is placeholder

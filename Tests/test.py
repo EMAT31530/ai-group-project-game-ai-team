@@ -18,51 +18,59 @@ def display_results(ev, node_map):
             r = [round(i , 2) for i in v[1]]
             print('{}: {}'.format(v[0],r))
 
-rules = OnecardpokerRules
-
 if len(sys.argv) < 2:
-    type = 1
+    game_on = 'k'
 else:
-    type = int(sys.argv[1])
+    game_on = str(sys.argv[1])
 if len(sys.argv) < 3:
+    method_used = 1
+else:
+    method_used = int(sys.argv[2])
+if len(sys.argv) < 4:
     iterations = 10000
 else:
-    iterations = int(sys.argv[2])
-if len(sys.argv) < 4:
+    iterations = int(sys.argv[3])
+if len(sys.argv) < 5:
     train = True
 else:
-    train = 0 == int(sys.argv[3])
-if len(sys.argv) < 5:
+    train = 0 == int(sys.argv[4])
+if len(sys.argv) < 6:
     export = False
 else:
-    export = 1 == int(sys.argv[4])
+    export = 1 == int(sys.argv[5])
 
-if type == 1:
+if game_on == 'k':
+    rules = KuhnRules
+elif game_on == 'l':
+    rules = LeducRules
+elif game_on == 'r':
+    rules = RoyalRules
+elif game_on[0] == 'n':
+    rules = OnecardpokerRules
+
+if method_used < 4:
     gamestate = GenericPoker(rules)
+elif method_used > 3:
+    gamestate = GenericPoker(rules, vectorised=True)
+
+if method_used == 1:
     trainer = scal.VCFRTrainer(gamestate)
-if type == 2:
-    gamestate = GenericPoker(rules)
+if method_used == 2:
     trainer = scal.OutcomeSamplingCFRTrainer(gamestate)
-if type == 3:
-    gamestate = GenericPoker(rules)
+if method_used == 3:
     trainer = scal.CSCFRTrainer(gamestate)
-if type == 4:
-    gamestate = GenericPoker(rules, vectorised=True)
+if method_used == 4:
     trainer = vec.VectorAlternatingVCFR(gamestate)
-if type == 5:
-    gamestate = GenericPoker(rules, vectorised=True)
+if method_used == 5:
     trainer = vec.PublicCSCFRTrainer(gamestate)
-if type == 6:
-    gamestate = GenericPoker(rules, vectorised=True)
+if method_used == 6:
     trainer = vec.OpponentPublicCSCFRTrainer(gamestate)
-if type == 7:
-    gamestate = GenericPoker(rules, vectorised=True)
+if method_used == 7:
     trainer = vec.SelfPublicCSCFRTrainer(gamestate)
-if type == 8:
-    gamestate = GenericPoker(rules, vectorised=True)
+if method_used == 8:
     trainer = vec.CFRPlusTrainer(gamestate)
 
-print('\nTraining whateva poker via {}.'.format(trainer.__name__()))
+print('\nTraining {} poker via {}.'.format(rules.__name__,trainer.__name__()))
 
 if train:
     time1 = time.time()
@@ -79,42 +87,40 @@ else:
     timeT = time.time()
     util = 0
     exploit = []
-    exploitvec = []
     timestep = [0]
+    iter_list = []
     nodes_touched = []
-    stepnum = 10
+    stepnum = 100
     steps = int(iterations/stepnum)
     time1 = time.time()
-    for i in range(stepnum):
+    i = 0
+    exp1 = 1
+    while exp1 > 0.005:
         util += trainer.train(n_iterations=steps)
         timestep.append(round(timestep[-1] + abs(time.time() - time1),2))
-        exp1, brLIN = ExplCalc.compute_exploitability(trainer)
-        exp2, brVEC = ExplVecCalc.compute_exploitability(trainer)
+        exp1 = ExplCalc.compute_exploitability(trainer)[0]
         exploit.append(round(exp1, 5))
-        exploitvec.append(round(exp2, 5))
         nodes_touched.append("{:1.2e}".format(trainer.nodes_touched))
+        iter_list.append(steps * (i+1))
+        i+=1
         time1 = time.time()
-        
-        '''boel = True
-        for key in brLIN:
-            if not (key in brVEC and np.array_equal(brLIN[key],brVEC[key])):
-                boel = False
-        for key in brVEC:
-            if not (key in brLIN and np.array_equal(brLIN[key],brVEC[key])):
-                boel = False    
-        print(boel)'''
 
 
     finalstrat = trainer.get_final_strategy()
-    print('Completed {} iterations in {} seconds.'.format(iterations, round(abs(timeT - time.time()), 2)))
+    print('Completed {} iterations in {} seconds.'.format(iter_list[-1], round(abs(timeT - time.time()), 2)))
     print('With {} nodes.'.format(len(finalstrat)))
     display_results(util, finalstrat)
     print('expl lin: {}'.format(exploit))
-    milblinds = np.array(exploit)/0.001
+    milblinds = list(np.array(exploit)/0.001)
     #print('milblinds lin: {}'.format(milblinds))
-    print('expl vec: {}'.format(exploitvec))
-    print('touching nodes: {}'.format(nodes_touched))
-    print('time: {}'.format(timestep))
+    #print('touching nodes: {}'.format(nodes_touched))
+    #print('time: {}'.format(timestep))
 
 if export:
-    exportJson(finalstrat, 'kuhn{}-{}'.format(type, iterations))
+    #to export: finalstrat, iterations, exploit, milblinds, nodes_touched, timestep
+    timestep.remove(0)
+    
+    fat_list = [iter_list, timestep, nodes_touched, exploit, milblinds]
+
+
+    exportJson(fat_list, '{}VIA{}-{}'.format(rules.__name__,method_used, iterations))

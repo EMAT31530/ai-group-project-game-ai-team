@@ -57,8 +57,8 @@ def get_rank_leduc(cards):
 
 def get_representation_leduc(hand, history):
     repr = ''.join([x.face for x in hand])
-    history_str = ".".join(history)
-    return '{}-{}'.format(repr, history_str)
+    history_str = "".join(history)
+    return '{}|{}'.format(repr, history_str)
     
 leducrules = GameRules(
     {"J": {"diamonds": 1, "hearts": 1}, "Q": {"diamonds": 2, "hearts": 2}, 

@@ -10,7 +10,7 @@ def checkJson(filename):
 
 def exportJson(dict, filename = ''):
     filename = checkJson(filename)
-    json.dump(dict, open('strategies/'+filename, 'w'))
+    json.dump(dict, open(filename, 'w'))
 
 def importJson(filename = ''):
     filename = checkJson(filename)

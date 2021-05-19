@@ -1,11 +1,11 @@
 def val(cards):
-    if cards.istype != list:
+    if type(cards) != list:
         return int(cards[:-1])
     else:
         return [int(card[:-1]) for card in cards]
 
 def suit(cards):
-    if cards.istype != list:
+    if type(cards) != list:
         return cards[-1]
     else:
         return [card[-1] for card in cards]
@@ -41,10 +41,11 @@ def num_same(hand):  # returns a dictionary with keys as the card numbers and va
 def num_suit(hand):  # same as above but with keys as card suits and values as number of cards of that suit
     card_suits = {}
     for card in hand:
-        if suit(card) in card_suits:
-            card_suits[suit(card)] += 1
+        suiti = suit(card)
+        if suiti in card_suits:
+            card_suits[suiti] += 1
         else:
-            card_suits[suit(card)] = 1
+            card_suits[suiti] = 1
     return sort_by_value(card_suits, True)
 
 
@@ -52,10 +53,10 @@ def consecutive(hand):
     num_dict = num_same(hand)
 
     def straight_check(cards):
-        a = val(cards[0])
-        return val(cards) == [a, a + 1, a + 2, a + 3, a + 4]
+        a = cards[0]
+        return cards == [a, a + 1, a + 2, a + 3, a + 4]
     def low_check(cards): #forgot about the possibility of an ace, 2, 3, 4, 5 straight
-        return val(cards[:4]) == [2, 3, 4, 5]
+        return cards[:4] == [2, 3, 4, 5]
     n = len(num_dict) #straights are only possible for 5+ distinct cards so we check the length first
     if n < 5:
         return False #not yet 100% certain what outputs should be but will use False here for now
@@ -65,7 +66,7 @@ def consecutive(hand):
             return [consec_cards[-5]] #straight can be defined by its bottom card
         else:
             if n == 5:
-                if low_check(consec_cards) and 14 in val(consec_cards):
+                if low_check(consec_cards) and 14 in consec_cards:
                     return [1] #low straight
                 else:
                     return False #if there were only five distinct cards then they now cannot have been a straight
@@ -114,7 +115,7 @@ def straight_flush(card_suits, consec_cards, hand): #all the following functions
         suit_hand = [] #create a pseudo hand of all the cards of the main suit and then call the straight fu
         suit = list(card_suits.keys())[0]
         for card in hand:
-            if suit(card) == suit:
+            if card == suit:
                 suit_hand.append(card)
         return 9, consecutive(suit_hand) #return top card for easier comparison
         #also removed suit in return since it is unhelpful in the comparison but can be added back in if wanted
@@ -155,7 +156,7 @@ def flush(card_suits, hand):
         suit_hand = [] #create a pseudo hand of all the cards of the main suit and then call the straight fu
         suit = list(card_suits.keys())[0]
         for card in hand:
-            if suit(card) == suit:
+            if card == suit:
                 suit_hand.append(card)
         return 6, high_card(num_same(suit_hand))
     #removed suit as in straight flush
@@ -221,8 +222,7 @@ def pair(card_nums, keys, vals):
             return 2, [keys[0]] + high_card(card_nums, 3)
 
 
-def get_ranking(player_hand, board):
-    hand = player_hand if len(board) < 1 else player_hand + board
+def get_ranking(hand):
     card_suits = num_suit(hand)
     consec_cards = consecutive(hand)
     card_nums = num_same(hand)
