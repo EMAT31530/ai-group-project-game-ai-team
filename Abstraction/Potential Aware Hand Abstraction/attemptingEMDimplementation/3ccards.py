@@ -1,5 +1,5 @@
 """ Script that drives the cluster algorithm for 2 hands and 3 public
-
+taken from https://github.com/ChengTsang/Potential-Aware-Abstraction-In-Texas-Hold-em-Poker/tree/master/data
 """
 import numpy
 #matplotlib.use('GTKAgg') # For linux gtk
